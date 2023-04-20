@@ -1,0 +1,6 @@
+framework module whisperxx {
+  umbrella header "whisperxx.h"
+
+  export *
+  module * { export * }
+}

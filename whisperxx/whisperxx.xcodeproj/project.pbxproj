@@ -1,0 +1,381 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7BD8D8E429F0E37200ABFBC9 /* whisperxx.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7BD8D8EE29F0E39600ABFBC9 /* ggml.c in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8EA29F0E39600ABFBC9 /* ggml.c */; settings = {COMPILER_FLAGS = "-DGGML_USE_ACCELERATE"; }; };
+		7BD8D8EF29F0E39600ABFBC9 /* whisper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */; };
+		7BD8D8F029F0E39600ABFBC9 /* ggml.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8EC29F0E39600ABFBC9 /* ggml.h */; };
+		7BD8D8F129F0E39600ABFBC9 /* whisper.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8ED29F0E39600ABFBC9 /* whisper.h */; };
+		7BD8D8FA29F0E9E800ABFBC9 /* whisperxx.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7BD8D8E029F0E37200ABFBC9 /* whisperxx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = whisperxx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = whisperxx.h; sourceTree = "<group>"; };
+		7BD8D8EA29F0E39600ABFBC9 /* ggml.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ggml.c; sourceTree = "<group>"; };
+		7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = whisper.cpp; sourceTree = "<group>"; };
+		7BD8D8EC29F0E39600ABFBC9 /* ggml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ggml.h; sourceTree = "<group>"; };
+		7BD8D8ED29F0E39600ABFBC9 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
+		7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = whisperxx.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7BD8D8DD29F0E37200ABFBC9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7BD8D8D629F0E37200ABFBC9 = {
+			isa = PBXGroup;
+			children = (
+				7BD8D8E229F0E37200ABFBC9 /* whisperxx */,
+				7BD8D8E129F0E37200ABFBC9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7BD8D8E129F0E37200ABFBC9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7BD8D8E029F0E37200ABFBC9 /* whisperxx.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7BD8D8E229F0E37200ABFBC9 /* whisperxx */ = {
+			isa = PBXGroup;
+			children = (
+				7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */,
+				7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */,
+				7BD8D8EA29F0E39600ABFBC9 /* ggml.c */,
+				7BD8D8EC29F0E39600ABFBC9 /* ggml.h */,
+				7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */,
+				7BD8D8ED29F0E39600ABFBC9 /* whisper.h */,
+			);
+			path = whisperxx;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		7BD8D8DB29F0E37200ABFBC9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7BD8D8E429F0E37200ABFBC9 /* whisperxx.h in Headers */,
+				7BD8D8F029F0E39600ABFBC9 /* ggml.h in Headers */,
+				7BD8D8F129F0E39600ABFBC9 /* whisper.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		7BD8D8DF29F0E37200ABFBC9 /* whisperxx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7BD8D8E729F0E37200ABFBC9 /* Build configuration list for PBXNativeTarget "whisperxx" */;
+			buildPhases = (
+				7BD8D8DB29F0E37200ABFBC9 /* Headers */,
+				7BD8D8DC29F0E37200ABFBC9 /* Sources */,
+				7BD8D8DD29F0E37200ABFBC9 /* Frameworks */,
+				7BD8D8DE29F0E37200ABFBC9 /* Resources */,
+				7BD8D8F529F0E7B300ABFBC9 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = whisperxx;
+			productName = whisperxx;
+			productReference = 7BD8D8E029F0E37200ABFBC9 /* whisperxx.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7BD8D8D729F0E37200ABFBC9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					7BD8D8DF29F0E37200ABFBC9 = {
+						CreatedOnToolsVersion = 14.2;
+					};
+				};
+			};
+			buildConfigurationList = 7BD8D8DA29F0E37200ABFBC9 /* Build configuration list for PBXProject "whisperxx" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7BD8D8D629F0E37200ABFBC9;
+			productRefGroup = 7BD8D8E129F0E37200ABFBC9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7BD8D8DF29F0E37200ABFBC9 /* whisperxx */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7BD8D8DE29F0E37200ABFBC9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7BD8D8F529F0E7B300ABFBC9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/sh\n\n# 1. 定义要编译的 Framework 名称\nFRAMEWORK_NAME=\"whisperxx\"\n\necho \"BUILT_PRODUCTS_DIR：${BUILT_PRODUCTS_DIR}\"\necho \"SRCROOT：${SRCROOT}\"\n\n# 3. 定义 Framework 输出路径whisperxx.framework\nFRAMEWORK_PATH=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORK_NAME}.framework\"\n\n# 4. 定义 Framework 拷贝路径\nCOPY_PATH=\"${SRCROOT}/../WhisperDiarization/Frameworks/${FRAMEWORK_NAME}.framework\"\n\n# 5. 清空 Framework 拷贝路径\nrm -rf \"${COPY_PATH}\"\n\n# 6. 拷贝 Framework\ncp -R \"${FRAMEWORK_PATH}\" \"${COPY_PATH}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7BD8D8DC29F0E37200ABFBC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7BD8D8EF29F0E39600ABFBC9 /* whisper.cpp in Sources */,
+				7BD8D8EE29F0E39600ABFBC9 /* ggml.c in Sources */,
+				7BD8D8FA29F0E9E800ABFBC9 /* whisperxx.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7BD8D8E529F0E37200ABFBC9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		7BD8D8E629F0E37200ABFBC9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		7BD8D8E829F0E37200ABFBC9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = JPZNX349UH;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_CFLAGS = (
+					"-O3",
+					"-DNDEBUG",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newworld.whisperxx;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7BD8D8E929F0E37200ABFBC9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = JPZNX349UH;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_CFLAGS = (
+					"-O3",
+					"-DNDEBUG",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newworld.whisperxx;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7BD8D8DA29F0E37200ABFBC9 /* Build configuration list for PBXProject "whisperxx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BD8D8E529F0E37200ABFBC9 /* Debug */,
+				7BD8D8E629F0E37200ABFBC9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7BD8D8E729F0E37200ABFBC9 /* Build configuration list for PBXNativeTarget "whisperxx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BD8D8E829F0E37200ABFBC9 /* Debug */,
+				7BD8D8E929F0E37200ABFBC9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7BD8D8D729F0E37200ABFBC9 /* Project object */;
+}

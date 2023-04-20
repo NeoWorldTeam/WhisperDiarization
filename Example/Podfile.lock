@@ -1,0 +1,16 @@
+PODS:
+  - WhisperDiarization (0.1.0)
+
+DEPENDENCIES:
+  - WhisperDiarization (from `../`)
+
+EXTERNAL SOURCES:
+  WhisperDiarization:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  WhisperDiarization: d042e23eec972427103e096e587183653aea52c9
+
+PODFILE CHECKSUM: e0d83f28284f59729b779f796e8816138548ab14
+
+COCOAPODS: 1.11.3
