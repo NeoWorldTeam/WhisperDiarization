@@ -10,21 +10,41 @@ public enum WhisperError: Error {
 
 
 public struct TranscriptSegment : Codable {
-    public var label = 0
-    public var speech = ""
-    public var startTimeStamp:Int64 = 0
-    public var endTimeStamp:Int64 = 0
-    public var features:[Float] = Array<Float>(repeating: 0.0, count: 192)
+    public var label:Int
+    public var speech:String
+    public var startTimeStamp:Int64
+    public var endTimeStamp:Int64
+    public var features:[Float]
+    public init() {
+        label = 0
+        speech = ""
+        startTimeStamp = 0
+        endTimeStamp = 0
+        features = Array<Float>(repeating: 0.0, count: 192)
+    }
+    
+    public init(label:Int,speech:String,startTimeStamp:Int64,endTimeStamp:Int64,features:[Float]) throws {
+        self.label = label
+        self.speech = speech
+        self.startTimeStamp = startTimeStamp
+        self.endTimeStamp = endTimeStamp
+        self.features = features
+    }
 }
 
 public struct TranscriptResult : Codable {
     public var speechs: [TranscriptSegment] = []
+    init() {}
 }
 
 public class WhisperDiarization {
     let _queue: DispatchQueue
     var _whisper: WhisperWrapper?
     var _isTranscripting: Bool = false
+    
+    var _cacheBuffer: AVAudioPCMBuffer?
+    
+    var  _callBack: TranscriptCallBack?
     public init() {
         _queue = DispatchQueue(label: "WhisperDiarization")
         
@@ -163,6 +183,51 @@ public extension WhisperDiarization {
             let result = self?._transcript(samples: samples, numSamples: numSamples)
             self?._isTranscripting = false
             callBack(result, nil)
+        }
+    }
+    
+    
+    func transcript(audioPCMBuffer: AVAudioPCMBuffer, callBack: TranscriptCallBack?) {
+        guard let callBack = callBack else {
+            return
+        }
+        
+        guard _isTranscripting == false else {
+            callBack(nil, WhisperError.error(message: "transcripting"))
+            return
+        }
+        _isTranscripting = true
+        
+        _cacheBuffer = audioPCMBuffer
+        _callBack = callBack
+
+        
+        _queue.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            guard let cacheBuffer = self._cacheBuffer else {
+                self._cacheBuffer = nil
+                self._callBack = nil
+                self._isTranscripting = false
+                return
+            }
+            
+            guard let cacheBuffer = self._cacheBuffer else {
+                return
+            }
+            
+            let floatChannelData = cacheBuffer.floatChannelData!
+            let samples = UnsafePointer<Float>(floatChannelData[0])
+            let numSamples = Int(cacheBuffer.frameLength)
+                  
+            let result = self._transcript(samples: samples, numSamples: numSamples)
+            
+            self._cacheBuffer = nil
+            self._callBack?(result, nil)
+            self._callBack = nil
+            self._isTranscripting = false
         }
     }
     

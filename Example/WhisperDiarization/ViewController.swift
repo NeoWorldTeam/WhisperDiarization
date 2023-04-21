@@ -22,10 +22,10 @@ class ViewController: UIViewController {
     
     @objc
     func clickTest(sender: Any) {
-        let filePath = Bundle.main.path(forResource: "samplezh", ofType: "wav")!
+        let filePath = Bundle.main.path(forResource: "output29", ofType: "wav")!
         let file = try! AVAudioFile(forReading: URL(fileURLWithPath: filePath))
         let format = file.processingFormat
-        
+        print("format: \(format)")
         let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(file.length))!
         try! file.read(into: buffer)
         cacheBuffer = buffer

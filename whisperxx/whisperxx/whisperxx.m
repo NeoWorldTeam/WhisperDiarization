@@ -51,9 +51,9 @@
     params.print_realtime   = false;
     params.print_progress   = false;
     params.print_timestamps = true;
-    params.print_special    = true;
+    params.print_special    = false;
     params.translate        = false;
-    params.language         = "zh";
+    params.language         = "en";
     params.n_threads        = max_threads;
     params.offset_ms        = 0;
     params.no_context       = true;
