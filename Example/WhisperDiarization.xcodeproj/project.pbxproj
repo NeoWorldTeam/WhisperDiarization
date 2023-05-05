@@ -354,13 +354,11 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/Silero-VAD-for-iOS/Silero_VAD_for_iOS.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/SpeakerEmbeddingForiOS/SpeakerEmbedding.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WhisperDiarization/WhisperDiarization.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Silero_VAD_for_iOS.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SpeakerEmbedding.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WhisperDiarization.bundle",
 			);

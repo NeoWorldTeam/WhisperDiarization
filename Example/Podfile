@@ -9,7 +9,6 @@ platform :ios, '13.0'
 
 target 'WhisperDiarization_Example' do
   pod 'WhisperDiarization', :path => '../'
-  pod 'Silero-VAD-for-iOS'
   pod 'SpeakerEmbeddingForiOS'
   
   
