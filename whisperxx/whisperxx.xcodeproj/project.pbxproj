@@ -158,7 +158,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# 1. 定义要编译的 Framework 名称\nFRAMEWORK_NAME=\"whisperxx2\"\n\necho \"BUILT_PRODUCTS_DIR：${BUILT_PRODUCTS_DIR}\"\necho \"SRCROOT：${SRCROOT}\"\n\n# 3. 定义 Framework 输出路径whisperxx.framework\nFRAMEWORK_PATH=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORK_NAME}.framework\"\n\n# 4. 定义 Framework 拷贝路径\nCOPY_PATH=\"${SRCROOT}/../WhisperDiarization/Frameworks/${FRAMEWORK_NAME}.framework\"\n\n# 5. 清空 Framework 拷贝路径\nrm -rf \"${COPY_PATH}\"\n\n# 6. 拷贝 Framework\ncp -R \"${FRAMEWORK_PATH}\" \"${COPY_PATH}\"\n";
+			shellScript = "
+";
 		};
 /* End PBXShellScriptBuildPhase section */
 

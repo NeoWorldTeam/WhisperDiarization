@@ -7,7 +7,6 @@
 
 import Foundation
 import AVFAudio
-import Silero_VAD_for_iOS
 import SpeakerEmbeddingForiOS
 
 
