@@ -21,11 +21,11 @@ Pod::Spec.new do |s|
 TODO: Add long description of the pod here.
                        DESC
 
-  s.homepage         = 'https://github.com/fuhao/WhisperDiarization'
+  s.homepage         = 'https://github.com/NeoWorldTeam/WhisperDiarization'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'fuhao' => 'fangshiyu2@gmail.com' }
-  s.source           = { :git => 'https://github.com/fuhao/WhisperDiarization.git', :tag => s.version.to_s }
+  s.source           = { :git => 'git@github.com:NeoWorldTeam/WhisperDiarization.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '13.0'
