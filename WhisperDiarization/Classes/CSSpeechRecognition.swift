@@ -388,6 +388,13 @@ public class CSSpeechRecognition {
                 }
             }
             speechsCache.append(contentsOf: speechs)
+            
+            //clean cache
+            guard let lastAudioSegment = separateAudioSegment.last else {
+                return
+            }
+            let lastAduioSegEndBytes = min(bufferByteSize, lastAudioSegment.end * MemoryLayout<Float>.size)
+            cacheAudioData.removeSubrange(0..<lastAduioSegEndBytes)
         }
     }
     

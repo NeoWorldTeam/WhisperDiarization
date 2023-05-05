@@ -4,8 +4,8 @@ PODS:
     - onnxruntime-objc/Core (= 1.14.0)
   - onnxruntime-objc/Core (1.14.0):
     - onnxruntime-c (= 1.14.0)
-  - Silero-VAD-for-iOS (0.1.0):
-    - onnxruntime-objc
+  - Silero-VAD-for-iOS (0.1.3):
+    - onnxruntime-c
   - SpeakerEmbeddingForiOS (0.1.0):
     - onnxruntime-objc
   - WhisperDiarization (0.1.0):
@@ -13,30 +13,29 @@ PODS:
     - SpeakerEmbeddingForiOS
 
 DEPENDENCIES:
-  - Silero-VAD-for-iOS (from `../../Silero-VAD-for-iOS`)
-  - SpeakerEmbeddingForiOS (from `../../SpeakerEmbeddingForiOS`)
+  - Silero-VAD-for-iOS
+  - SpeakerEmbeddingForiOS
   - WhisperDiarization (from `../`)
 
 SPEC REPOS:
-  trunk:
+  "git@github.com:NeoWorldTeam/ComeSocialSpecs.git":
+    - Silero-VAD-for-iOS
+    - SpeakerEmbeddingForiOS
+  https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
     - onnxruntime-c
     - onnxruntime-objc
 
 EXTERNAL SOURCES:
-  Silero-VAD-for-iOS:
-    :path: "../../Silero-VAD-for-iOS"
-  SpeakerEmbeddingForiOS:
-    :path: "../../SpeakerEmbeddingForiOS"
   WhisperDiarization:
     :path: "../"
 
 SPEC CHECKSUMS:
   onnxruntime-c: 1f5923e555122d12239a1173229d6c5e8a0afd3e
   onnxruntime-objc: d4542b141e06b3ecb98b36f226ef47db0d9add36
-  Silero-VAD-for-iOS: fb19a6a5e39b127958b54499dbdf9a524e2c75b8
-  SpeakerEmbeddingForiOS: 7d8d8ef68bc6cf2eed69b8e9149dc4a7705e6c73
+  Silero-VAD-for-iOS: 3c0be1b72b18b63352bc2fb8e26adb9cf4d905c3
+  SpeakerEmbeddingForiOS: 90a1093ec066ff8b82f3959ebef49f53cec2bf0b
   WhisperDiarization: 1abacbeb2514bd97ed932c54a06b2e67074927d6
 
-PODFILE CHECKSUM: 5783cab12aa9c508af1c6ef729235152ed2b8eff
+PODFILE CHECKSUM: a92f189590c73d5c6c029a34f54cf44bd60bef05
 
 COCOAPODS: 1.11.3

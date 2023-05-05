@@ -1,10 +1,18 @@
+source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+source 'git@github.com:NeoWorldTeam/ComeSocialSpecs.git'
+
+
+
 use_frameworks!
 
 platform :ios, '13.0'
 
 target 'WhisperDiarization_Example' do
   pod 'WhisperDiarization', :path => '../'
-
+  pod 'Silero-VAD-for-iOS'
+  pod 'SpeakerEmbeddingForiOS'
+  
+  
   target 'WhisperDiarization_Tests' do
     inherit! :search_paths
 
