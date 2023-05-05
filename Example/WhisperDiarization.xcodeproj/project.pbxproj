@@ -36,7 +36,7 @@
 		06258C62BC491C3771217A72 /* Pods-WhisperDiarization_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperDiarization_Tests.debug.xcconfig"; path = "Target Support Files/Pods-WhisperDiarization_Tests/Pods-WhisperDiarization_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		06995D932506B3EE84A1CEA3 /* Pods-WhisperDiarization_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperDiarization_Example.debug.xcconfig"; path = "Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		1DBBD2BDAA397AD6ADAEF6DE /* Pods-WhisperDiarization_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperDiarization_Tests.release.xcconfig"; path = "Target Support Files/Pods-WhisperDiarization_Tests/Pods-WhisperDiarization_Tests.release.xcconfig"; sourceTree = "<group>"; };
-		2C5B97A6417B3454DA2C7EC8 /* WhisperDiarization.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = WhisperDiarization.podspec; path = ../WhisperDiarization.podspec; sourceTree = "<group>"; };
+		2C5B97A6417B3454DA2C7EC8 /* WhisperDiarization.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = WhisperDiarization.podspec; path = ../WhisperDiarization.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		341E927821A7441C7FA7B97A /* Pods_WhisperDiarization_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhisperDiarization_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		55F893BACE54129E74395071 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* WhisperDiarization_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhisperDiarization_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -186,6 +186,7 @@
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
 				ACFF26C0EFCB89E06642241C /* [CP] Embed Pods Frameworks */,
+				E2769E038ABB6100988FE5AB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -314,12 +315,10 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example-frameworks.sh",
 				"${PODS_ROOT}/../../WhisperDiarization/Frameworks/whisperxx.framework",
-				"${BUILT_PRODUCTS_DIR}/WhisperDiarization/WhisperDiarization.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/whisperxx.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WhisperDiarization.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -346,6 +345,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E2769E038ABB6100988FE5AB /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/Silero-VAD-for-iOS/Silero_VAD_for_iOS.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/SpeakerEmbeddingForiOS/SpeakerEmbedding.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WhisperDiarization/WhisperDiarization.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Silero_VAD_for_iOS.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SpeakerEmbedding.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WhisperDiarization.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
