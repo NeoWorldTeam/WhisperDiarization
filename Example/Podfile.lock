@@ -6,7 +6,7 @@ PODS:
     - onnxruntime-c (= 1.14.0)
   - SpeakerEmbeddingForiOS (0.1.0):
     - onnxruntime-objc
-  - WhisperDiarization (0.1.3):
+  - WhisperDiarization (0.1.5):
     - SpeakerEmbeddingForiOS
 
 DEPENDENCIES:
@@ -28,7 +28,7 @@ SPEC CHECKSUMS:
   onnxruntime-c: 1f5923e555122d12239a1173229d6c5e8a0afd3e
   onnxruntime-objc: d4542b141e06b3ecb98b36f226ef47db0d9add36
   SpeakerEmbeddingForiOS: 90a1093ec066ff8b82f3959ebef49f53cec2bf0b
-  WhisperDiarization: 3009921ac1d8503f7b4944ebf8e07fa21f94f5e9
+  WhisperDiarization: db63d843370e2e4ba9768c3ad90b0b232afbd4ef
 
 PODFILE CHECKSUM: 6d57e616dab6cef5944bac2dd1f42243f739ab8e
 
