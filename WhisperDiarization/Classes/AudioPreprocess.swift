@@ -120,9 +120,7 @@ class AudioPreprocess {
 
         _queue.async(flags: .barrier) {
             while self.bufferCaches.count >= self.maxItemCount {
-                self._queue.sync {
-                    print("生产者队列已满，等待消费者")
-                }
+                print("生产者队列已满，等待消费者")
                 sleep(1)
             }
             

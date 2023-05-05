@@ -131,32 +131,6 @@ public class CSSpeechRecognition {
             return []
         }
         return result
-        
-//        let segments = divideIntoSegments(cacheAudioData.count, step: 512 * MemoryLayout<Float>.size)
-//        print("MemoryLayout<Float>.stride: \(MemoryLayout<Float>.stride), MemoryLayout<Float>.size:\(MemoryLayout<Float>.size)")
-//
-//
-//        let audioSegment = segments.map { (start: Int, count: Int) in
-//            let audioFrameCount = UInt32(count) / processFormat.streamDescription.pointee.mBytesPerFrame
-//            guard let pcmBuffer = AVAudioPCMBuffer(pcmFormat: processFormat, frameCapacity: audioFrameCount) else {
-//                fatalError("Unable to create PCM buffer")
-//            }
-//            pcmBuffer.frameLength = audioFrameCount
-//
-//            let pcmFloatPointer: UnsafeMutablePointer<Float> = pcmBuffer.floatChannelData![0]
-//            let pcmRawPointer = pcmFloatPointer.withMemoryRebound(to: UInt8.self, capacity: count) {
-//                return UnsafeMutableRawPointer($0)
-//            }
-//
-//            cacheAudioData.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-//                let ppp = bytes.baseAddress?.advanced(by: start)
-//                pcmRawPointer.copyMemory(from: ppp!, byteCount: count)
-//            }
-//
-//            return pcmBuffer
-//        }
-
-        
     }
     
     struct AudioSegment {
@@ -261,9 +235,11 @@ public class CSSpeechRecognition {
         assert(clusterLabels.count == segments.count)
 
         var newSegments = [AudioCombianEmbedsSegment]()
-        if let firstSeg = segments.first {
-            newSegments.append(AudioCombianEmbedsSegment(embeding: firstSeg.embeding, start: firstSeg.start, end: firstSeg.end, label: clusterLabels[0]))
+        guard let firstSeg = segments.first else {
+            return newSegments
         }
+        newSegments.append(AudioCombianEmbedsSegment(embeding: firstSeg.embeding, start: firstSeg.start, end: firstSeg.end, label: clusterLabels[0]))
+        
         
 
         for i in 1..<segments.count {
@@ -301,9 +277,10 @@ public class CSSpeechRecognition {
     
     func _joinSamespeakerSegments(_ segments: [AudioCombianEmbedsSegment], silenceTolerance: Double = 0.2) -> [AudioCombianEmbedsSegment] {
         var newSegments: [AudioCombianEmbedsSegment] = []
-        if let firstItem = segments.first {
-            newSegments.append(firstItem)
+        guard let firstItem = segments.first else {
+            return newSegments
         }
+        newSegments.append(firstItem)
         let silenceToleranceSize = Int(silenceTolerance * 16000)
 
         for i in 1..<segments.count {
@@ -341,6 +318,7 @@ public class CSSpeechRecognition {
             floatChannel[0].withMemoryRebound(to: UInt8.self, capacity: bufferByteSize) { pointer in
                 cacheAudioData.append(pointer, count: bufferByteSize)
             }
+        
 
             let vadResults = _vadHandle()
             
@@ -391,6 +369,7 @@ public class CSSpeechRecognition {
             
             //clean cache
             guard let lastAudioSegment = separateAudioSegment.last else {
+                cacheAudioData.removeAll()
                 return
             }
             let lastAduioSegEndBytes = min(bufferByteSize, lastAudioSegment.end * MemoryLayout<Float>.size)
