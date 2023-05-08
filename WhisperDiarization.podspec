@@ -30,7 +30,10 @@ TODO: Add long description of the pod here.
 
   s.ios.deployment_target = '13.0'
 
-  s.source_files = 'WhisperDiarization/Classes/**/*.{swift,cpp,c,h}'
+  s.source_files = 'WhisperDiarization/Classes/**/*.{c,cpp,swift,m,mm,h}'
+  
+  
+#  s.public_header_files = 'WhisperDiarization/Classes/algorithm/clustering/AggClusteringWrapper.h'
   
   s.vendored_frameworks = 'WhisperDiarization/Frameworks/**/*.framework'
   s.static_framework = true

@@ -200,34 +200,31 @@ public class CSSpeechRecognition {
     }
     
     func _analyzeSpeaker(features: [[Float]]) -> (Int, [Int]) {
-//        guard features.count > 0 else {
-//            return (0, [])
-//        }
-//
-//        guard features.count > 1 else {
-//            return (1, [0])
-//        }
-//
-//
-//        let mormalFeatureDis = MLTools.pairwise_distances(features)
-//
-//        var speakersNumScore:[Float] = []
-//        var speakersLabels:[[Int]] = []
-//
-//        for k in 2...5 {
-//            let labels = MLTools.agglomerativeClustering(mormalFeatureDis, k)
-//            let score = MLTools.silhouetteScore(mormalFeatureDis, labels)
-//            speakersNumScore.append(score)
-//            speakersLabels.append(labels)
-//        }
-//
-//        let maxIndex = speakersNumScore.enumerated().max { $0.1 < $1.1 }?.0
-//        guard let index = maxIndex else {
-//            return (0, [])
-//        }
-//
-//        return (index+2, speakersLabels[index])
-        return (1, [Int](repeating: 0, count: features.count))
+        guard features.count > 0 else {
+            return (0, [])
+        }
+
+        guard features.count > 1 else {
+            return (1, [0])
+        }
+
+
+        let mormalFeatureDis = MLTools.pairwise_distances(features)
+        var lastetScore:Float = 0
+        var lastLabels:[Int] = []
+        for k in 2...5 {
+            let labels = MLTools.agglomerativeClustering(mormalFeatureDis, k)
+            let score = MLTools.silhouetteScore(mormalFeatureDis, labels, k)
+            if lastetScore > score {
+                break
+            }
+            
+            lastetScore = score
+            lastLabels = labels
+        }
+
+        let speakersCount = Set(lastLabels).count
+        return (speakersCount, lastLabels)
     }
     
     func _joinSegments(clusterLabels: [Int], segments: [AudioEmbedsSegment], tolerance: Int = 5) -> [AudioCombianEmbedsSegment] {
@@ -296,6 +293,33 @@ public class CSSpeechRecognition {
         }
         return newSegments
     }
+    
+    func test_SaveToWav(data: Data, index: Int) {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsDirectory.appendingPathComponent("audio_" + String(index) + ".wav")
+
+        // 创建AVAudioFile
+        let audioFile = try! AVAudioFile(forWriting: fileURL, settings: [
+            AVFormatIDKey: Int(kAudioFormatLinearPCM),
+            AVSampleRateKey: 16000,
+            AVNumberOfChannelsKey: 1,
+            AVLinearPCMBitDepthKey: 32,
+            AVLinearPCMIsBigEndianKey: false,
+            AVLinearPCMIsFloatKey: true
+        ])
+
+        // 写入音频数据
+        let audioBuffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: UInt32(data.count) / audioFile.processingFormat.streamDescription.pointee.mBytesPerFrame)!
+        audioBuffer.frameLength = audioBuffer.frameCapacity
+        let audioBufferData = audioBuffer.floatChannelData![0]
+        audioBufferData.withMemoryRebound(to: UInt8.self, capacity: data.count) { pointer in
+            data.copyBytes(to: pointer, count: data.count)
+        }
+
+        try! audioFile.write(from: audioBuffer)
+
+        print("文件已经保存到：\(fileURL)")
+    }
 
     
     func _run() {
@@ -318,11 +342,9 @@ public class CSSpeechRecognition {
                 cacheAudioData.append(pointer, count: bufferByteSize)
             }
         
-
+            // vad
             let vadResults = _vadHandle()
-            
             let audioSegments = vadResults.map { result in
-                
                 let startIndex = result.start * MemoryLayout<Float>.size
                 let endIndex = result.end * MemoryLayout<Float>.size
                 
@@ -331,6 +353,40 @@ public class CSSpeechRecognition {
                 let audioSegment = cacheAudioData.subdata(in: startIndex..<endIndex)
                 return AudioSegment(data: audioSegment, start: result.start, end: result.end)
             }
+            
+            //transcript
+            for segment in separateAudioSegment {
+                let startIndex = segment.start * MemoryLayout<Float>.size
+                let endIndex = segment.end * MemoryLayout<Float>.size
+                let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
+                
+                test_SaveToWav(data: segmentData, index: test_index)
+                test_index+=1
+
+                let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
+                speechTranscripts.forEach { transcriptSeg in
+                    //TODO: 计算正确的时间戳
+                    let speechItemStartTimeStamp = Int64((transcriptSeg.start + segment.start) / 16)
+                    let speechItemEndTimeStamp = Int64((transcriptSeg.end + segment.start) / 16)
+                    let startTimeStamp =  segmentTimeStamp + speechItemStartTimeStamp
+                    let endTimeStamp = segmentTimeStamp + speechItemEndTimeStamp
+                    
+                    let transcript = TranscriptItem(label: segment.label, speech: transcriptSeg.speech,startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp, features: segment.embeding)
+                    print("识别语音:\(transcript.speech), 时间: \(Date(timeIntervalSince1970: (TimeInterval(startTimeStamp) * 0.001)).description)")
+                    speechs.append(transcript)
+                }
+            }
+            
+            
+            
+//            var test_vad_Index = 100
+//            audioSegments.forEach { segment in
+//                test_SaveToWav(data: segment.data, index: test_vad_Index)
+//                test_vad_Index += 1
+//            }
+            
+            
+            
             
             let featuresSegments = _featuresHandle(audioSegments: audioSegments)
             
@@ -345,11 +401,15 @@ public class CSSpeechRecognition {
             let separateAudioSegment = _joinSamespeakerSegments(joinAudioSegment)
             
             //识别内容
+            var test_index = 0
             var speechs: [TranscriptItem] = []
             for segment in separateAudioSegment {
                 let startIndex = segment.start * MemoryLayout<Float>.size
                 let endIndex = segment.end * MemoryLayout<Float>.size
                 let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
+                
+//                test_SaveToWav(data: segmentData, index: test_index)
+//                test_index+=1
 
                 let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
                 speechTranscripts.forEach { transcriptSeg in
@@ -399,4 +459,48 @@ public extension CSSpeechRecognition {
         
         return pullSpeechs
     }
+    
+    
+//    ClusterA,ClusterB,0.56
+//    ClusterA,ClusterC,0.32
+//    ClusterA,ClusterD,0.51
+//    ClusterA,ClusterE,0.12
+//    ClusterB,ClusterC,0.56
+//    ClusterB,ClusterD,0.32
+//    ClusterB,ClusterE,0.64
+//    ClusterC,ClusterD,0.21
+//    ClusterC,ClusterE,0.18
+//    ClusterE,ClusterD,0.51
+
+    
+//    func test() -> Bool {
+//        let xxx = AggClusteringWrapper()
+//        var testData:[[Float]] = [  [0, 0.56,   0.32,   0.51,   0.12],
+//                                    [0.56, 0,   0.56,   0.32,   0.64],
+//                                    [0.32, 0.56,   0,   0.21,   0.18],
+//                                    [0.51, 0.32,   0.21,   0,   0.51],
+//                                    [0.12, 0.64,   0.18,   0.51,   0],]
+//        var flagTestData = Array<Float>(testData.joined())
+//        var labels = [Int32](repeating: 0, count: 5)
+//        
+//        
+//        flagTestData.withUnsafeMutableBufferPointer({ (cccc:inout UnsafeMutableBufferPointer<Float>) in
+//            var dataPtr = cccc.baseAddress
+//            labels.withUnsafeMutableBufferPointer { (dddd:inout UnsafeMutableBufferPointer<Int32>) in
+//                var labelsPtr = dddd.baseAddress
+//                xxx.agglomerativeClustering(dataPtr, row: 5, labels: labelsPtr)
+//            }
+//        })
+//
+//        
+//        print(labels)
+//        
+//        
+//        
+//        
+//        
+//        return false
+//    }
 }
+
+

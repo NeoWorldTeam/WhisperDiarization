@@ -152,174 +152,121 @@ internal class MLTools {
         let distances = cosine_distances(&copyX, N, M)
         return distances
     }
-    
-    
-    
-    
-    static func euclideanDistance(_ a: [Float], _ b: [Float]) -> Float {
-        precondition(a.count == b.count, "Input vectors must have the same length")
-        var sum: Float = 0
-        for i in 0..<a.count {
-            let diff = a[i] - b[i]
-            sum += diff * diff
-        }
-        return sqrt(sum)
-    }
 
-    static func clusterDistance(_ a: Cluster, _ aSize: ClusterSize, _ b: Cluster, _ bSize: ClusterSize) -> Float {
-        var sum: Float = 0
-        for i in 0..<aSize {
-            for j in 0..<bSize {
-                sum += euclideanDistance(a[i], b[j])
-            }
-        }
-        return sum / Float(aSize * bSize)
-    }
-
-    static func mergeClusters(_ clusters: inout [Cluster], _ clusterSizes: inout [ClusterSize], _ i: Int, _ j: Int) {
-        let newClusterSize = clusterSizes[i] + clusterSizes[j]
-        var newCluster: Cluster = []
-        newCluster.reserveCapacity(newClusterSize)
-        newCluster.append(contentsOf: clusters[i])
-        newCluster.append(contentsOf: clusters[j])
-        clusters.remove(at: j)
-        clusters[i] = newCluster
-        clusterSizes.remove(at: j)
-        clusterSizes[i] = newClusterSize
-    }
-
+//    static func euclideanDistance(_ a: [Float], _ b: [Float]) -> Float {
+//        precondition(a.count == b.count, "Input vectors must have the same length")
+//        var sum: Float = 0
+//        for i in 0..<a.count {
+//            let diff = a[i] - b[i]
+//            sum += diff * diff
+//        }
+//        return sqrt(sum)
+//    }
+//
+//    static func clusterDistance(_ a: Cluster, _ aSize: ClusterSize, _ b: Cluster, _ bSize: ClusterSize) -> Float {
+//        var sum: Float = 0
+//        for i in 0..<aSize {
+//            for j in 0..<bSize {
+//                sum += euclideanDistance(a[i], b[j])
+//            }
+//        }
+//        return sum / Float(aSize * bSize)
+//    }
+//
+//    static func mergeClusters(_ clusters: inout [Cluster], _ clusterSizes: inout [ClusterSize], _ i: Int, _ j: Int) {
+//        let newClusterSize = clusterSizes[i] + clusterSizes[j]
+//        var newCluster: Cluster = []
+//        newCluster.reserveCapacity(newClusterSize)
+//        newCluster.append(contentsOf: clusters[i])
+//        newCluster.append(contentsOf: clusters[j])
+//        clusters.remove(at: j)
+//        clusters[i] = newCluster
+//        clusterSizes.remove(at: j)
+//        clusterSizes[i] = newClusterSize
+//    }
+//
     static func agglomerativeClustering(_ X: [[Float]], _ k: Int) -> [Int] {
-        
-//        let row = X.count
-//        let column  = X[0].count
-//        let flattenedArray = X.flatMap { $0 }
-//        let unsafePointer = UnsafePointer<Float>(flattenedArray)
-//        let testModule = TestMoudule()
-//        
-//        var labels = [Int] (repeating: 0, count: row)
-//        labels.withUnsafeMutableBytes { (ptr: UnsafeMutableRawBufferPointer) -> Void in
-//            let int32Ptr = ptr.baseAddress!.assumingMemoryBound(to: Int32.self)
-//            testModule.fit(unsafePointer, row: Int32(row), column: Int32(column), minNumClusters: Int32(k), labels: int32Ptr)
-//        }
-//        
-//        return labels
-        
-        
-        let row = X.count
-        let column  = X[0].count
-        let itemsPtr: UnsafeMutablePointer<item_t> = UnsafeMutablePointer<item_t>.allocate(capacity: row)
-        
-        defer {
-            itemsPtr.deallocate()
-        }
-        
-        for i in 0..<row {
-            let rowArray:[Float] = X[i]
-            let rowPointer = UnsafeMutablePointer<Float>(mutating: rowArray)
-            var item = item_t()
-            item.coord = coord_s(items: rowPointer, dim: Int32(column))
-            itemsPtr[i] = item
-        }
-        
-        
-        let clusters:UnsafeMutablePointer<cluster_t> =  agglomerate(Int32(row), itemsPtr)
-        
-        
-        
 
-        // 使用内存区域
-//        for i in 0..<count {
-//            ptr[i] = /* 初始化 item_t 元素 */
-//        }
-//        let clusters :UnsafeMutablePointer<cluster_t> = agglomerate(<#T##num_items: Int32##Int32#>, UnsafeMutablePointer<item_t>!)
-        
-        
-//        let n = X.count
-//        precondition(k <= n, "Number of clusters k must be less than or equal to the number of data points n")
-//        var clusters: [Cluster] = []
-//        var clusterSizes: [ClusterSize] = []
-//        for i in 0..<n {
-//            clusters.append([X[i]])
-//            clusterSizes.append(1)
-//        }
-//        while clusters.count > k {
-//            var minI = 0
-//            var minJ = 1
-//            var minDist = clusterDistance(clusters[minI], clusterSizes[minI], clusters[minJ], clusterSizes[minJ])
-//            for i in 0..<clusters.count {
-//                for j in (i+1)..<clusters.count {
-//                    let dist = clusterDistance(clusters[i], clusterSizes[i], clusters[j], clusterSizes[j])
-//                    if dist < minDist {
-//                        minI = i
-//                        minJ = j
-//                        minDist = dist
-//                    }
-//                }
-//            }
-//            mergeClusters(&clusters, &clusterSizes, minI, minJ)
-//        }
-//        var labels = Array(repeating: -1, count: n)
-//        for i in 0..<k {
-//            var start = 0
-//            for j in 0..<i {
-//                start += clusterSizes[j]
-//            }
-//            for j in 0..<clusterSizes[i] {
-//                labels[start+j] = i
-//            }
-//        }
-//        return labels
-        
-        return []
-        
-        
-        
-    }
-    
-    
-    
+        var flatX:[Float32] = X.flatMap { $0 }
 
-    // 计算样本到其所属簇的平均距离
-    static func meanIntraClusterDistance(_ sample: [Float], _ cluster: [[Float]]) -> Float {
-        var totalDistance:Float = 0.0
-        for point in cluster {
-            totalDistance += euclideanDistance(sample, point)
-        }
-        return totalDistance / Float(cluster.count)
-    }
+        var labels = [Int32](repeating: 0, count: X.count)
+        let xxx = AggClusteringWrapper()
 
-    // 计算样本到其他簇的平均距离
-    static func meanInterClusterDistance(_ sample: [Float], _ clusters: [[[Float]]]) -> Float {
-        var totalDistance:Float = 0.0
-        for cluster in clusters {
-            var clusterDistance:Float = 0.0
-            for point in cluster {
-                clusterDistance += euclideanDistance(sample, point)
+        flatX.withUnsafeMutableBufferPointer({ (cccc:inout UnsafeMutableBufferPointer<Float>) in
+            let dataPtr: UnsafeMutablePointer<Float> = cccc.baseAddress!
+            labels.withUnsafeMutableBufferPointer { (dddd:inout UnsafeMutableBufferPointer<Int32>) in
+               let labelsPtr = dddd.baseAddress
+               xxx.agglomerativeClustering(dataPtr, row: Int32(X.count),clusterNum: Int32(k), labels: labelsPtr)
             }
-            totalDistance += clusterDistance / Float(cluster.count)
+        })
+        return labels.compactMap { Int($0) }
+    }
+    
+    static func convertToUnsafeMutablePointer(_ array: [[Float]]) -> UnsafeMutablePointer<UnsafeMutablePointer<Float>?>! {
+        let numColumns = array[0].count
+        let numRows = array.count
+        
+        // 创建 UnsafeMutablePointer<UnsafeMutablePointer<Float>?>，大小为 numRows * sizeof(UnsafeMutablePointer<Float>?)
+        let pointer = UnsafeMutablePointer<UnsafeMutablePointer<Float>?>.allocate(capacity: numRows)
+        // 为每个 UnsafeMutablePointer<Float> 分配空间，大小为 numColumns * sizeof(Float)
+        for i in 0..<numRows {
+            pointer[i] = UnsafeMutablePointer<Float>.allocate(capacity: numColumns)
+            // 将数据从 array 复制到 UnsafeMutablePointer<Float>
+            for j in 0..<numColumns {
+                pointer[i]![j] = array[i][j]
+            }
         }
-        return totalDistance / Float(clusters.count)
+        return pointer
+    }
+    
+    static func convertToIntPointer(_ array: [Int]) -> UnsafeMutablePointer<Int32> {
+        let pointer = UnsafeMutablePointer<Int32>.allocate(capacity: array.count)
+        for i in 0..<array.count {
+            pointer[i] = Int32(array[i])
+        }
+        return pointer
     }
 
+    
     // 计算 Silhouette score
-    static func silhouetteScore(_ samples: [[Float]], _ labels: [Int]) -> Float {
-        precondition(samples.count == labels.count, "The number of samples and labels must be the same")
-        let uniqueLabels = Set(labels)
-        var clusters = [[[Float]]](repeating: [], count: uniqueLabels.count)
-        for i in 0..<labels.count {
-            var xxx:[[Float]] = clusters[labels[i]]
-            let sss:[Float] = samples[i]
-            xxx.append(sss)
-        }
-        var score:Float = 0.0
-        for i in 0..<samples.count {
-            let sample = samples[i]
-            let label = labels[i]
-            let a = meanIntraClusterDistance(sample, clusters[label])
-            let b = meanInterClusterDistance(sample, clusters.filter { $0 != clusters[label] })
-            score += (b - a) / max(a, b)
-        }
-        return score / Float(samples.count)
+    static func silhouetteScore(_ samples: [[Float]], _ labels: [Int], _ k: Int) -> Float {
+        let count = samples.count
+
+        let samplesPtr: UnsafeMutablePointer<UnsafeMutablePointer<Float>?>! = convertToUnsafeMutablePointer(samples)
+        let labelsPtr: UnsafeMutablePointer<Int32> = convertToIntPointer(labels)
+        
+        let mSilhouetteScoreWrapper = SilhouetteScoreWrapper()
+        let socre = mSilhouetteScoreWrapper.score(samplesPtr, labels: labelsPtr, itemNum: Int32(count), cluster: Int32(k))
+        samplesPtr.deallocate()
+        labelsPtr.deallocate()
+        return socre
+        
+//        precondition(samples.count == labels.count, "The number of samples and labels must be the same")
+//        let uniqueLabels = Set(labels)
+//        var clusters = [[[Float]]](repeating: [], count: uniqueLabels.count)
+//        for i in 0..<labels.count {
+//            let sss:[Float] = samples[i]
+//            clusters[labels[i]].append(sss)
+//        }
+//        var score:Float = 0.0
+//        for i in 0..<samples.count {
+//            let sample = samples[i]
+//            let label = labels[i]
+//            let a = meanIntraClusterDistance(sample, clusters[label])
+//            let b = meanInterClusterDistance(sample, clusters.filter { $0 != clusters[label] })
+//            score += (b - a) / max(a, b)
+//        }
+//        return score / Float(samples.count)
+        
+        
+//        samples.withUnsafeMutableBufferPointer { (aaa: inout UnsafeMutableBufferPointer<[Float]>) in
+//
+//        }
+        
+//        let distancePtr = UnsafeMutablePointer<Float>(samples)
+        
+//        SilhouetteScoreWrapper.score(UnsafeMutablePointer<UnsafeMutablePointer<Float>?>!, labels: <#T##UnsafeMutablePointer<Int32>!#>, itemNum: <#T##Int32#>)
+        return 0
     }
     
     

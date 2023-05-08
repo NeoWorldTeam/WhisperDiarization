@@ -119,10 +119,12 @@ class AudioPreprocess {
     func enqueues(_ buffer: AVAudioPCMBuffer,timeStamp: Int64) {
 
         _queue.async(flags: .barrier) {
-            while self.bufferCaches.count >= self.maxItemCount {
-                print("生产者队列已满，等待消费者")
-                sleep(1)
+            
+            guard self.bufferCaches.count < self.maxItemCount else {
+                print("生产队列已满")
+                return
             }
+            
             
             let audioSegment = CaptureAudioSegment(timeStamp: timeStamp, buffer: buffer)
             self.bufferCaches.append(audioSegment)
