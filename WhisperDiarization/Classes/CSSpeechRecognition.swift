@@ -34,6 +34,9 @@ public class CSSpeechRecognition {
     let audioPreprocess = AudioPreprocess(maxItemCount: 2)
     var isRunning = true
     
+    var vadMoudle: VADModule = VADModule()
+    
+    
     var vadFrameFixByte = MemoryLayout<Float>.size * 16000 * 29
 //    var vadFrameFixByte = 511 * MemoryLayout<Float>.size
     var cahceFrameSize = 0
@@ -99,38 +102,38 @@ public class CSSpeechRecognition {
         return result
     }
     
-    func _vadHandle() -> [VADTimeResult] {
-        guard let vad = vad else {
-            return []
-        }
-        
-        guard cacheAudioData.count >= vadFrameFixByte else{
-            return []
-        }
-        
-        let chunkCount = cacheAudioData.count / (512 * MemoryLayout<Float>.size)
-        let audioFrameCount = AVAudioFrameCount(chunkCount * 512)
-        let audioFrameSize = Int(audioFrameCount) * MemoryLayout<Float>.size
-        
-        guard let pcmBuffer = AVAudioPCMBuffer(pcmFormat: processFormat, frameCapacity: audioFrameCount) else {
-            fatalError("Unable to create PCM buffer")
-        }
-        pcmBuffer.frameLength = audioFrameCount
-        
-        let pcmFloatPointer: UnsafeMutablePointer<Float> = pcmBuffer.floatChannelData![0]
-        let pcmRawPointer = pcmFloatPointer.withMemoryRebound(to: UInt8.self, capacity: audioFrameSize) {
-            return UnsafeMutableRawPointer($0)
-        }
-        
-        cacheAudioData.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-            pcmRawPointer.copyMemory(from: bytes.baseAddress!, byteCount: audioFrameSize)
-        }
-        
-        guard let result = vad.detectForTimeStemp(buffer: pcmBuffer) else {
-            return []
-        }
-        return result
-    }
+//    func _vadHandle() -> [VADTimeResult] {
+//        guard let vad = vad else {
+//            return []
+//        }
+//
+//        guard cacheAudioData.count >= vadFrameFixByte else{
+//            return []
+//        }
+//
+//        let chunkCount = cacheAudioData.count / (512 * MemoryLayout<Float>.size)
+//        let audioFrameCount = AVAudioFrameCount(chunkCount * 512)
+//        let audioFrameSize = Int(audioFrameCount) * MemoryLayout<Float>.size
+//
+//        guard let pcmBuffer = AVAudioPCMBuffer(pcmFormat: processFormat, frameCapacity: audioFrameCount) else {
+//            fatalError("Unable to create PCM buffer")
+//        }
+//        pcmBuffer.frameLength = audioFrameCount
+//
+//        let pcmFloatPointer: UnsafeMutablePointer<Float> = pcmBuffer.floatChannelData![0]
+//        let pcmRawPointer = pcmFloatPointer.withMemoryRebound(to: UInt8.self, capacity: audioFrameSize) {
+//            return UnsafeMutableRawPointer($0)
+//        }
+//
+//        cacheAudioData.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
+//            pcmRawPointer.copyMemory(from: bytes.baseAddress!, byteCount: audioFrameSize)
+//        }
+//
+//        guard let result = vad.detectForTimeStemp(buffer: pcmBuffer) else {
+//            return []
+//        }
+//        return result
+//    }
     
     struct AudioSegment {
         var data: Data
@@ -331,108 +334,183 @@ public class CSSpeechRecognition {
             guard let whisper = whisper else {
                 continue
             }
-            let buffer = audioBuffer.buffer
-            let segmentTimeStamp = audioBuffer.timeStamp
             
-            let bufferByteSize = Int(buffer.frameLength) * MemoryLayout<Float>.size
-            guard let floatChannel = buffer.floatChannelData else {
+            let vadResults:[VADBuffer] = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
+            guard vadResults.isEmpty == false else {
                 continue
             }
-            floatChannel[0].withMemoryRebound(to: UInt8.self, capacity: bufferByteSize) { pointer in
-                cacheAudioData.append(pointer, count: bufferByteSize)
-            }
-        
-            // vad
-            let vadResults = _vadHandle()
-            let audioSegments = vadResults.map { result in
-                let startIndex = result.start * MemoryLayout<Float>.size
-                let endIndex = result.end * MemoryLayout<Float>.size
-                
-                print("startIndex:\(startIndex), endIndex: \(endIndex)")
-                
-                let audioSegment = cacheAudioData.subdata(in: startIndex..<endIndex)
-                return AudioSegment(data: audioSegment, start: result.start, end: result.end)
-            }
             
-            //transcript
-            for segment in separateAudioSegment {
-                let startIndex = segment.start * MemoryLayout<Float>.size
-                let endIndex = segment.end * MemoryLayout<Float>.size
-                let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
-                
-                test_SaveToWav(data: segmentData, index: test_index)
-                test_index+=1
+            
 
-                let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
-                speechTranscripts.forEach { transcriptSeg in
-                    //TODO: 计算正确的时间戳
-                    let speechItemStartTimeStamp = Int64((transcriptSeg.start + segment.start) / 16)
-                    let speechItemEndTimeStamp = Int64((transcriptSeg.end + segment.start) / 16)
-                    let startTimeStamp =  segmentTimeStamp + speechItemStartTimeStamp
-                    let endTimeStamp = segmentTimeStamp + speechItemEndTimeStamp
+            vadResults.forEach { vadBuffer in
+                var speechTranscripts = whisper.transcriptSync(buffer: vadBuffer.buffer)
+                //移除无效识别
+                speechTranscripts = try! speechTranscripts.filter { transcripSeg in
+                    guard !transcripSeg.speech.isEmpty else {
+                        return false
+                    }
+//                    let pattern = #"^\s?\(\w+\)\s?$"#
+                    let pattern = "\\([a-zA-Z0-9_!#]+\\)|\\[[a-zA-Z0-9_!#]+\\]"
+                    let regex = try NSRegularExpression(pattern: pattern)
+                    let range = NSRange(location: 0, length: transcripSeg.speech.utf16.count)
+                    guard regex.firstMatch(in: transcripSeg.speech, options: [], range: range) == nil else {
+                        return false
+                    }
                     
-                    let transcript = TranscriptItem(label: segment.label, speech: transcriptSeg.speech,startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp, features: segment.embeding)
-                    print("识别语音:\(transcript.speech), 时间: \(Date(timeIntervalSince1970: (TimeInterval(startTimeStamp) * 0.001)).description)")
-                    speechs.append(transcript)
+                    return true
                 }
-            }
-            
-            
-            
-//            var test_vad_Index = 100
-//            audioSegments.forEach { segment in
-//                test_SaveToWav(data: segment.data, index: test_vad_Index)
-//                test_vad_Index += 1
-//            }
-            
-            
-            
-            
-            let featuresSegments = _featuresHandle(audioSegments: audioSegments)
-            
-            let featuresX:[[Float]] = featuresSegments.map { segment in
-                segment.embeding
-            }
-
-            let (speakerNum, speakerLabel) = _analyzeSpeaker(features: featuresX)
-            
-            //合并语句
-            let joinAudioSegment = _joinSegments(clusterLabels: speakerLabel, segments: featuresSegments)
-            let separateAudioSegment = _joinSamespeakerSegments(joinAudioSegment)
-            
-            //识别内容
-            var test_index = 0
-            var speechs: [TranscriptItem] = []
-            for segment in separateAudioSegment {
-                let startIndex = segment.start * MemoryLayout<Float>.size
-                let endIndex = segment.end * MemoryLayout<Float>.size
-                let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
                 
+                //识别和匹配
+                var matchIndex = 0
+                var matchSegment: [Int:Int] = [Int:Int]()
+                
+                var test_tttt_index = 200
+                for sppechIndex in 0..<speechTranscripts.count {
+                    let transcriptSeg = speechTranscripts[sppechIndex]
+                    //中间值
+                    let middleSampleIndex:Int = (transcriptSeg.start + transcriptSeg.end) >> 1
+                    
+                    //检查分割数据准确性
+                    let testData = vadBuffer.buffer.subdata(in: transcriptSeg.start * MemoryLayout<Float>.size..<transcriptSeg.end*MemoryLayout<Float>.size)
+                    test_SaveToWav(data: testData, index: test_tttt_index)
+                    test_tttt_index+=1
+                    
+                    
+                    //中间值是否在范围内,每次从上一个定位点开始
+                    for index in matchIndex..<vadBuffer.rangeTimes.count {
+                        let range = Int(vadBuffer.rangeTimes[index].sampleRange.start)..<Int(vadBuffer.rangeTimes[index].sampleRange.end)
+                        if range.contains(middleSampleIndex) {
+                            matchSegment[sppechIndex] = index
+                            matchIndex = index
+                            break
+                        }
+                    }
+                }
+                
+                matchSegment.forEach { (key: Int, value: Int) in
+                    let transcript = speechTranscripts[key]
+                    let vadRange = vadBuffer.rangeTimes[value]
+                    
+                    let relativeStartIndex = Int64(transcript.start) - vadRange.sampleRange.start
+                    let startTimeStemp = vadRange.realTimeStamp.start + relativeStartIndex / 16
+                    let endTimeStemp = startTimeStemp + Int64(transcript.end - transcript.start) / 16
+                    
+                    let transcriptItem = TranscriptItem(label: 0, speech: transcript.speech, startTimeStamp: startTimeStemp, endTimeStamp: endTimeStemp, features: [Float](repeating: 0, count: 192))
+                    speechsCache.append(transcriptItem)
+                }
+                
+                
+                
+
+            }
+            
+            
+            
+//            let buffer = audioBuffer.buffer
+//            let segmentTimeStamp = audioBuffer.timeStamp
+//
+//
+//            vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: audioBuffer.timeStamp)
+//
+//            let bufferByteSize = Int(buffer.frameLength) * MemoryLayout<Float>.size
+//            guard let floatChannel = buffer.floatChannelData else {
+//                continue
+//            }
+//            floatChannel[0].withMemoryRebound(to: UInt8.self, capacity: bufferByteSize) { pointer in
+//                cacheAudioData.append(pointer, count: bufferByteSize)
+//            }
+//
+//            // vad
+//            let vadResults = _vadHandle()
+//            let audioSegments = vadResults.map { result in
+//                let startIndex = result.start * MemoryLayout<Float>.size
+//                let endIndex = result.end * MemoryLayout<Float>.size
+//
+//                print("startIndex:\(startIndex), endIndex: \(endIndex)")
+//
+//                let audioSegment = cacheAudioData.subdata(in: startIndex..<endIndex)
+//                return AudioSegment(data: audioSegment, start: result.start, end: result.end)
+//            }
+//
+//            //transcript
+//            for segment in separateAudioSegment {
+//                let startIndex = segment.start * MemoryLayout<Float>.size
+//                let endIndex = segment.end * MemoryLayout<Float>.size
+//                let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
+//
 //                test_SaveToWav(data: segmentData, index: test_index)
 //                test_index+=1
-
-                let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
-                speechTranscripts.forEach { transcriptSeg in
-                    //TODO: 计算正确的时间戳
-                    let speechItemStartTimeStamp = Int64((transcriptSeg.start + segment.start) / 16)
-                    let speechItemEndTimeStamp = Int64((transcriptSeg.end + segment.start) / 16)
-                    let startTimeStamp =  segmentTimeStamp + speechItemStartTimeStamp
-                    let endTimeStamp = segmentTimeStamp + speechItemEndTimeStamp
-                    
-                    let transcript = TranscriptItem(label: segment.label, speech: transcriptSeg.speech,startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp, features: segment.embeding)
-                    print("识别语音:\(transcript.speech), 时间: \(Date(timeIntervalSince1970: (TimeInterval(startTimeStamp) * 0.001)).description)")
-                    speechs.append(transcript)
-                }
-            }
-            speechsCache.append(contentsOf: speechs)
-            
-            //clean cache
-            guard let lastAudioSegment = separateAudioSegment.last else {
-                cacheAudioData.removeAll()
-                continue
-            }
-            let lastAduioSegEndBytes = min(bufferByteSize, lastAudioSegment.end * MemoryLayout<Float>.size)
-            cacheAudioData.removeSubrange(0..<lastAduioSegEndBytes)
+//
+//                let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
+//                speechTranscripts.forEach { transcriptSeg in
+//                    //TODO: 计算正确的时间戳
+//                    let speechItemStartTimeStamp = Int64((transcriptSeg.start + segment.start) / 16)
+//                    let speechItemEndTimeStamp = Int64((transcriptSeg.end + segment.start) / 16)
+//                    let startTimeStamp =  segmentTimeStamp + speechItemStartTimeStamp
+//                    let endTimeStamp = segmentTimeStamp + speechItemEndTimeStamp
+//
+//                    let transcript = TranscriptItem(label: segment.label, speech: transcriptSeg.speech,startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp, features: segment.embeding)
+//                    print("识别语音:\(transcript.speech), 时间: \(Date(timeIntervalSince1970: (TimeInterval(startTimeStamp) * 0.001)).description)")
+//                    speechs.append(transcript)
+//                }
+//            }
+//
+//
+//
+////            var test_vad_Index = 100
+////            audioSegments.forEach { segment in
+////                test_SaveToWav(data: segment.data, index: test_vad_Index)
+////                test_vad_Index += 1
+////            }
+//
+//
+//
+//
+//            let featuresSegments = _featuresHandle(audioSegments: audioSegments)
+//
+//            let featuresX:[[Float]] = featuresSegments.map { segment in
+//                segment.embeding
+//            }
+//
+//            let (speakerNum, speakerLabel) = _analyzeSpeaker(features: featuresX)
+//
+//            //合并语句
+//            let joinAudioSegment = _joinSegments(clusterLabels: speakerLabel, segments: featuresSegments)
+//            let separateAudioSegment = _joinSamespeakerSegments(joinAudioSegment)
+//
+//            //识别内容
+//            var test_index = 0
+//            var speechs: [TranscriptItem] = []
+//            for segment in separateAudioSegment {
+//                let startIndex = segment.start * MemoryLayout<Float>.size
+//                let endIndex = segment.end * MemoryLayout<Float>.size
+//                let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
+//
+////                test_SaveToWav(data: segmentData, index: test_index)
+////                test_index+=1
+//
+//                let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
+//                speechTranscripts.forEach { transcriptSeg in
+//                    //TODO: 计算正确的时间戳
+//                    let speechItemStartTimeStamp = Int64((transcriptSeg.start + segment.start) / 16)
+//                    let speechItemEndTimeStamp = Int64((transcriptSeg.end + segment.start) / 16)
+//                    let startTimeStamp =  segmentTimeStamp + speechItemStartTimeStamp
+//                    let endTimeStamp = segmentTimeStamp + speechItemEndTimeStamp
+//
+//                    let transcript = TranscriptItem(label: segment.label, speech: transcriptSeg.speech,startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp, features: segment.embeding)
+//                    print("识别语音:\(transcript.speech), 时间: \(Date(timeIntervalSince1970: (TimeInterval(startTimeStamp) * 0.001)).description)")
+//                    speechs.append(transcript)
+//                }
+//            }
+//            speechsCache.append(contentsOf: speechs)
+//
+//            //clean cache
+//            guard let lastAudioSegment = separateAudioSegment.last else {
+//                cacheAudioData.removeAll()
+//                continue
+//            }
+//            let lastAduioSegEndBytes = min(bufferByteSize, lastAudioSegment.end * MemoryLayout<Float>.size)
+//            cacheAudioData.removeSubrange(0..<lastAduioSegEndBytes)
         }
     }
     
