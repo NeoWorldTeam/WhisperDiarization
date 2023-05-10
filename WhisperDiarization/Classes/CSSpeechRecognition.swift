@@ -367,8 +367,7 @@ public class CSSpeechRecognition {
                 var test_tttt_index = 200
                 for sppechIndex in 0..<speechTranscripts.count {
                     let transcriptSeg = speechTranscripts[sppechIndex]
-                    //中间值
-                    let middleSampleIndex:Int = (transcriptSeg.start + transcriptSeg.end) >> 1
+                    
                     
                     //检查分割数据准确性
                     let testData = vadBuffer.buffer.subdata(in: transcriptSeg.start * MemoryLayout<Float>.size..<transcriptSeg.end*MemoryLayout<Float>.size)
@@ -378,8 +377,11 @@ public class CSSpeechRecognition {
                     
                     //中间值是否在范围内,每次从上一个定位点开始
                     for index in matchIndex..<vadBuffer.rangeTimes.count {
-                        let range = Int(vadBuffer.rangeTimes[index].sampleRange.start)..<Int(vadBuffer.rangeTimes[index].sampleRange.end)
-                        if range.contains(middleSampleIndex) {
+                        let vadRange = Int(vadBuffer.rangeTimes[index].sampleRange.start)..<Int(vadBuffer.rangeTimes[index].sampleRange.end)
+                        let scriptRange = transcriptSeg.start..<transcriptSeg.end
+                        
+                        if max(vadRange.lowerBound, scriptRange.lowerBound) < min(vadRange.upperBound, scriptRange.upperBound), // 判断是否有交汇
+                            min(vadRange.upperBound, scriptRange.upperBound) - max(vadRange.lowerBound, scriptRange.lowerBound) >= 512 { // 判断交汇数量是否为512
                             matchSegment[sppechIndex] = index
                             matchIndex = index
                             break
