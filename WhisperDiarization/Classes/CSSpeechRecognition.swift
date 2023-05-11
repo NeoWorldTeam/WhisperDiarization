@@ -61,7 +61,7 @@ public class CSSpeechRecognition {
     
     
     var speechsCache: [TranscriptItem] = []
-    
+//    var test_tttt_index = 200
     public init() {
         _queue.async {
             self._preload()
@@ -389,7 +389,7 @@ public class CSSpeechRecognition {
                 var matchIndex = 0
                 var matchSegments: [VADAndTranscriptMatchSegment] = []
                 
-                var test_tttt_index = 200
+                
                 for sppechIndex in 0..<speechTranscripts.count {
                     let transcriptSeg = speechTranscripts[sppechIndex]
                     
