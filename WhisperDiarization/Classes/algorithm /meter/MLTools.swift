@@ -152,47 +152,37 @@ internal class MLTools {
         let distances = cosine_distances(&copyX, N, M)
         return distances
     }
-
-//    static func euclideanDistance(_ a: [Float], _ b: [Float]) -> Float {
-//        precondition(a.count == b.count, "Input vectors must have the same length")
-//        var sum: Float = 0
-//        for i in 0..<a.count {
-//            let diff = a[i] - b[i]
-//            sum += diff * diff
-//        }
-//        return sqrt(sum)
-//    }
-//
-//    static func clusterDistance(_ a: Cluster, _ aSize: ClusterSize, _ b: Cluster, _ bSize: ClusterSize) -> Float {
-//        var sum: Float = 0
-//        for i in 0..<aSize {
-//            for j in 0..<bSize {
-//                sum += euclideanDistance(a[i], b[j])
-//            }
-//        }
-//        return sum / Float(aSize * bSize)
-//    }
-//
-//    static func mergeClusters(_ clusters: inout [Cluster], _ clusterSizes: inout [ClusterSize], _ i: Int, _ j: Int) {
-//        let newClusterSize = clusterSizes[i] + clusterSizes[j]
-//        var newCluster: Cluster = []
-//        newCluster.reserveCapacity(newClusterSize)
-//        newCluster.append(contentsOf: clusters[i])
-//        newCluster.append(contentsOf: clusters[j])
-//        clusters.remove(at: j)
-//        clusters[i] = newCluster
-//        clusterSizes.remove(at: j)
-//        clusterSizes[i] = newClusterSize
-//    }
-//
+    
+    
+    
+    
     static func agglomerativeClustering(_ X: [[Float]], _ k: Int) -> [Int] {
-
-        var flatX:[Float32] = X.flatMap { $0 }
+        
+        var dist = [Float](repeating: 0.0, count: (X.count * (X.count - 1)) >> 1 )
+        var distNum = 0
+        for row in 0..<X.count {
+            for row2 in 0..<X.count {
+                
+                guard row < row2 else{
+                    continue
+                }
+                
+                let X_x:[Float] = X[row]
+                let X_y:[Float] = X[row2]
+                var distance: Float = 0
+                vDSP_distancesq(X_x, 1, X_y, 1, &distance, vDSP_Length(X.count));
+                distance = sqrtf(distance)
+                dist[distNum] = distance
+                distNum+=1
+            }
+        }
+        
+        
 
         var labels = [Int32](repeating: 0, count: X.count)
         let xxx = AggClusteringWrapper()
 
-        flatX.withUnsafeMutableBufferPointer({ (cccc:inout UnsafeMutableBufferPointer<Float>) in
+        dist.withUnsafeMutableBufferPointer({ (cccc:inout UnsafeMutableBufferPointer<Float>) in
             let dataPtr: UnsafeMutablePointer<Float> = cccc.baseAddress!
             labels.withUnsafeMutableBufferPointer { (dddd:inout UnsafeMutableBufferPointer<Int32>) in
                let labelsPtr = dddd.baseAddress
@@ -266,37 +256,7 @@ internal class MLTools {
 //        let distancePtr = UnsafeMutablePointer<Float>(samples)
         
 //        SilhouetteScoreWrapper.score(UnsafeMutablePointer<UnsafeMutablePointer<Float>?>!, labels: <#T##UnsafeMutablePointer<Int32>!#>, itemNum: <#T##Int32#>)
-        return 0
     }
     
-    
-//    func hierarchicalClustering(_ data: UnsafeMutablePointer<Float>, _ n: Int, _ dim: Int, _ method: Int) -> [Int] {
-//        var distances = [Float](repeating: 0.0, count: n * n)
-//        var clusters = [Int](0..<n)
-//
-//        // 计算距离矩阵
-//        vDSP_distances(data, 1, data, 1, &distances, vDSP_Length(n), vDSP_Length(dim))
-//
-//        // 进行层次聚类
-//        var linkage = [Int](repeating: 0, count: 2 * (n - 1))
-//        let status = vDSP_hierarchical_cluster(&distances, vDSP_Length(n), &linkage, vDSP_Length(n - 1), vDSP_Length(method))
-//        guard status == vDSP_Length(n - 1) else { return clusters }
-//
-//        // 从聚类结果中提取簇的标签
-//        var results = [Int](repeating: 0, count: n)
-//        for i in 0..<n {
-//            results[clusters[i]] = i
-//        }
-//        for i in stride(from: n - 2, to: -1, by: -1) {
-//            let left = linkage[2 * i]
-//            let right = linkage[2 * i + 1]
-//            let newCluster = min(clusters[left], clusters[right])
-//            clusters[left] = newCluster
-//            clusters[right] = newCluster
-//        }
-//
-//        return results
-//    }
-
 }
 

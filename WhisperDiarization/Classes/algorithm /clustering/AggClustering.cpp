@@ -138,7 +138,7 @@ bool AggClustering::loadDistanceMatrix(float *dists,
     size_t loaded_pair_num = 0;
 
     
-
+    int index_record = 0;
     for (int r = 0; r < node_num; r++) {
         for (int c = 0; c < node_num; c++) {
             if (c <= r)
@@ -152,7 +152,7 @@ bool AggClustering::loadDistanceMatrix(float *dists,
             int left_label = r;
             int right_label = c;
 
-            float distance = dists[r * node_num + c];
+            float distance = dists[index_record++];
 
 
             std::string left_label_str = "label_"  + std::to_string(left_label);
