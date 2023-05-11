@@ -99,57 +99,13 @@ public class CSSpeechRecognition {
         return true
     }
     
-    func divideIntoSegments(_ x: Int, step: Int) -> [(start: Int, count: Int)] {
-        var result: [(start: Int, count: Int)] = []
-        var remaining = x
-        var start = 0
-        
-        while remaining > 0 && remaining >= step{
-            result.append((start, step))
-            remaining -= step
-            start += step
-        }
-        
-        return result
-    }
-    
-//    func _vadHandle() -> [VADTimeResult] {
-//        guard let vad = vad else {
-//            return []
-//        }
-//
-//        guard cacheAudioData.count >= vadFrameFixByte else{
-//            return []
-//        }
-//
-//        let chunkCount = cacheAudioData.count / (512 * MemoryLayout<Float>.size)
-//        let audioFrameCount = AVAudioFrameCount(chunkCount * 512)
-//        let audioFrameSize = Int(audioFrameCount) * MemoryLayout<Float>.size
-//
-//        guard let pcmBuffer = AVAudioPCMBuffer(pcmFormat: processFormat, frameCapacity: audioFrameCount) else {
-//            fatalError("Unable to create PCM buffer")
-//        }
-//        pcmBuffer.frameLength = audioFrameCount
-//
-//        let pcmFloatPointer: UnsafeMutablePointer<Float> = pcmBuffer.floatChannelData![0]
-//        let pcmRawPointer = pcmFloatPointer.withMemoryRebound(to: UInt8.self, capacity: audioFrameSize) {
-//            return UnsafeMutableRawPointer($0)
-//        }
-//
-//        cacheAudioData.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-//            pcmRawPointer.copyMemory(from: bytes.baseAddress!, byteCount: audioFrameSize)
-//        }
-//
-//        guard let result = vad.detectForTimeStemp(buffer: pcmBuffer) else {
-//            return []
-//        }
-//        return result
-//    }
     
     struct AudioSegment {
         var data: Data
         var start: Int
         var end: Int
+        var startTimeStamp: Int64
+        var endTimeStamp: Int64
     }
     
     struct AudioEmbedsSegment {
@@ -343,6 +299,99 @@ public class CSSpeechRecognition {
         print("文件已经保存到：\(fileURL)")
     }
 
+    func fillterSpeechTranscript(_ transcripts: inout [TranscriptSegment]) -> [TranscriptSegment] {
+        let speechTranscripts = try! transcripts.filter { transcripSeg in
+            guard !transcripSeg.speech.isEmpty else {
+                return false
+            }
+//                    let pattern = #"^\s?\(\w+\)\s?$"#
+            let pattern = "\\([a-zA-Z0-9_!#]+\\)|\\[[a-zA-Z0-9_!#]+\\]"
+            let regex = try NSRegularExpression(pattern: pattern)
+            let range = NSRange(location: 0, length: transcripSeg.speech.utf16.count)
+            guard regex.firstMatch(in: transcripSeg.speech, options: [], range: range) == nil else {
+                return false
+            }
+            return true
+        }
+        return speechTranscripts
+    }
+    
+    func matchVADAndTranscript(_ transcripts: inout [TranscriptSegment], _ vadBuffer: VADBuffer) -> [VADAndTranscriptMatchSegment] {
+        var matchIndex = 0
+        var matchSegments: [VADAndTranscriptMatchSegment] = []
+        
+        
+        for (sppechIndex, transcriptSeg) in transcripts.enumerated() {
+            //检查分割数据准确性
+//                    let testData = vadBuffer.buffer.subdata(in: transcriptSeg.start * MemoryLayout<Float>.size..<transcriptSeg.end*MemoryLayout<Float>.size)
+//                    test_SaveToWav(data: testData, index: test_tttt_index)
+//                    test_tttt_index+=1
+            
+            //中间值是否在范围内,每次从上一个定位点开始
+            for index in matchIndex..<vadBuffer.rangeTimes.count {
+                let vadRange = Int(vadBuffer.rangeTimes[index].sampleRange.start)..<Int(vadBuffer.rangeTimes[index].sampleRange.end)
+                let scriptRange = transcriptSeg.start..<transcriptSeg.end
+                
+                if max(vadRange.lowerBound, scriptRange.lowerBound) < min(vadRange.upperBound, scriptRange.upperBound), // 判断是否有交汇
+                    min(vadRange.upperBound, scriptRange.upperBound) - max(vadRange.lowerBound, scriptRange.lowerBound) >= 512 { // 判断交汇数量是否为512
+                    
+                    matchIndex = index
+                    if let matchItemIndex = matchSegments.firstIndex(where: {$0.vadIndex == index}) {
+                        matchSegments[matchItemIndex].speechIndex.append(sppechIndex)
+                    }else {
+                        var matchItem = VADAndTranscriptMatchSegment(vadIndex: index)
+                        matchItem.speechIndex.append(sppechIndex)
+                        matchSegments.append(matchItem)
+                    }
+                    break
+                }
+            }
+        }
+        return matchSegments
+    }
+    
+    func extractAudioRaw(_ transcripts: inout [TranscriptSegment], _ vadBuffer: VADBuffer, _ matchSegments: inout [VADAndTranscriptMatchSegment] ) -> [AudioSegment] {
+        let trancriptAudioSegments:[AudioSegment] = transcripts.enumerated().map { (index, seg) in
+
+            let matchSegment = matchSegments.first(where: {$0.speechIndex.contains(where: {$0 == index})})!
+            let vadRange = vadBuffer.rangeTimes[matchSegment.vadIndex]
+            let caculateStart = max(seg.start, Int(vadRange.sampleRange.start)) * MemoryLayout<Float>.size
+            let caculateEnd = min(seg.end, Int(vadRange.sampleRange.end)) * MemoryLayout<Float>.size
+
+            let segData = vadBuffer.buffer.subdata(in: caculateStart..<caculateEnd)
+            
+            let startSampleIndex = 0
+            let endSampleIndex = (caculateEnd - caculateStart) / MemoryLayout<Float>.size
+            
+            
+            let caculateStartIndex = caculateStart / MemoryLayout<Float>.size
+            let startTimeStamp:Int64 = vadRange.realTimeStamp.start + ((Int64(caculateStartIndex) - vadRange.sampleRange.start) / 16)
+            let endTimeStamp:Int64 = startTimeStamp + Int64(endSampleIndex / 16)
+            
+            return AudioSegment(data: segData, start: startSampleIndex, end: endSampleIndex, startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp)
+        }
+        
+        return trancriptAudioSegments
+    }
+    
+    
+    
+    func extractFeature(_ datas: inout [Data] ) -> [[Float]] {
+        guard let featureExtarer = featureExtarer else {
+            return []
+        }
+//                test_tttt_index = 300
+        let transcriptFeature:[[Float]] = datas.map { data in
+//                    test_SaveToWav(data: data, index: test_tttt_index)
+//                    test_tttt_index += 1
+
+            guard let feature = featureExtarer.extractFeature(data: data) else {
+                return [Float](repeating: 0, count: 192)
+            }
+            return feature
+        }
+        return transcriptFeature
+    }
     
     func _run() {
         
@@ -368,59 +417,10 @@ public class CSSpeechRecognition {
 //                test_SaveToWav(data: vadBuffer.buffer, index: 1000)
                 
                 var speechTranscripts = whisper.transcriptSync(buffer: vadBuffer.buffer)
-                print(speechTranscripts)
-                //移除无效识别
-                speechTranscripts = try! speechTranscripts.filter { transcripSeg in
-                    guard !transcripSeg.speech.isEmpty else {
-                        return false
-                    }
-//                    let pattern = #"^\s?\(\w+\)\s?$"#
-                    let pattern = "\\([a-zA-Z0-9_!#]+\\)|\\[[a-zA-Z0-9_!#]+\\]"
-                    let regex = try NSRegularExpression(pattern: pattern)
-                    let range = NSRange(location: 0, length: transcripSeg.speech.utf16.count)
-                    guard regex.firstMatch(in: transcripSeg.speech, options: [], range: range) == nil else {
-                        return false
-                    }
-                    
-                    return true
-                }
-                
-                //识别和匹配
-                var matchIndex = 0
-                var matchSegments: [VADAndTranscriptMatchSegment] = []
-                
-                
-                for sppechIndex in 0..<speechTranscripts.count {
-                    let transcriptSeg = speechTranscripts[sppechIndex]
-                    
-                    
-                    //检查分割数据准确性
-//                    let testData = vadBuffer.buffer.subdata(in: transcriptSeg.start * MemoryLayout<Float>.size..<transcriptSeg.end*MemoryLayout<Float>.size)
-//                    test_SaveToWav(data: testData, index: test_tttt_index)
-//                    test_tttt_index+=1
-                    
-                    
-                    //中间值是否在范围内,每次从上一个定位点开始
-                    for index in matchIndex..<vadBuffer.rangeTimes.count {
-                        let vadRange = Int(vadBuffer.rangeTimes[index].sampleRange.start)..<Int(vadBuffer.rangeTimes[index].sampleRange.end)
-                        let scriptRange = transcriptSeg.start..<transcriptSeg.end
-                        
-                        if max(vadRange.lowerBound, scriptRange.lowerBound) < min(vadRange.upperBound, scriptRange.upperBound), // 判断是否有交汇
-                            min(vadRange.upperBound, scriptRange.upperBound) - max(vadRange.lowerBound, scriptRange.lowerBound) >= 512 { // 判断交汇数量是否为512
-                            
-                            matchIndex = index
-                            if let matchItemIndex = matchSegments.firstIndex(where: {$0.vadIndex == index}) {
-                                matchSegments[matchItemIndex].speechIndex.append(sppechIndex)
-                            }else {
-                                var matchItem = VADAndTranscriptMatchSegment(vadIndex: index)
-                                matchItem.speechIndex.append(sppechIndex)
-                                matchSegments.append(matchItem)
-                            }
-                            break
-                        }
-                    }
-                }
-                
+                print("before:\(speechTranscripts)")
+                speechTranscripts = fillterSpeechTranscript(&speechTranscripts)
+                print("after:\(speechTranscripts)")
+                var matchSegments:[VADAndTranscriptMatchSegment] = matchVADAndTranscript(&speechTranscripts, vadBuffer)
                 print(matchSegments)
 //                //第二次增强识别
 //                let needEnhanceRecognizeMatch = matchSegments.filter { seg in
@@ -438,57 +438,22 @@ public class CSSpeechRecognition {
 //
 //                }
 //
-  
                 
-                
-                
-                
-                
-//                let audioSegments:[AudioSegment] = speechTranscripts.enumerated().map { (index, seg) in
-//                    let matchSegment = matchSegments.first(where: {$0.speechIndex.contains(where: {$0 == index})})!
-//                    let vadRange = vadBuffer.rangeTimes[matchSegment.vadIndex]
-//                    let caculateStart = max(seg.start, Int(vadRange.sampleRange.start)) * MemoryLayout<Float>.size
-//                    let caculateEnd = min(seg.end, Int(vadRange.sampleRange.end)) * MemoryLayout<Float>.size
-//
-//                    let segData = vadBuffer.buffer.subdata(in: caculateStart..<caculateEnd)
-//                    return AudioSegment(data: segData, start: 0, end: caculateEnd)
-//                }
-//
-//                let featuresSegments = _featuresHandle(audioSegments: audioSegments)
-//                let featureFlags = featuresSegments.map({$0.sourceIndex})
-//                let featuresX:[[Float]] = featuresSegments.map({$0.embeding})
-//
-//                let (speakerNum, speakerLabel) = _analyzeSpeaker(features: featuresX)
-//                print(speakerLabel)
-                
-                
-                let trancriptRowData:[Data] = speechTranscripts.enumerated().map { (index, seg) in
-                    let matchSegment = matchSegments.first(where: {$0.speechIndex.contains(where: {$0 == index})})!
-                    let vadRange = vadBuffer.rangeTimes[matchSegment.vadIndex]
-                    let caculateStart = max(seg.start, Int(vadRange.sampleRange.start)) * MemoryLayout<Float>.size
-                    let caculateEnd = min(seg.end, Int(vadRange.sampleRange.end)) * MemoryLayout<Float>.size
-
-                    let segData = vadBuffer.buffer.subdata(in: caculateStart..<caculateEnd)
-                    return segData
-                }
-//                test_tttt_index = 300
-                let transcriptFeature:[[Float]] = trancriptRowData.map { data in
-//                    test_SaveToWav(data: data, index: test_tttt_index)
-//                    test_tttt_index += 1
-
-                    guard let feature = featureExtarer.extractFeature(data: data) else {
-                        return [Float](repeating: 0, count: 192)
-                    }
-                    return feature
-                }
-
+                let trancriptAudioSeg:[AudioSegment] = extractAudioRaw(&speechTranscripts, vadBuffer, &matchSegments)
+                var trancriptRowData = trancriptAudioSeg.map({$0.data})
+                let transcriptFeature:[[Float]] = extractFeature(&trancriptRowData)
                 let (speakerNum, speakerLabel) = _analyzeSpeaker(features: transcriptFeature)
+                print(speakerNum)
                 print(speakerLabel)
                 
-                
-                
-                
-
+                for (index, label) in speakerLabel.enumerated() {
+                    let speech = speechTranscripts[index].speech
+                    let audioSeg = trancriptAudioSeg[index]
+                    let embeding = transcriptFeature[index]
+                    let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: audioSeg.startTimeStamp, endTimeStamp: audioSeg.endTimeStamp, features: embeding)
+                    print("识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
+                    speechsCache.append(transcript)
+                }
             }
             
             
