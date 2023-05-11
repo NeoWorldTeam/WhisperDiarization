@@ -346,7 +346,7 @@ bool AggClustering::output(float distance_threshold,int* labels) {
         cur_label = cluster_nodes_queue.front();
         cluster_nodes_queue.pop();
 
-        assert(cur_label > 0 && cur_label < node_num_);
+        assert(cur_label >= 0 && cur_label < node_num_);
 
         ClusterNode& cur_cluster_node = cluster_node_array_[cur_label];
         if (cur_cluster_node.getLeftChildLabel() < 0 &&
@@ -408,7 +408,7 @@ bool AggClustering::cutTree(int k, int* labels) {
         cur_label = cluster_nodes_queue.front();
         cluster_nodes_queue.pop();
 
-        assert(cur_label > 0 && cur_label < node_num_);
+        assert(cur_label >= 0 && cur_label < node_num_);
 
         ClusterNode& cur_cluster_node = cluster_node_array_[cur_label];
         if (cur_cluster_node.getLeftChildLabel() < 0 &&
