@@ -107,7 +107,7 @@ private extension VADModule {
         
         var results:[VADBuffer] = []
         let bufferSpaceBytes:Int = Int(sf) * MemoryLayout<Float>.size
-        let rangeSpace:Int = Int(sf >> 1) * MemoryLayout<Float>.size
+        let rangeSpace:Int = Int(sf) * MemoryLayout<Float>.size
 
 
         if vadBuffers.isEmpty == false {

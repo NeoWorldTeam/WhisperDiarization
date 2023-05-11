@@ -156,6 +156,7 @@ public class CSSpeechRecognition {
         var embeding: [Float]
         var start: Int
         var end: Int
+        var sourceIndex: Int
     }
     
     struct AudioCombianEmbedsSegment {
@@ -166,7 +167,7 @@ public class CSSpeechRecognition {
     }
     
     
-    func _windowed_embeds(featureExtarer: SpeakerEmbedding, startIndex: Int, signal: Data, fs: Int, window: Double = 0.5, period: Double = 0.3) -> [AudioEmbedsSegment] {
+    func _windowed_embeds(featureExtarer: SpeakerEmbedding, sourceIndex: Int, signal: Data, fs: Int, window: Double = 0.9, period: Double = 0.3) -> [AudioEmbedsSegment] {
         let lenWindow = Int(window * Double(fs))
         let lenPeriod = Int(period * Double(fs))
         let lenSignal = signal.count / MemoryLayout<Float>.size
@@ -186,13 +187,15 @@ public class CSSpeechRecognition {
         for segment in segments {
             let i = segment[0]
             let j = segment[1]
-            let signalSeg = signal.subdata(in: i*MemoryLayout<Float>.size..<(j)*MemoryLayout<Float>.size)
-            let tempCheck = signalSeg.toFloatArray()
+            let startIndex = i * MemoryLayout<Float>.size
+            let endIndex = j * MemoryLayout<Float>.size
+            let signalSeg = signal.subdata(in: startIndex..<endIndex)
+//            let tempCheck = signalSeg.toFloatArray()
             
             guard let segEmbed = featureExtarer.extractFeature(data: signalSeg) else {
                 continue
             }
-            let segAudioEmbed = AudioEmbedsSegment(embeding: segEmbed, start: startIndex+i, end: startIndex+j)
+            let segAudioEmbed = AudioEmbedsSegment(embeding: segEmbed, start: i, end: j, sourceIndex: sourceIndex )
             embeds.append(segAudioEmbed)
         }
 
@@ -205,10 +208,12 @@ public class CSSpeechRecognition {
         }
         var allEmbeds: [AudioEmbedsSegment] = []
         
-        audioSegments.forEach { audioSegment in
-            let audioEmbedsSegments = _windowed_embeds(featureExtarer: featureExtarer,startIndex: audioSegment.start, signal: audioSegment.data, fs: 16000)
+        for (index, audioSegment) in audioSegments.enumerated() {
+            let audioEmbedsSegments = _windowed_embeds(featureExtarer: featureExtarer,sourceIndex: index, signal: audioSegment.data, fs: 16000)
+            print("audioEmbedsSegments count: \(audioEmbedsSegments.count)")
             allEmbeds.append(contentsOf: audioEmbedsSegments)
         }
+        
         
         return allEmbeds
     }
@@ -224,21 +229,24 @@ public class CSSpeechRecognition {
 
 
         let mormalFeatureDis = MLTools.pairwise_distances(features)
-        var lastetScore:Float = 0
-        var lastLabels:[Int] = []
-        for k in 2...5 {
-            let labels = MLTools.agglomerativeClustering(mormalFeatureDis, k)
-            let score = MLTools.silhouetteScore(mormalFeatureDis, labels, k)
-            if lastetScore > score {
-                break
-            }
-            
-            lastetScore = score
-            lastLabels = labels
-        }
+//        let l2FeatureDis = MLTools.pairwise_distances(mormalFeatureDis)
+//        print(mormalFeatureDis)
+//        var lastetScore:Float = 0
+//        var lastLabels:[Int] = []
+        let labels = MLTools.agglomerativeClustering(mormalFeatureDis, 5)
+//        for k in 2...5 {
+//            let labels = MLTools.agglomerativeClustering(mormalFeatureDis, k)
+//            let score = MLTools.silhouetteScore(l2FeatureDis, labels, k)
+//            if lastetScore > score {
+//                break
+//            }
+//
+//            lastetScore = score
+//            lastLabels = labels
+//        }
 
-        let speakersCount = Set(lastLabels).count
-        return (speakersCount, lastLabels)
+        let speakersCount = Set(labels).count
+        return (speakersCount, labels)
     }
     
     func _joinSegments(clusterLabels: [Int], segments: [AudioEmbedsSegment], tolerance: Int = 5) -> [AudioCombianEmbedsSegment] {
@@ -357,7 +365,10 @@ public class CSSpeechRecognition {
             
 
             vadResults.forEach { vadBuffer in
+//                test_SaveToWav(data: vadBuffer.buffer, index: 1000)
+                
                 var speechTranscripts = whisper.transcriptSync(buffer: vadBuffer.buffer)
+                print(speechTranscripts)
                 //移除无效识别
                 speechTranscripts = try! speechTranscripts.filter { transcripSeg in
                     guard !transcripSeg.speech.isEmpty else {
@@ -384,9 +395,9 @@ public class CSSpeechRecognition {
                     
                     
                     //检查分割数据准确性
-                    let testData = vadBuffer.buffer.subdata(in: transcriptSeg.start * MemoryLayout<Float>.size..<transcriptSeg.end*MemoryLayout<Float>.size)
-                    test_SaveToWav(data: testData, index: test_tttt_index)
-                    test_tttt_index+=1
+//                    let testData = vadBuffer.buffer.subdata(in: transcriptSeg.start * MemoryLayout<Float>.size..<transcriptSeg.end*MemoryLayout<Float>.size)
+//                    test_SaveToWav(data: testData, index: test_tttt_index)
+//                    test_tttt_index+=1
                     
                     
                     //中间值是否在范围内,每次从上一个定位点开始
@@ -427,38 +438,51 @@ public class CSSpeechRecognition {
 //
 //                }
 //
+  
                 
-                let audioSegments:[AudioSegment] = speechTranscripts.enumerated().map { (index, seg) in
+                
+                
+                
+                
+//                let audioSegments:[AudioSegment] = speechTranscripts.enumerated().map { (index, seg) in
+//                    let matchSegment = matchSegments.first(where: {$0.speechIndex.contains(where: {$0 == index})})!
+//                    let vadRange = vadBuffer.rangeTimes[matchSegment.vadIndex]
+//                    let caculateStart = max(seg.start, Int(vadRange.sampleRange.start)) * MemoryLayout<Float>.size
+//                    let caculateEnd = min(seg.end, Int(vadRange.sampleRange.end)) * MemoryLayout<Float>.size
+//
+//                    let segData = vadBuffer.buffer.subdata(in: caculateStart..<caculateEnd)
+//                    return AudioSegment(data: segData, start: 0, end: caculateEnd)
+//                }
+//
+//                let featuresSegments = _featuresHandle(audioSegments: audioSegments)
+//                let featureFlags = featuresSegments.map({$0.sourceIndex})
+//                let featuresX:[[Float]] = featuresSegments.map({$0.embeding})
+//
+//                let (speakerNum, speakerLabel) = _analyzeSpeaker(features: featuresX)
+//                print(speakerLabel)
+                
+                
+                let trancriptRowData:[Data] = speechTranscripts.enumerated().map { (index, seg) in
                     let matchSegment = matchSegments.first(where: {$0.speechIndex.contains(where: {$0 == index})})!
                     let vadRange = vadBuffer.rangeTimes[matchSegment.vadIndex]
                     let caculateStart = max(seg.start, Int(vadRange.sampleRange.start)) * MemoryLayout<Float>.size
                     let caculateEnd = min(seg.end, Int(vadRange.sampleRange.end)) * MemoryLayout<Float>.size
-                    
-                    let segData = vadBuffer.buffer.subdata(in: caculateStart..<caculateEnd)
-                    return AudioSegment(data: segData, start: 0, end: caculateEnd)
-                }
-                
-                let featuresSegments = _featuresHandle(audioSegments: audioSegments)
-                
-                let featuresX:[[Float]] = featuresSegments.map { segment in
-                    segment.embeding
-                }
-    
-                let (speakerNum, speakerLabel) = _analyzeSpeaker(features: featuresX)
 
+                    let segData = vadBuffer.buffer.subdata(in: caculateStart..<caculateEnd)
+                    return segData
+                }
 //                test_tttt_index = 300
-//                let transcriptFeature:[[Float]] = trancriptRowData.map { data in
+                let transcriptFeature:[[Float]] = trancriptRowData.map { data in
 //                    test_SaveToWav(data: data, index: test_tttt_index)
 //                    test_tttt_index += 1
-//
-//                    guard let feature = featureExtarer.extractFeature(data: data) else {
-//                        return [Float](repeating: 0, count: 192)
-//                    }
-//                    return feature
-//                }
-//
-//
-//                let (speakerNum, speakerLabel) = _analyzeSpeaker(features: transcriptFeature)
+
+                    guard let feature = featureExtarer.extractFeature(data: data) else {
+                        return [Float](repeating: 0, count: 192)
+                    }
+                    return feature
+                }
+
+                let (speakerNum, speakerLabel) = _analyzeSpeaker(features: transcriptFeature)
                 print(speakerLabel)
                 
                 

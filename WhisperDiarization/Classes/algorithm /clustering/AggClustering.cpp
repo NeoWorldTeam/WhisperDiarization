@@ -357,7 +357,7 @@ bool AggClustering::output(float distance_threshold,int* labels) {
             if (clusterLabel < 1) {
                 clusterLabel++;
             }
-        } else if (clusterNum < 2) {
+        } else if (clusterNum < 2 && cur_cluster_node.getDistance() > 0.3) {
             cluster_nodes_queue.push(cur_cluster_node.getLeftChildLabel());
             cluster_nodes_queue.push(cur_cluster_node.getRightChildLabel());
             clusterNum++;
@@ -397,6 +397,22 @@ bool AggClustering::output(float distance_threshold,int* labels) {
 
 
 bool AggClustering::cutTree(int k, int* labels) {
+    
+    float distance_n = -1;
+    for (int i = node_num_ - 1, j = 0; i >= 0; -- i, ++ j) {
+        ClusterNode & cur_node = cluster_node_array_[i];
+        if (distance_n < 0) {
+            distance_n = cur_node.getDistance();
+        }
+        
+        printf("node %d: label: %d, left: %d, right: %d, distance: %f\n",
+                j, cur_node.getLabel(), cur_node.getLeftChildLabel(),
+                cur_node.getRightChildLabel(), cur_node.getDistance());
+    }
+    
+    float threshold_dis = distance_n * 0.7;
+
+    
     int clusterLabel = 0;
     
     std::queue<int> cluster_nodes_queue;
@@ -419,7 +435,7 @@ bool AggClustering::cutTree(int k, int* labels) {
             if (clusterLabel < k) {
                 clusterLabel++;
             }
-        } else if (clusterNum < k) {
+        } else if (clusterNum < k && cur_cluster_node.getDistance() > threshold_dis) {
             cluster_nodes_queue.push(cur_cluster_node.getLeftChildLabel());
             cluster_nodes_queue.push(cur_cluster_node.getRightChildLabel());
             clusterNum++;
