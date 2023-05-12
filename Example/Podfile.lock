@@ -1,8 +1,10 @@
 PODS:
+  - ObjectMapper (4.2.0)
   - onnxruntime-c (1.14.0)
   - SpeakerEmbeddingForiOS (0.1.4):
     - onnxruntime-c
   - WhisperDiarization (0.1.6):
+    - ObjectMapper
     - SpeakerEmbeddingForiOS
 
 DEPENDENCIES:
@@ -11,6 +13,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
+    - ObjectMapper
     - onnxruntime-c
 
 EXTERNAL SOURCES:
@@ -20,9 +23,10 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
+  ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
   onnxruntime-c: 1f5923e555122d12239a1173229d6c5e8a0afd3e
   SpeakerEmbeddingForiOS: 884ea22210cacfdbde99af0b291405076766c36b
-  WhisperDiarization: 7b7181952265b9ad640118ce988d41be5b205551
+  WhisperDiarization: 57888b8be14988231ed7e011aa3ae301f97ccc78
 
 PODFILE CHECKSUM: c3b84b2666a40c437db9be927cb53b2b82143848
 

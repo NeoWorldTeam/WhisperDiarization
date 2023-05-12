@@ -45,7 +45,7 @@ public class CSSpeechRecognition {
     let audioPreprocess = AudioPreprocess(maxItemCount: 2)
     var isRunning = true
     
-    var vadMoudle: VADModule = VADModule()
+    var vadMoudle: VADModule?
     
     
     var vadFrameFixByte = MemoryLayout<Float>.size * 16000 * 29
@@ -53,15 +53,17 @@ public class CSSpeechRecognition {
     var cahceFrameSize = 0
     var cacheAudioData = Data()
     
-    let processFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16000, channels: 1, interleaved: false)!
-    var vad: VoiceActivityDetector?
+//    let processFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16000, channels: 1, interleaved: false)!
+//    var vad: VoiceActivityDetector?
     var pcmBuffers = [AVAudioPCMBuffer]()
     
     var featureExtarer: SpeakerEmbedding?
-    
+    var speakerAnalyse: SpeakerAnalyseTempModule?
     
     var speechsCache: [TranscriptItem] = []
 //    var test_tttt_index = 200
+    
+    
     public init() {
         _queue.async {
             self._preload()
@@ -70,12 +72,19 @@ public class CSSpeechRecognition {
     }
     
     func _preload() {
+        
+        if speakerAnalyse == nil {
+            speakerAnalyse = SpeakerAnalyseTempModule()
+            speakerAnalyse?.preload()
+        }
+        
+        
         if whisper == nil {
             whisper = WhisperDiarization()
         }
         
-        if vad == nil {
-            vad = VoiceActivityDetector()
+        if vadMoudle == nil {
+            vadMoudle = VADModule()
         }
         
         if featureExtarer == nil {
@@ -88,7 +97,7 @@ public class CSSpeechRecognition {
             return false
         }
         
-        guard vad != nil else {
+        guard vadMoudle != nil else {
             return false
         }
         
@@ -376,10 +385,7 @@ public class CSSpeechRecognition {
     
     
     
-    func extractFeature(_ datas: inout [Data] ) -> [[Float]] {
-        guard let featureExtarer = featureExtarer else {
-            return []
-        }
+    func extractFeature(_ featureExtarer: SpeakerEmbedding, _ datas: inout [Data] ) -> [[Float]] {
 //                test_tttt_index = 300
         let transcriptFeature:[[Float]] = datas.map { data in
 //                    test_SaveToWav(data: data, index: test_tttt_index)
@@ -405,6 +411,10 @@ public class CSSpeechRecognition {
             guard let featureExtarer = featureExtarer else {
                 continue
             }
+            guard let vadMoudle = vadMoudle else {
+                continue
+            }
+            
             
             let vadResults:[VADBuffer] = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
             guard vadResults.isEmpty == false else {
@@ -441,128 +451,108 @@ public class CSSpeechRecognition {
                 
                 let trancriptAudioSeg:[AudioSegment] = extractAudioRaw(&speechTranscripts, vadBuffer, &matchSegments)
                 var trancriptRowData = trancriptAudioSeg.map({$0.data})
-                let transcriptFeature:[[Float]] = extractFeature(&trancriptRowData)
-                let (speakerNum, speakerLabel) = _analyzeSpeaker(features: transcriptFeature)
-                print(speakerNum)
-                print(speakerLabel)
+                let transcriptFeature:[[Float]] = extractFeature(featureExtarer, &trancriptRowData)
                 
-                for (index, label) in speakerLabel.enumerated() {
+                guard !transcriptFeature.isEmpty else {
+                    return
+                }
+                
+                //加入存在用户
+                let (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 2)
+                var mergeFeatures:[[Float]] = []
+                existSpeakerFeatures.forEach { features in
+                    mergeFeatures.append(contentsOf: features)
+                }
+                mergeFeatures.append(contentsOf: transcriptFeature)
+
+                
+                
+                var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures)
+                
+                //存在用户remark
+                var existSpeakerLabels: [[Int]] = []
+                if existSpeakerFeatures.isEmpty == false {
+                    existSpeakerFeatures.forEach { features in
+                        let labels:[Int] = Array(speakerLabel[0..<features.count])
+                        speakerLabel.removeSubrange(0..<features.count)
+                        existSpeakerLabels.append(labels)
+                    }
+                    
+                    for (index, labels) in existSpeakerLabels.enumerated() {
+                        //最大可能
+                        let mostFrequent = labels.reduce(into: [:]) { counts, number in
+                            counts[number, default: 0] += 1
+                        }
+                        .max { $0.value < $1.value }?.key
+                        
+                        let existSpeakerLabel = existSpeakerIndex[index]
+                        //替换
+                        speakerLabel = speakerLabel.map { (number) -> Int in
+                            if number == mostFrequent {
+                                return existSpeakerLabel
+                            } else {
+                                return number + 101
+                            }
+                        }
+                    }
+                }
+                
+                let unRecognizeSpeakerLabels = speakerLabel.filter { label in
+                    label > 100
+                }
+                
+                Set(unRecognizeSpeakerLabels).forEach { unRecogizeLabel in
+                    lazy var newLabel = self.speakerAnalyse!.generateNewIndex()
+                    speakerLabel = speakerLabel.map({ label in
+                        if label == unRecogizeLabel {
+                            return newLabel
+                        }else {
+                            return label
+                        }
+                    })
+                }
+                
+                let speechDatas = speakerLabel.enumerated().map { elem in
+                    let label = elem.element
+                    let index = elem.offset
                     let speech = speechTranscripts[index].speech
                     let audioSeg = trancriptAudioSeg[index]
                     let embeding = transcriptFeature[index]
                     let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: audioSeg.startTimeStamp, endTimeStamp: audioSeg.endTimeStamp, features: embeding)
                     print("识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
-                    speechsCache.append(transcript)
+                    return transcript
                 }
+ 
+                var store_featurePair:[(Int,[Float])] = []
+                var store_wordNumPair:[(Int,Int)] = []
+                speechDatas.forEach { item in
+                    guard let f_p = store_featurePair.firstIndex(where: {$0.0 == item.label}) else{
+                        store_featurePair.append((item.label, item.features))
+                        return
+                    }
+                }
+                
+                speechDatas.forEach { item in
+                    guard let w_p = store_wordNumPair.firstIndex(where: {$0.0 == item.label}) else{
+                        store_wordNumPair.append((item.label, item.speech.count))
+                        return
+                    }
+                    
+                    store_wordNumPair[w_p].1 += item.speech.count
+                }
+                
+                store_featurePair.forEach { (label: Int, feature: [Float]) in
+                    guard let wordPair = store_wordNumPair.first(where: {$0.0 == label}) else {
+                        return
+                    }
+                    speakerAnalyse?.updateSpeaker(index: label, feature: feature, word: wordPair.1)
+                }
+                speakerAnalyse?.store()
+
+                //加入缓存
+                speechsCache.append(contentsOf: speechDatas)
             }
-            
-            
-            
-//            let buffer = audioBuffer.buffer
-//            let segmentTimeStamp = audioBuffer.timeStamp
-//
-//
-//            vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: audioBuffer.timeStamp)
-//
-//            let bufferByteSize = Int(buffer.frameLength) * MemoryLayout<Float>.size
-//            guard let floatChannel = buffer.floatChannelData else {
-//                continue
-//            }
-//            floatChannel[0].withMemoryRebound(to: UInt8.self, capacity: bufferByteSize) { pointer in
-//                cacheAudioData.append(pointer, count: bufferByteSize)
-//            }
-//
-//            // vad
-//            let vadResults = _vadHandle()
-//            let audioSegments = vadResults.map { result in
-//                let startIndex = result.start * MemoryLayout<Float>.size
-//                let endIndex = result.end * MemoryLayout<Float>.size
-//
-//                print("startIndex:\(startIndex), endIndex: \(endIndex)")
-//
-//                let audioSegment = cacheAudioData.subdata(in: startIndex..<endIndex)
-//                return AudioSegment(data: audioSegment, start: result.start, end: result.end)
-//            }
-//
-//            //transcript
-//            for segment in separateAudioSegment {
-//                let startIndex = segment.start * MemoryLayout<Float>.size
-//                let endIndex = segment.end * MemoryLayout<Float>.size
-//                let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
-//
-//                test_SaveToWav(data: segmentData, index: test_index)
-//                test_index+=1
-//
-//                let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
-//                speechTranscripts.forEach { transcriptSeg in
-//                    //TODO: 计算正确的时间戳
-//                    let speechItemStartTimeStamp = Int64((transcriptSeg.start + segment.start) / 16)
-//                    let speechItemEndTimeStamp = Int64((transcriptSeg.end + segment.start) / 16)
-//                    let startTimeStamp =  segmentTimeStamp + speechItemStartTimeStamp
-//                    let endTimeStamp = segmentTimeStamp + speechItemEndTimeStamp
-//
-//                    let transcript = TranscriptItem(label: segment.label, speech: transcriptSeg.speech,startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp, features: segment.embeding)
-//                    print("识别语音:\(transcript.speech), 时间: \(Date(timeIntervalSince1970: (TimeInterval(startTimeStamp) * 0.001)).description)")
-//                    speechs.append(transcript)
-//                }
-//            }
-//
-//
-//
-////            var test_vad_Index = 100
-////            audioSegments.forEach { segment in
-////                test_SaveToWav(data: segment.data, index: test_vad_Index)
-////                test_vad_Index += 1
-////            }
-//
-//
-//
-//
-//            let featuresSegments = _featuresHandle(audioSegments: audioSegments)
-//
-//            let featuresX:[[Float]] = featuresSegments.map { segment in
-//                segment.embeding
-//            }
-//
-//            let (speakerNum, speakerLabel) = _analyzeSpeaker(features: featuresX)
-//
-//            //合并语句
-//            let joinAudioSegment = _joinSegments(clusterLabels: speakerLabel, segments: featuresSegments)
-//            let separateAudioSegment = _joinSamespeakerSegments(joinAudioSegment)
-//
-//            //识别内容
-//            var test_index = 0
-//            var speechs: [TranscriptItem] = []
-//            for segment in separateAudioSegment {
-//                let startIndex = segment.start * MemoryLayout<Float>.size
-//                let endIndex = segment.end * MemoryLayout<Float>.size
-//                let segmentData = cacheAudioData.subdata(in: startIndex..<endIndex)
-//
-////                test_SaveToWav(data: segmentData, index: test_index)
-////                test_index+=1
-//
-//                let speechTranscripts = whisper.transcriptSync(buffer: segmentData)
-//                speechTranscripts.forEach { transcriptSeg in
-//                    //TODO: 计算正确的时间戳
-//                    let speechItemStartTimeStamp = Int64((transcriptSeg.start + segment.start) / 16)
-//                    let speechItemEndTimeStamp = Int64((transcriptSeg.end + segment.start) / 16)
-//                    let startTimeStamp =  segmentTimeStamp + speechItemStartTimeStamp
-//                    let endTimeStamp = segmentTimeStamp + speechItemEndTimeStamp
-//
-//                    let transcript = TranscriptItem(label: segment.label, speech: transcriptSeg.speech,startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp, features: segment.embeding)
-//                    print("识别语音:\(transcript.speech), 时间: \(Date(timeIntervalSince1970: (TimeInterval(startTimeStamp) * 0.001)).description)")
-//                    speechs.append(transcript)
-//                }
-//            }
-//            speechsCache.append(contentsOf: speechs)
-//
-//            //clean cache
-//            guard let lastAudioSegment = separateAudioSegment.last else {
-//                cacheAudioData.removeAll()
-//                continue
-//            }
-//            let lastAduioSegEndBytes = min(bufferByteSize, lastAudioSegment.end * MemoryLayout<Float>.size)
-//            cacheAudioData.removeSubrange(0..<lastAduioSegEndBytes)
+
         }
     }
     
@@ -589,48 +579,6 @@ public extension CSSpeechRecognition {
         
         return pullSpeechs
     }
-    
-    
-//    ClusterA,ClusterB,0.56
-//    ClusterA,ClusterC,0.32
-//    ClusterA,ClusterD,0.51
-//    ClusterA,ClusterE,0.12
-//    ClusterB,ClusterC,0.56
-//    ClusterB,ClusterD,0.32
-//    ClusterB,ClusterE,0.64
-//    ClusterC,ClusterD,0.21
-//    ClusterC,ClusterE,0.18
-//    ClusterE,ClusterD,0.51
-
-    
-//    func test() -> Bool {
-//        let xxx = AggClusteringWrapper()
-//        var testData:[[Float]] = [  [0, 0.56,   0.32,   0.51,   0.12],
-//                                    [0.56, 0,   0.56,   0.32,   0.64],
-//                                    [0.32, 0.56,   0,   0.21,   0.18],
-//                                    [0.51, 0.32,   0.21,   0,   0.51],
-//                                    [0.12, 0.64,   0.18,   0.51,   0],]
-//        var flagTestData = Array<Float>(testData.joined())
-//        var labels = [Int32](repeating: 0, count: 5)
-//        
-//        
-//        flagTestData.withUnsafeMutableBufferPointer({ (cccc:inout UnsafeMutableBufferPointer<Float>) in
-//            var dataPtr = cccc.baseAddress
-//            labels.withUnsafeMutableBufferPointer { (dddd:inout UnsafeMutableBufferPointer<Int32>) in
-//                var labelsPtr = dddd.baseAddress
-//                xxx.agglomerativeClustering(dataPtr, row: 5, labels: labelsPtr)
-//            }
-//        })
-//
-//        
-//        print(labels)
-//        
-//        
-//        
-//        
-//        
-//        return false
-//    }
 }
 
 
