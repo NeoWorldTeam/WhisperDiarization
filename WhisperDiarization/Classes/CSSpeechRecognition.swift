@@ -195,15 +195,15 @@ public class CSSpeechRecognition {
 //            return newSegments
 //        }
 //        newSegments.append(AudioCombianEmbedsSegment(embeding: firstSeg.embeding, start: firstSeg.start, end: firstSeg.end, label: clusterLabels[0]))
-//        
-//        
+//
+//
 //
 //        for i in 1..<segments.count {
 //            let l = clusterLabels[i]
 //            let seg = segments[i]
 //            let start = seg.start
 //            let end = seg.end
-//        
+//
 //            var protoseg = AudioCombianEmbedsSegment(embeding: seg.embeding, start: seg.start, end: seg.end, label: l)
 //
 //            if start <= newSegments.last!.end {
@@ -229,8 +229,8 @@ public class CSSpeechRecognition {
 //
 //        return newSegments
 //    }
-//    
-//    
+//
+//
 //    func _joinSamespeakerSegments(_ segments: [AudioCombianEmbedsSegment], silenceTolerance: Double = 0.2) -> [AudioCombianEmbedsSegment] {
 //        var newSegments: [AudioCombianEmbedsSegment] = []
 //        guard let firstItem = segments.first else {
@@ -296,6 +296,26 @@ public class CSSpeechRecognition {
             
             //加入存在用户
             let (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 2)
+            if existSpeakerIndex.isEmpty || existSpeakerFeatures.count < speakerAnalyse!.fixHostFeatureCount {
+                speakerAnalyse!.saveToHost(transcriptFeature)
+                //不需要分析直接说话人==0
+                
+                let speechDatas = recognizeResult.enumerated().map { elem in
+                    let index = elem.offset
+                    let segment:RecognizeSegment = elem.element
+                    let label = 0
+                    let speech = segment.speech
+                    let embeding = transcriptFeature[index]
+                    let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: segment.startTimeStamp, endTimeStamp: segment.endTimeStamp, features: embeding)
+                    print("识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(segment.startTimeStamp) * 0.001)).description)")
+                    return transcript
+                }
+                //加入缓存
+                speechsCache.append(contentsOf: speechDatas)
+                return
+                
+            }
+            
             var mergeFeatures:[[Float]] = []
             existSpeakerFeatures.forEach { features in
                 mergeFeatures.append(contentsOf: features)

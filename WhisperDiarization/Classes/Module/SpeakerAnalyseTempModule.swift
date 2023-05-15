@@ -15,10 +15,12 @@ struct Speaker : Mappable {
 
     init?(map: ObjectMapper.Map) {}
     
-    init(index: Int, feature:[Float]) {
+    init(index: Int, features:[[Float]]) {
         self.index = index
-        self.features.append(feature)
+        self.features = features
     }
+    
+    
 
     mutating func mapping(map: Map) {
         index       <- map["index"]
@@ -28,6 +30,7 @@ struct Speaker : Mappable {
 
 
 class SpeakerAnalyseTempModule {
+    let fixHostFeatureCount = 5
     var speakers: [Speaker] = []
     var isUpdated = false
     func preload() {
@@ -42,6 +45,21 @@ class SpeakerAnalyseTempModule {
             return 0
         }
         return lastOne.index + 1
+    }
+    
+    
+    func saveToHost(_ hostFeatures: [[Float]]) {
+        guard var hostSpeaker = speakers.first else {
+            speakers.append(Speaker(index: 0, features: hostFeatures))
+            return
+        }
+        
+        let remianFixFeature = fixHostFeatureCount - hostSpeaker.features.count
+        guard remianFixFeature > 0 else {
+            return
+        }
+        let appendFeatures = hostFeatures.prefix(remianFixFeature)
+        hostSpeaker.features.append(contentsOf: appendFeatures)
     }
     
     
