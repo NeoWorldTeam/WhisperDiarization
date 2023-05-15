@@ -1,7 +1,7 @@
 import Foundation
 import whisperxx
 
-public typealias TranscriptCallBack = (_ result: [TranscriptSegment], _ error: WhisperError?)->Void
+//public typealias TranscriptCallBack = (_ result: [TranscriptSegment], _ error: WhisperError?)->Void
 
 
 public enum WhisperError: Error {
@@ -32,15 +32,15 @@ public struct TranscriptSegment {
 //}
 
 class WhisperDiarization {
-    let _queue: DispatchQueue
+//    let _queue: DispatchQueue
     var _whisper: WhisperWrapper?
-    var _isTranscripting: Bool = false
+//    var _isTranscripting: Bool = false
     
-    var _cacheBuffer: AVAudioPCMBuffer?
+//    var _cacheBuffer: AVAudioPCMBuffer?
     
-    var  _callBack: TranscriptCallBack?
+//    var  _callBack: TranscriptCallBack?
     init() {
-        _queue = DispatchQueue(label: "WhisperDiarization")
+//        _queue = DispatchQueue(label: "WhisperDiarization")
         
         
         guard let associateBundleURL2 = Bundle.main.url(forResource: "WhisperDiarization", withExtension: "bundle") else {
@@ -78,25 +78,30 @@ class WhisperDiarization {
         _whisper = WhisperWrapper(model: modelPath)
     }
     
-
     
-
-    
-    private func readDataFromFile(wavFile: URL) -> (Data,Int){
-        // 打开文件进行读取
-        let file = try! FileHandle(forReadingFrom: wavFile)
+    deinit {
+        _whisper = nil
         
-        defer {
-            // 关闭文件
-            file.closeFile()
-        }
-        
-        // 读取文件数据
-        let data = file.readDataToEndOfFile()
-        let numSamples = data.count / MemoryLayout<Float>.size
-        
-        return (data,numSamples)
+        print("释放whisper")
     }
+    
+
+    
+//    private func readDataFromFile(wavFile: URL) -> (Data,Int){
+//        // 打开文件进行读取
+//        let file = try! FileHandle(forReadingFrom: wavFile)
+//
+//        defer {
+//            // 关闭文件
+//            file.closeFile()
+//        }
+//
+//        // 读取文件数据
+//        let data = file.readDataToEndOfFile()
+//        let numSamples = data.count / MemoryLayout<Float>.size
+//
+//        return (data,numSamples)
+//    }
     
 //    private func generateTranscriptSeg(samples: UnsafePointer<Float>, speech: String, t0: Int64, t1: Int64) -> TranscriptSegment {
 //        var segment = TranscriptSegment()
@@ -108,17 +113,17 @@ class WhisperDiarization {
 //    }
 //
     
-    private func _transcript(wavFile: URL) -> [TranscriptSegment] {
-        //读取文件
-        let (data,numSamples) = readDataFromFile(wavFile: wavFile)
-        // 转换data为UnsafePointer<Float>
-        let samples = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> UnsafePointer<Float> in
-            let floatPtr = bytes.bindMemory(to: Float.self)
-            return UnsafePointer<Float>(floatPtr.baseAddress!)
-        }
-        
-        return _transcript(samples: samples,numSamples: numSamples)
-    }
+//    private func _transcript(wavFile: URL) -> [TranscriptSegment] {
+//        //读取文件
+//        let (data,numSamples) = readDataFromFile(wavFile: wavFile)
+//        // 转换data为UnsafePointer<Float>
+//        let samples = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> UnsafePointer<Float> in
+//            let floatPtr = bytes.bindMemory(to: Float.self)
+//            return UnsafePointer<Float>(floatPtr.baseAddress!)
+//        }
+//
+//        return _transcript(samples: samples,numSamples: numSamples)
+//    }
     
     private func _transcript(samples: UnsafePointer<Float>,numSamples: Int) -> [TranscriptSegment] {
         guard let _whisper = _whisper else {
@@ -215,48 +220,48 @@ extension WhisperDiarization {
     }
     
     
-    func transcript(audioPCMBuffer: AVAudioPCMBuffer, callBack: TranscriptCallBack?) {
-        guard let callBack = callBack else {
-            return
-        }
-        
-        guard _isTranscripting == false else {
-            callBack([], WhisperError.error(message: "transcripting"))
-            return
-        }
-        _isTranscripting = true
-        
-        _cacheBuffer = audioPCMBuffer
-        _callBack = callBack
-
-        
-        _queue.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            guard let cacheBuffer = self._cacheBuffer else {
-                self._cacheBuffer = nil
-                self._callBack = nil
-                self._isTranscripting = false
-                return
-            }
-            
-            guard let cacheBuffer = self._cacheBuffer else {
-                return
-            }
-            
-            let floatChannelData = cacheBuffer.floatChannelData!
-            let samples = UnsafePointer<Float>(floatChannelData[0])
-            let numSamples = Int(cacheBuffer.frameLength)
-                  
-            let result = self._transcript(samples: samples, numSamples: numSamples)
-            
-            self._cacheBuffer = nil
-            self._callBack?(result, nil)
-            self._callBack = nil
-            self._isTranscripting = false
-        }
-    }
+//    func transcript(audioPCMBuffer: AVAudioPCMBuffer, callBack: TranscriptCallBack?) {
+//        guard let callBack = callBack else {
+//            return
+//        }
+//
+//        guard _isTranscripting == false else {
+//            callBack([], WhisperError.error(message: "transcripting"))
+//            return
+//        }
+//        _isTranscripting = true
+//
+//        _cacheBuffer = audioPCMBuffer
+//        _callBack = callBack
+//
+//
+//        _queue.async { [weak self] in
+//            guard let self = self else {
+//                return
+//            }
+//
+//            guard let cacheBuffer = self._cacheBuffer else {
+//                self._cacheBuffer = nil
+//                self._callBack = nil
+//                self._isTranscripting = false
+//                return
+//            }
+//
+//            guard let cacheBuffer = self._cacheBuffer else {
+//                return
+//            }
+//
+//            let floatChannelData = cacheBuffer.floatChannelData!
+//            let samples = UnsafePointer<Float>(floatChannelData[0])
+//            let numSamples = Int(cacheBuffer.frameLength)
+//
+//            let result = self._transcript(samples: samples, numSamples: numSamples)
+//
+//            self._cacheBuffer = nil
+//            self._callBack?(result, nil)
+//            self._callBack = nil
+//            self._isTranscripting = false
+//        }
+//    }
     
 }

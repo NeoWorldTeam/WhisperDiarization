@@ -14,14 +14,11 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
-		7B80268A29F251CA00E12E76 /* 3B4CCC28-E62E-4C52-8AF2-589796133975.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B80268929F251CA00E12E76 /* 3B4CCC28-E62E-4C52-8AF2-589796133975.wav */; };
-		7B80268C29F25FD400E12E76 /* 222.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B80268B29F25FD400E12E76 /* 222.wav */; };
-		7B80268E29F2633200E12E76 /* samplezh2.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B80268D29F2633200E12E76 /* samplezh2.wav */; };
 		7B80269029F2917B00E12E76 /* output29.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B80268F29F2917B00E12E76 /* output29.wav */; };
 		7B92E9872A0CC50E00EC922C /* test_16k.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B92E9862A0CC50E00EC922C /* test_16k.wav */; };
 		7B92E98D2A0DE86D00EC922C /* 16_202305080951_16k.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B92E98C2A0DE86D00EC922C /* 16_202305080951_16k.wav */; };
 		7BA71F822A11C7A500AA0EE4 /* test_concat_output.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7BA71F812A11C7A500AA0EE4 /* test_concat_output.wav */; };
-		7BD8D8FC29F1125F00ABFBC9 /* samplezh.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7BD8D8FB29F1125E00ABFBC9 /* samplezh.wav */; };
+		7BA71F862A11FF7500AA0EE4 /* output29_2.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7BA71F852A11FF7500AA0EE4 /* output29_2.wav */; };
 		C0D598BD9FD7E51E57585EF4 /* Pods_WhisperDiarization_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 341E927821A7441C7FA7B97A /* Pods_WhisperDiarization_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -52,14 +49,11 @@
 		607FACE51AFB9204008FA782 /* WhisperDiarization_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhisperDiarization_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		7B80268929F251CA00E12E76 /* 3B4CCC28-E62E-4C52-8AF2-589796133975.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "3B4CCC28-E62E-4C52-8AF2-589796133975.wav"; sourceTree = "<group>"; };
-		7B80268B29F25FD400E12E76 /* 222.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 222.wav; sourceTree = "<group>"; };
-		7B80268D29F2633200E12E76 /* samplezh2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = samplezh2.wav; sourceTree = "<group>"; };
 		7B80268F29F2917B00E12E76 /* output29.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = output29.wav; sourceTree = "<group>"; };
 		7B92E9862A0CC50E00EC922C /* test_16k.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = test_16k.wav; sourceTree = "<group>"; };
 		7B92E98C2A0DE86D00EC922C /* 16_202305080951_16k.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 16_202305080951_16k.wav; sourceTree = "<group>"; };
 		7BA71F812A11C7A500AA0EE4 /* test_concat_output.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = test_concat_output.wav; sourceTree = "<group>"; };
-		7BD8D8FB29F1125E00ABFBC9 /* samplezh.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = samplezh.wav; sourceTree = "<group>"; };
+		7BA71F852A11FF7500AA0EE4 /* output29_2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = output29_2.wav; sourceTree = "<group>"; };
 		A43C10D5BB790BC5B58E3670 /* Pods_WhisperDiarization_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhisperDiarization_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9A73D95A3289E5C4B69D5D9 /* Pods-WhisperDiarization_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperDiarization_Example.release.xcconfig"; path = "Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example.release.xcconfig"; sourceTree = "<group>"; };
 		F30782EFA5ED2B5520EE20DE /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -109,13 +103,10 @@
 		607FACD21AFB9204008FA782 /* Example for WhisperDiarization */ = {
 			isa = PBXGroup;
 			children = (
-				7BD8D8FB29F1125E00ABFBC9 /* samplezh.wav */,
-				7B80268D29F2633200E12E76 /* samplezh2.wav */,
 				7BA71F812A11C7A500AA0EE4 /* test_concat_output.wav */,
 				7B80268F29F2917B00E12E76 /* output29.wav */,
+				7BA71F852A11FF7500AA0EE4 /* output29_2.wav */,
 				7B92E9862A0CC50E00EC922C /* test_16k.wav */,
-				7B80268929F251CA00E12E76 /* 3B4CCC28-E62E-4C52-8AF2-589796133975.wav */,
-				7B80268B29F25FD400E12E76 /* 222.wav */,
 				7B92E98C2A0DE86D00EC922C /* 16_202305080951_16k.wav */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
@@ -273,14 +264,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7BD8D8FC29F1125F00ABFBC9 /* samplezh.wav in Resources */,
-				7B80268E29F2633200E12E76 /* samplezh2.wav in Resources */,
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
+				7BA71F862A11FF7500AA0EE4 /* output29_2.wav in Resources */,
 				7B80269029F2917B00E12E76 /* output29.wav in Resources */,
 				7BA71F822A11C7A500AA0EE4 /* test_concat_output.wav in Resources */,
-				7B80268C29F25FD400E12E76 /* 222.wav in Resources */,
-				7B80268A29F251CA00E12E76 /* 3B4CCC28-E62E-4C52-8AF2-589796133975.wav in Resources */,
 				7B92E98D2A0DE86D00EC922C /* 16_202305080951_16k.wav in Resources */,
 				7B92E9872A0CC50E00EC922C /* test_16k.wav in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,

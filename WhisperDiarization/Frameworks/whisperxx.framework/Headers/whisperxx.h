@@ -43,7 +43,7 @@ typedef struct
 
     struct whisper_context * ctx;
 
-    void * vc;
+//    void * vc;
 } StateInp;
 
 

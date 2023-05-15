@@ -410,7 +410,7 @@ bool AggClustering::cutTree(int minK, int maxK, int* labels) {
                 cur_node.getRightChildLabel(), cur_node.getDistance());
     }
     
-    float threshold_dis = distance_n * 0.7;
+    float threshold_dis = distance_n * 0.5;
 
     
     int clusterLabel = 0;

@@ -34,6 +34,9 @@ class SpeakerAnalyseTempModule {
     
     //临时
     var speakers: [Speaker] = []
+    
+    
+    var speakerRecentlyRecord:[Int] = []
 
     func preload() {
         //1. 读用户特征
@@ -46,9 +49,9 @@ class SpeakerAnalyseTempModule {
         speakers.append(hostSpeaker)
     }
     
-    func generateNewIndex() -> Int {
-        return speakers.last!.index + 1
-    }
+//    func generateNewIndex() -> Int {
+//        return speakers.last!.index + 1
+//    }
     
     
     func saveToHost(_ hostFeatures: [[Float]]) {
@@ -72,24 +75,24 @@ class SpeakerAnalyseTempModule {
     
     
     func getTopSpeakerFeature(num: Int) -> ([Int], [[[Float]]]) {
-        guard speakers.count > 0 else {
-            return ([],[])
-        }
-        let minNum = min(num, speakers.count)
 
-        let speakersLimit = Array(speakers[0..<minNum])
+        let lastetSpeakers:[Int] = Array<Int>(speakerRecentlyRecord.reversed())
+        let onlyLastetSpeakers = Set(lastetSpeakers)
+        var recentSpeakerIndexs:[Int] = Array<Int>(onlyLastetSpeakers.prefix(num - 1))
         
-        let speakerFeatures: [[[Float]]] = speakersLimit.map { score in
-            return speakers[score.index].features
-        }
-        let speakerIndexs: [Int] = speakersLimit.map { score in
-            return speakers[score.index].index
+        speakerRecentlyRecord = []
+        var speakersLimit = [Int]()
+        speakersLimit.append(0)
+        speakersLimit.append(contentsOf: recentSpeakerIndexs)
+
+        let speakerFeatures: [[[Float]]] = speakersLimit.map { index in
+            return speakers[index].features
         }
 
-        return (speakerIndexs,speakerFeatures)
+        return (speakersLimit,speakerFeatures)
     }
 
-    
+    //更新数据，且将最新的用户提到前面
     func updateSpeaker(index: Int, feature: [Float]) {
         guard let speakerIndex = speakers.firstIndex(where: {$0.index == index}) else {
             var speaker = Speaker(index: index, features: [])
@@ -100,13 +103,14 @@ class SpeakerAnalyseTempModule {
         
         switch index {
         case 0:
-            if speakers[speakerIndex].features.count > 8 {
-                speakers[speakerIndex].features.remove(at: 5)
+            if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2 {
+                speakers[speakerIndex].features.remove(at: fixHostFeatureCount)
             }
             break
             
         default:
-            if speakers[speakerIndex].features.count > 3 {
+            speakerRecentlyRecord.append(speakerIndex)
+            if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2 {
                 speakers[speakerIndex].features.removeFirst()
             }
             break
@@ -115,5 +119,5 @@ class SpeakerAnalyseTempModule {
         speakers[speakerIndex].features.append(feature)
     }
     
-    
+
 }

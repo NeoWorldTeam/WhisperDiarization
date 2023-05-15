@@ -50,7 +50,7 @@ class ViewController: UIViewController {
 //        }
         
         
-        let filePath = Bundle.main.url(forResource: "test_16k", withExtension: "wav")!
+        let filePath = Bundle.main.url(forResource: "output29", withExtension: "wav")!
         guard let buffer = loadAudioFile(url: filePath) else {
             return
         }

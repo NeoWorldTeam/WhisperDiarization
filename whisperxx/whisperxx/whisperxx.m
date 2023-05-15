@@ -19,6 +19,11 @@
     return self;
 }
 
+- (void)dealloc {
+    whisper_free(stateInp.ctx);
+    NSLog(@"WhisperWrapper dealloc");
+}
+
 - (BOOL) LoadModel {
     if (self->isLoaded){
         return true;

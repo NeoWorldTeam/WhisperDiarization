@@ -42,7 +42,7 @@ public class CSSpeechRecognition {
     var whisper: SpeechRecognizeModule?
     
     var speechsCache: [TranscriptItem] = []
-//    var test_tttt_index = 200
+    var test_tttt_index = 1000
     
     
     public init() {
@@ -287,8 +287,11 @@ public class CSSpeechRecognition {
                 continue
             }
             
+            vadResults.forEach { buffer in
+                whisper.test_SaveToWav(data: buffer.buffer, index: test_tttt_index)
+                test_tttt_index+=1
+            }
             
-//            whisper.test_SaveToWav(data: vadResults[0].buffer, index: 1)
             
             let recognizeResult:[RecognizeSegment] = whisper.recognize(vadBuffers: vadResults)
             var trancriptRowData = recognizeResult.map({$0.data})
@@ -346,66 +349,79 @@ public class CSSpeechRecognition {
             
             //分析
             var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
+            print(speakerLabel)
+            
+            
             
             //获取存在用户的label
             var existSpeakerLabels: [[Int]] = []
             existSpeakerFeatures.forEach { features in
-                let labels:[Int] = Array(speakerLabel[0..<features.count])
+                var labels:[Int] = Array(speakerLabel[0..<features.count])
                 speakerLabel.removeSubrange(0..<features.count)
                 existSpeakerLabels.append(labels)
             }
             
-            //保证开始是说话人
-            let hostCountFrequents = existSpeakerLabels[0].reduce(into: [:]) { counts, number in
-                counts[number, default: 0] += 1
-            }
-            
-            guard let hostMostFrequentCount = hostCountFrequents.max { $0.value < $1.value }?.value else {
-                print("这次识别结果无效！！！！！")
-                return
-            }
-            let hostMostFrequentLabel = hostCountFrequents.max { $0.value < $1.value }?.key
-            let hostProbability = Float(hostMostFrequentCount) / Float(existSpeakerLabels[0].count)
-            guard hostProbability > 0.79999 else {
-                print("这次识别结果无效！！！！！")
-                return
-            }
-            
-            //分析识别出来label的最大可能性
-            for (index, labels) in existSpeakerLabels.enumerated() {
-                //最大可能
-                let mostFrequent = labels.reduce(into: [:]) { counts, number in
-                    counts[number, default: 0] += 1
+            //分析label的概率
+            existSpeakerLabels.enumerated().forEach { elem in
+                let index: Int = elem.offset
+                let labels: [Int] = elem.element
+                // 1:1 or > 0.7
+                let counts: [Int: Int] = labels.reduce(into: [:]) { counts, element in
+                    counts[element, default: 0] += 1
                 }
-                .max { $0.value < $1.value }?.key
                 
+                if let one = counts.first,
+                   one.value > 1,
+                   Set(counts.values).count == 1 {
+                    var equalRatioLabels:[Int] = []
+                    equalRatioLabels.append(contentsOf: counts.keys)
+                    existSpeakerLabels[index] = equalRatioLabels
+                    return
+                }
 
-                
-                
-                let existSpeakerLabel = existSpeakerIndex[index]
-                //替换
-                speakerLabel = speakerLabel.map { (number) -> Int in
-                    if number == mostFrequent {
-                        return existSpeakerLabel
-                    } else {
-                        return number + 101
+                let highProbabilityLabels = Array<Int>(counts.filter { elem in
+                    (Float(elem.value) / Float(labels.count)) > 0.7
+                }.keys)
+                existSpeakerLabels[index] = highProbabilityLabels
+            }
+
+            
+            
+//            if existSpeakerLabels.count > 0 {
+//                let hostLabels = existSpeakerLabels[0]
+//                labels = labels.filter { !hostLabels.contains($0) }
+//            }
+            
+            
+            //提取所有已知用户
+            //替换
+            speakerLabel = speakerLabel.map { (number) -> Int in
+                for (index, labels) in existSpeakerLabels.enumerated() {
+                    if labels.contains(number) {
+                        return existSpeakerIndex[index]
                     }
                 }
                 
-                
-                
+                return number + 101
             }
+            
             
 
             
+            //为不存在的用户创建新的id并替换
             let unRecognizeSpeakerLabels = speakerLabel.filter { label in
                 label > 100
             }
             
+            var recordNewLabel = existSpeakerIndex.max()!
             Set(unRecognizeSpeakerLabels).forEach { unRecogizeLabel in
-                lazy var newLabel = self.speakerAnalyse!.generateNewIndex()
+                var newLabel = 0
                 speakerLabel = speakerLabel.map({ label in
                     if label == unRecogizeLabel {
+                        if newLabel == 0 {
+                            recordNewLabel += 1
+                            newLabel = recordNewLabel
+                        }
                         return newLabel
                     }else {
                         return label
@@ -413,6 +429,7 @@ public class CSSpeechRecognition {
                 })
             }
             
+            //通过更新好的id生成数据
             let speechDatas = speakerLabel.enumerated().map { elem in
                 let label = elem.element
                 let index = elem.offset
@@ -424,15 +441,9 @@ public class CSSpeechRecognition {
                 return transcript
             }
 
-            var store_featurePair:[(Int,[Float])] = []
+            //更新
             speechDatas.forEach { item in
-                guard let f_p = store_featurePair.firstIndex(where: {$0.0 == item.label}) else{
-                    store_featurePair.append((item.label, item.features))
-                    return
-                }
-            }
-            store_featurePair.forEach { (label: Int, feature: [Float]) in
-                speakerAnalyse?.updateSpeaker(index: label, feature: feature)
+                speakerAnalyse?.updateSpeaker(index: item.label, feature: item.features)
             }
 
 
