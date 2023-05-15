@@ -120,7 +120,7 @@ public:
 
 
     bool output(float distance_threshold, int* labels);
-    bool cutTree(int k, int* labels);
+    bool cutTree(int minK, int maxK, int* labels) ;
 };
 }  // namespace CSAlgorithm 
 

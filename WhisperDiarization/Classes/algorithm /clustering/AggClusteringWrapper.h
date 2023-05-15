@@ -9,6 +9,6 @@
 
 -(void) agglomerativeClustering:(float*) dist Row:(int) row Labels:(int*) labels;
 
--(void) agglomerativeClustering:(float*) dist Row:(int) row ClusterNum:(int) clusterNum Labels:(int*) labels;
+-(void) agglomerativeClustering:(float*) dist Row:(int) row MinClusterNum:(int) minClusterNum MaxClusterNum:(int) maxClusterNum Labels:(int*) labels;
 
 @end

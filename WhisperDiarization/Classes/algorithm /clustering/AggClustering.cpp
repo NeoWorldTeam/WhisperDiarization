@@ -396,7 +396,7 @@ bool AggClustering::output(float distance_threshold,int* labels) {
 }
 
 
-bool AggClustering::cutTree(int k, int* labels) {
+bool AggClustering::cutTree(int minK, int maxK, int* labels) {
     
     float distance_n = -1;
     for (int i = node_num_ - 1, j = 0; i >= 0; -- i, ++ j) {
@@ -432,10 +432,10 @@ bool AggClustering::cutTree(int k, int* labels) {
             // leaf nodes
             labels[cur_cluster_node.getLabel()] = clusterLabel;
             
-            if (clusterLabel < k) {
+            if (clusterLabel < maxK) {
                 clusterLabel++;
             }
-        } else if (clusterNum < k && cur_cluster_node.getDistance() > threshold_dis) {
+        } else if (clusterNum < maxK && (cur_cluster_node.getDistance() > threshold_dis || clusterNum < minK)) {
             cluster_nodes_queue.push(cur_cluster_node.getLeftChildLabel());
             cluster_nodes_queue.push(cur_cluster_node.getRightChildLabel());
             clusterNum++;
@@ -463,7 +463,7 @@ bool AggClustering::cutTree(int k, int* labels) {
                 labels[cluster_node_array_[(*it)].getLabel()] = clusterLabel;
             }
             if (!out_labels.empty()){
-                if (clusterLabel < k) {
+                if (clusterLabel < maxK) {
                     clusterLabel++;
                 }
             }

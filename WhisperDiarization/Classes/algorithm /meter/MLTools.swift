@@ -156,7 +156,7 @@ internal class MLTools {
     
     
     
-    static func agglomerativeClustering(_ X: [[Float]], _ k: Int) -> [Int] {
+    static func agglomerativeClustering(_ X: [[Float]], _ minK: Int, _ maxK: Int) -> [Int] {
         
         var dist = [Float](repeating: 0.0, count: (X.count * (X.count - 1)) >> 1 )
         var distNum = 0

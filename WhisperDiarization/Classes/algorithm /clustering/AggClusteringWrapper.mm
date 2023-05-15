@@ -28,7 +28,7 @@
 }
 
 
--(void) agglomerativeClustering:(float*) dist Row:(int) row ClusterNum:(int) clusterNum Labels:(int*) labels {
+-(void) agglomerativeClustering:(float*) dist Row:(int) row MinClusterNum:(int) minClusterNum MaxClusterNum:(int) maxClusterNum Labels:(int*) labels {
     CSAlgorithm::AggClustering* clusterer = new CSAlgorithm::AggClustering();
     if (!clusterer->init(dist, row)) {
         fprintf(stderr, "====init clusterer failed!\n");
@@ -38,7 +38,7 @@
         fprintf(stderr, "====cluster nodes failed!\n");
         return ;
     }
-    clusterer->cutTree(clusterNum, labels);
+    clusterer->cutTree(minClusterNum, maxClusterNum, labels);
     delete clusterer;
 }
 
