@@ -287,10 +287,10 @@ public class CSSpeechRecognition {
                 continue
             }
             
-            vadResults.forEach { buffer in
-                whisper.test_SaveToWav(data: buffer.buffer, index: test_tttt_index)
-                test_tttt_index+=1
-            }
+//            vadResults.forEach { buffer in
+//                whisper.test_SaveToWav(data: buffer.buffer, index: test_tttt_index)
+//                test_tttt_index+=1
+//            }
             
             
             let recognizeResult:[RecognizeSegment] = whisper.recognize(vadBuffers: vadResults)
