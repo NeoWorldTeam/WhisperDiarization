@@ -11,7 +11,6 @@ import ObjectMapper
 struct Speaker : Mappable {
     var index: Int = -1
     var features: [[Float]] = []
-    var words: Int = 0
 
     init?(map: ObjectMapper.Map) {}
     
@@ -31,26 +30,29 @@ struct Speaker : Mappable {
 
 class SpeakerAnalyseTempModule {
     let fixHostFeatureCount = 5
+    var hostSpeaker: Speaker!
+    
+    //临时
     var speakers: [Speaker] = []
-    var isUpdated = false
+
     func preload() {
         //1. 读用户特征
-        if let speakers_str = UserDefaults.standard.string(forKey: "cs_speakers_temp") {
-            speakers = Array<Speaker>(JSONString: speakers_str) ?? []
+        if let speaker_host_str = UserDefaults.standard.string(forKey: "cs_speaker_host") {
+            hostSpeaker = Speaker(JSONString: speaker_host_str)
         }
+        
+        speakers.append(hostSpeaker)
     }
     
     func generateNewIndex() -> Int {
-        guard let lastOne = speakers.last else {
-            return 0
-        }
-        return lastOne.index + 1
+        return speakers.last!.index + 1
     }
     
     
     func saveToHost(_ hostFeatures: [[Float]]) {
         guard var hostSpeaker = speakers.first else {
-            speakers.append(Speaker(index: 0, features: hostFeatures))
+            let appendFeatures:[[Float]] = Array(hostFeatures.prefix(fixHostFeatureCount))
+            speakers.append(Speaker(index: 0, features: appendFeatures))
             return
         }
         
@@ -60,6 +62,10 @@ class SpeakerAnalyseTempModule {
         }
         let appendFeatures = hostFeatures.prefix(remianFixFeature)
         hostSpeaker.features.append(contentsOf: appendFeatures)
+        
+        if let ss = hostSpeaker.toJSONString() {
+            UserDefaults.standard.set(ss, forKey: "cs_speaker_host")
+        }
     }
     
     
@@ -70,56 +76,42 @@ class SpeakerAnalyseTempModule {
         let minNum = min(num, speakers.count)
 
         let speakersLimit = Array(speakers[0..<minNum])
+        
         let speakerFeatures: [[[Float]]] = speakersLimit.map { score in
             return speakers[score.index].features
         }
         let speakerIndexs: [Int] = speakersLimit.map { score in
             return speakers[score.index].index
         }
+
         return (speakerIndexs,speakerFeatures)
     }
-    
 
-//    //更新多个用户信息
-//    func updateSpeakers(indexs: [Int], features: [[Float]], words: [Int]) {
-//        for (i, _) in indexs.enumerated() {
-//            updateSpeaker(index: indexs[i], feature: features[i], word: words[i])
-//        }
-//
-//        speakers.sort { s1, s2 in
-//            s1.words > s2.words
-//        }
-//
-//        if let ss = speakers.toJSONString() {
-//            UserDefaults.standard.set(ss, forKey: "cs_speakers_temp")
-//        }
-//    }
     
-    func updateSpeaker(index: Int, feature: [Float], word: Int) {
+    func updateSpeaker(index: Int, feature: [Float]) {
         guard let speakerIndex = speakers.firstIndex(where: {$0.index == index}) else {
-            let speaker = Speaker(index: index, feature: feature)
+            var speaker = Speaker(index: index, features: [])
+            speaker.features.append(feature)
             speakers.append(speaker)
             return
         }
         
-        if speakers[speakerIndex].features.count > 3 {
-            speakers[speakerIndex].features.removeFirst()
+        switch index {
+        case 0:
+            if speakers[speakerIndex].features.count > 8 {
+                speakers[speakerIndex].features.remove(at: 5)
+            }
+            break
+            
+        default:
+            if speakers[speakerIndex].features.count > 3 {
+                speakers[speakerIndex].features.removeFirst()
+            }
+            break
         }
-        
+
         speakers[speakerIndex].features.append(feature)
-        speakers[speakerIndex].words += word
-        isUpdated = true
     }
     
-    func store() {
-        guard isUpdated else {
-            return
-        }
-        
-        if let ss = speakers.toJSONString() {
-            UserDefaults.standard.set(ss, forKey: "cs_speakers_temp")
-        }
-        
-    }
     
 }
