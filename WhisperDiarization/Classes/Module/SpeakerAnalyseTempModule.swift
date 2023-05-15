@@ -29,7 +29,7 @@ struct Speaker : Mappable {
 
 
 class SpeakerAnalyseTempModule {
-    let fixHostFeatureCount = 5
+    let fixHostFeatureCount = 2
     var hostSpeaker: Speaker!
     
     //临时
@@ -39,6 +39,8 @@ class SpeakerAnalyseTempModule {
         //1. 读用户特征
         if let speaker_host_str = UserDefaults.standard.string(forKey: "cs_speaker_host") {
             hostSpeaker = Speaker(JSONString: speaker_host_str)
+        }else {
+            hostSpeaker = Speaker(index: 0, features: [])
         }
         
         speakers.append(hostSpeaker)
@@ -56,14 +58,14 @@ class SpeakerAnalyseTempModule {
             return
         }
         
-        let remianFixFeature = fixHostFeatureCount - hostSpeaker.features.count
+        let remianFixFeature = fixHostFeatureCount - speakers[0].features.count
         guard remianFixFeature > 0 else {
             return
         }
         let appendFeatures = hostFeatures.prefix(remianFixFeature)
-        hostSpeaker.features.append(contentsOf: appendFeatures)
+        speakers[0].features.append(contentsOf: appendFeatures)
         
-        if let ss = hostSpeaker.toJSONString() {
+        if let ss = speakers[0].toJSONString() {
             UserDefaults.standard.set(ss, forKey: "cs_speaker_host")
         }
     }

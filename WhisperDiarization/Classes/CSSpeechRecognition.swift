@@ -156,7 +156,7 @@ public class CSSpeechRecognition {
         return allEmbeds
     }
     
-    func _analyzeSpeaker(features: [[Float]]) -> (Int, [Int]) {
+    func _analyzeSpeaker(features: [[Float]], k: Int = 2) -> (Int, [Int]) {
         guard features.count > 0 else {
             return (0, [])
         }
@@ -171,7 +171,7 @@ public class CSSpeechRecognition {
 //        print(mormalFeatureDis)
 //        var lastetScore:Float = 0
 //        var lastLabels:[Int] = []
-        let labels = MLTools.agglomerativeClustering(mormalFeatureDis, 5)
+        let labels = MLTools.agglomerativeClustering(mormalFeatureDis, max(2, k), 5)
 //        for k in 2...5 {
 //            let labels = MLTools.agglomerativeClustering(mormalFeatureDis, k)
 //            let score = MLTools.silhouetteScore(l2FeatureDis, labels, k)
@@ -286,6 +286,10 @@ public class CSSpeechRecognition {
             guard vadResults.isEmpty == false else {
                 continue
             }
+            
+            
+//            whisper.test_SaveToWav(data: vadResults[0].buffer, index: 1)
+            
             let recognizeResult:[RecognizeSegment] = whisper.recognize(vadBuffers: vadResults)
             var trancriptRowData = recognizeResult.map({$0.data})
             let transcriptFeature:[[Float]] = extractFeature(featureExtarer, &trancriptRowData)
@@ -294,28 +298,45 @@ public class CSSpeechRecognition {
                 return
             }
             
+            
+            
+            
             //加入存在用户
-            let (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 2)
-            if existSpeakerIndex.isEmpty || existSpeakerFeatures.count < speakerAnalyse!.fixHostFeatureCount {
+            var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
+            
+            //没有host情况
+            let hostNeedFeature = speakerAnalyse!.fixHostFeatureCount - existSpeakerFeatures[0].count
+            if existSpeakerFeatures.isEmpty || hostNeedFeature > 0 {
                 speakerAnalyse!.saveToHost(transcriptFeature)
-                //不需要分析直接说话人==0
                 
-                let speechDatas = recognizeResult.enumerated().map { elem in
-                    let index = elem.offset
-                    let segment:RecognizeSegment = elem.element
-                    let label = 0
-                    let speech = segment.speech
-                    let embeding = transcriptFeature[index]
-                    let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: segment.startTimeStamp, endTimeStamp: segment.endTimeStamp, features: embeding)
-                    print("识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(segment.startTimeStamp) * 0.001)).description)")
-                    return transcript
+                
+                if hostNeedFeature >= transcriptFeature.count {
+                    //不需要分析直接说话人==0
+                    let speechDatas = recognizeResult.enumerated().map { elem in
+                        let index = elem.offset
+                        let segment:RecognizeSegment = elem.element
+                        let label = 0
+                        let speech = segment.speech
+                        let embeding = transcriptFeature[index]
+                        let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: segment.startTimeStamp, endTimeStamp: segment.endTimeStamp, features: embeding)
+                        print("识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(segment.startTimeStamp) * 0.001)).description)")
+                        return transcript
+                    }
+                    //加入缓存
+                    speechsCache.append(contentsOf: speechDatas)
+                    return
                 }
-                //加入缓存
-                speechsCache.append(contentsOf: speechDatas)
-                return
                 
+                //重新获取存在用户
+                (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
             }
             
+
+            
+
+            
+
+            //合并Feature
             var mergeFeatures:[[Float]] = []
             existSpeakerFeatures.forEach { features in
                 mergeFeatures.append(contentsOf: features)
@@ -323,36 +344,59 @@ public class CSSpeechRecognition {
             mergeFeatures.append(contentsOf: transcriptFeature)
 
             
+            //分析
+            var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
             
-            var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures)
-            
-            //存在用户remark
+            //获取存在用户的label
             var existSpeakerLabels: [[Int]] = []
-            if existSpeakerFeatures.isEmpty == false {
-                existSpeakerFeatures.forEach { features in
-                    let labels:[Int] = Array(speakerLabel[0..<features.count])
-                    speakerLabel.removeSubrange(0..<features.count)
-                    existSpeakerLabels.append(labels)
+            existSpeakerFeatures.forEach { features in
+                let labels:[Int] = Array(speakerLabel[0..<features.count])
+                speakerLabel.removeSubrange(0..<features.count)
+                existSpeakerLabels.append(labels)
+            }
+            
+            //保证开始是说话人
+            let hostCountFrequents = existSpeakerLabels[0].reduce(into: [:]) { counts, number in
+                counts[number, default: 0] += 1
+            }
+            
+            guard let hostMostFrequentCount = hostCountFrequents.max { $0.value < $1.value }?.value else {
+                print("这次识别结果无效！！！！！")
+                return
+            }
+            let hostMostFrequentLabel = hostCountFrequents.max { $0.value < $1.value }?.key
+            let hostProbability = Float(hostMostFrequentCount) / Float(existSpeakerLabels[0].count)
+            guard hostProbability > 0.79999 else {
+                print("这次识别结果无效！！！！！")
+                return
+            }
+            
+            //分析识别出来label的最大可能性
+            for (index, labels) in existSpeakerLabels.enumerated() {
+                //最大可能
+                let mostFrequent = labels.reduce(into: [:]) { counts, number in
+                    counts[number, default: 0] += 1
+                }
+                .max { $0.value < $1.value }?.key
+                
+
+                
+                
+                let existSpeakerLabel = existSpeakerIndex[index]
+                //替换
+                speakerLabel = speakerLabel.map { (number) -> Int in
+                    if number == mostFrequent {
+                        return existSpeakerLabel
+                    } else {
+                        return number + 101
+                    }
                 }
                 
-                for (index, labels) in existSpeakerLabels.enumerated() {
-                    //最大可能
-                    let mostFrequent = labels.reduce(into: [:]) { counts, number in
-                        counts[number, default: 0] += 1
-                    }
-                    .max { $0.value < $1.value }?.key
-                    
-                    let existSpeakerLabel = existSpeakerIndex[index]
-                    //替换
-                    speakerLabel = speakerLabel.map { (number) -> Int in
-                        if number == mostFrequent {
-                            return existSpeakerLabel
-                        } else {
-                            return number + 101
-                        }
-                    }
-                }
+                
+                
             }
+            
+
             
             let unRecognizeSpeakerLabels = speakerLabel.filter { label in
                 label > 100
@@ -381,30 +425,17 @@ public class CSSpeechRecognition {
             }
 
             var store_featurePair:[(Int,[Float])] = []
-            var store_wordNumPair:[(Int,Int)] = []
             speechDatas.forEach { item in
                 guard let f_p = store_featurePair.firstIndex(where: {$0.0 == item.label}) else{
                     store_featurePair.append((item.label, item.features))
                     return
                 }
             }
-            
-            speechDatas.forEach { item in
-                guard let w_p = store_wordNumPair.firstIndex(where: {$0.0 == item.label}) else{
-                    store_wordNumPair.append((item.label, item.speech.count))
-                    return
-                }
-                
-                store_wordNumPair[w_p].1 += item.speech.count
-            }
-            
             store_featurePair.forEach { (label: Int, feature: [Float]) in
-                guard let wordPair = store_wordNumPair.first(where: {$0.0 == label}) else {
-                    return
-                }
-                speakerAnalyse?.updateSpeaker(index: label, feature: feature, word: wordPair.1)
+                speakerAnalyse?.updateSpeaker(index: label, feature: feature)
             }
-            speakerAnalyse?.store()
+
+
 
             //加入缓存
             speechsCache.append(contentsOf: speechDatas)

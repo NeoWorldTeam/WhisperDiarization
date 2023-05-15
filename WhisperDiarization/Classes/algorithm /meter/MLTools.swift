@@ -186,7 +186,7 @@ internal class MLTools {
             let dataPtr: UnsafeMutablePointer<Float> = cccc.baseAddress!
             labels.withUnsafeMutableBufferPointer { (dddd:inout UnsafeMutableBufferPointer<Int32>) in
                let labelsPtr = dddd.baseAddress
-               xxx.agglomerativeClustering(dataPtr, row: Int32(X.count),clusterNum: Int32(k), labels: labelsPtr)
+               xxx.agglomerativeClustering(dataPtr, row: Int32(X.count),minClusterNum: Int32(minK), maxClusterNum: Int32(maxK), labels: labelsPtr)
             }
         })
         return labels.compactMap { Int($0) }

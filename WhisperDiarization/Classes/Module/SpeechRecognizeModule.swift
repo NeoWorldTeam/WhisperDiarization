@@ -143,7 +143,22 @@ class SpeechRecognizeModule {
         
         return (-1,0)
     }
+
     
+    func overlapRange(a: (start: Int, end: Int), b: (start: Int, end: Int)) -> (start: Int, end: Int)? {
+        // 计算两个区间的重合部分
+        let start = max(a.start, b.start)
+        let end = min(a.end, b.end)
+        // 如果没有重合部分，则返回nil
+        if start >= end {
+            return nil
+        }
+        // 计算重合区间的上下区间
+        let upper = min(a.end, b.end)
+        let lower = max(a.start, b.start)
+        // 返回重合区间的上下区间
+        return (lower, upper)
+    }
     
     func matchTranscriptLocationInBufferByVAD(_ transcripts: inout [TranscriptSegment], _ rangeTimes: [VADRange]) -> [VADAndTranscriptMatchSegment] {
         var matchIndex = 0
@@ -159,24 +174,24 @@ class SpeechRecognizeModule {
 //                    test_SaveToWav(data: testData, index: test_tttt_index)
 //                    test_tttt_index+=1
             
-            let (startIndex, volume_1) = findStartPosInWhichRange(statrIndex: tempIndex, startPos: transcriptSeg.start, endPos: transcriptSeg.end, rangeTimes: rangeTimes)
-            guard startIndex >= 0 else {
-                break
-            }
-            
-            let (endIndex, volume_2) = findEndPosInWhichRange(statrIndex: startIndex, startPos: transcriptSeg.start, endPos: transcriptSeg.end, rangeTimes: rangeTimes)
-            guard endIndex >= 0 else {
-                break
-            }
-            
+            var maxOverLapSize = 0
+            let iterStartIndex = tempIndex
             var speechIndexPair:(Int,Int) = (0,0)
-            if volume_1 >= volume_2 {
-                tempIndex = startIndex
-            }else{
-                tempIndex = endIndex
+            for index in iterStartIndex..<rangeTimes.count {
+                let meeasureRange = rangeTimes[index]
+                guard let range = overlapRange(a: (transcriptSeg.start,transcriptSeg.end), b: (Int(meeasureRange.sampleRange.start),Int(meeasureRange.sampleRange.end))) else {
+                    guard maxOverLapSize == 0 else {
+                        break
+                    }
+                    continue
+                }
                 
+                if (range.end - range.start) > maxOverLapSize {
+                    maxOverLapSize = range.end - range.start
+                    tempIndex = index
+                    speechIndexPair = range
+                }
             }
-            speechIndexPair = (max(Int(rangeTimes[tempIndex].sampleRange.start), transcriptSeg.start), min(transcriptSeg.end, Int(rangeTimes[tempIndex].sampleRange.end)))
             
             if let matchItemIndex = matchSegments.firstIndex(where: {$0.vadIndex == tempIndex}) {
                 matchSegments[matchItemIndex].speechIndex.append(speechIndexPair)
@@ -278,32 +293,32 @@ class SpeechRecognizeModule {
         return ressss
     }
     
-//    func test_SaveToWav(data: Data, index: Int) {
-//        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//        let fileURL = documentsDirectory.appendingPathComponent("audio_" + String(index) + ".wav")
-//
-//        // 创建AVAudioFile
-//        let audioFile = try! AVAudioFile(forWriting: fileURL, settings: [
-//            AVFormatIDKey: Int(kAudioFormatLinearPCM),
-//            AVSampleRateKey: 16000,
-//            AVNumberOfChannelsKey: 1,
-//            AVLinearPCMBitDepthKey: 32,
-//            AVLinearPCMIsBigEndianKey: false,
-//            AVLinearPCMIsFloatKey: true
-//        ])
-//
-//        // 写入音频数据
-//        let audioBuffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: UInt32(data.count) / audioFile.processingFormat.streamDescription.pointee.mBytesPerFrame)!
-//        audioBuffer.frameLength = audioBuffer.frameCapacity
-//        let audioBufferData = audioBuffer.floatChannelData![0]
-//        audioBufferData.withMemoryRebound(to: UInt8.self, capacity: data.count) { pointer in
-//            data.copyBytes(to: pointer, count: data.count)
-//        }
-//
-//        try! audioFile.write(from: audioBuffer)
-//
-//        print("文件已经保存到：\(fileURL)")
-//    }
+    func test_SaveToWav(data: Data, index: Int) {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsDirectory.appendingPathComponent("audio_" + String(index) + ".wav")
+
+        // 创建AVAudioFile
+        let audioFile = try! AVAudioFile(forWriting: fileURL, settings: [
+            AVFormatIDKey: Int(kAudioFormatLinearPCM),
+            AVSampleRateKey: 16000,
+            AVNumberOfChannelsKey: 1,
+            AVLinearPCMBitDepthKey: 32,
+            AVLinearPCMIsBigEndianKey: false,
+            AVLinearPCMIsFloatKey: true
+        ])
+
+        // 写入音频数据
+        let audioBuffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: UInt32(data.count) / audioFile.processingFormat.streamDescription.pointee.mBytesPerFrame)!
+        audioBuffer.frameLength = audioBuffer.frameCapacity
+        let audioBufferData = audioBuffer.floatChannelData![0]
+        audioBufferData.withMemoryRebound(to: UInt8.self, capacity: data.count) { pointer in
+            data.copyBytes(to: pointer, count: data.count)
+        }
+
+        try! audioFile.write(from: audioBuffer)
+
+        print("文件已经保存到：\(fileURL)")
+    }
     
     func recognize(vadBuffers: [VADBuffer]) -> [RecognizeSegment] {
         
