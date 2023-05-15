@@ -432,7 +432,7 @@ private extension VADModule {
         }
         let lastEndSampleIndex = Int(lastVadRange.sampleRange.end) * MemoryLayout<Float>.size
         //最后如果有语音，那么保留最后一个在队列
-        if data.count - lastEndSampleIndex < 512 * MemoryLayout<Float>.size {
+        if vadRanges.count > 1 &&  data.count - lastEndSampleIndex < 512 * MemoryLayout<Float>.size {
             vadRanges.removeLast()
             usedSampleNum = Int(vadRanges.last?.sampleRange.end ?? 0)
         }
