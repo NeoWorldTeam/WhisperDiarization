@@ -121,7 +121,8 @@ class AudioPreprocess {
         _queue.async(flags: .barrier) {
             
             guard self.bufferCaches.count < self.maxItemCount else {
-                print("生产队列已满")
+                print("生产队列已满1")
+                self.semaphore.signal()
                 return
             }
             
@@ -141,6 +142,10 @@ class AudioPreprocess {
         
         if item == nil {
             semaphore.wait()
+        }
+        
+        if item == nil && self.bufferCaches.count > 0 {
+            item = self.bufferCaches.removeFirst()
         }
 
         return item
