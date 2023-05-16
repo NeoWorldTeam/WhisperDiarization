@@ -182,8 +182,8 @@ private extension VADModule {
                     let rangeData = vadBuffersInQueue[0].buffer.subdata(in: startIndex..<endIndex)
                     
                     //超过大小
-                    if newData.count + rangeData.count + rangeSpace >= 30 * sf * MemoryLayout<Float>.size {
-                        let remainBytes = 30 * sf * MemoryLayout<Float>.size - newData.count
+                    if newData.count + rangeData.count + rangeSpace >= (30 * sf * MemoryLayout<Float>.size) {
+                        let remainBytes = (30 * sf * MemoryLayout<Float>.size) - newData.count
                         newData.append(Data(repeating: 0, count: remainBytes))
                         results.append(VADBuffer(buffer: newData, rangeTimes: newRange))
                         
@@ -196,11 +196,19 @@ private extension VADModule {
                     }
                     
                     let startSample = Int64(newData.count / MemoryLayout<Float>.size)
+                    
                     let endSample = Int64(startSample) + (vadBuffersInQueue[0].rangeTimes[0].sampleRange.end - vadBuffersInQueue[0].rangeTimes[0].sampleRange.start)
+                    
                     let sampleRange = TimeRange(start: startSample, end: endSample)
+                    
                     newRange.append(VADRange(realTimeStamp: vadBuffersInQueue[0].rangeTimes[0].realTimeStamp, sampleRange: sampleRange))
+                    
                     newData.append(rangeData)
-                    newData.append(Data(repeating: 0, count: rangeSpace))
+    
+                    
+                    if newData.count + rangeSpace <= (30 * sf * MemoryLayout<Float>.size) {
+                        newData.append(Data(repeating: 0, count: rangeSpace))
+                    }
                     
                     //推出使用后的range
                     vadBuffersInQueue[0].rangeTimes.removeFirst()
@@ -276,13 +284,15 @@ private extension VADModule {
     }
     
     func getAvalibleData() -> Data? {
-        let chunkCount = cacheAudioData.count / (512 * MemoryLayout<Float>.size)
+        let chunkCount = min(cacheAudioData.count, 30 * 16000 * 4) / (512 * MemoryLayout<Float>.size)
         let audioFrameCount = AVAudioFrameCount(chunkCount * 512)
-        let audioFrameSize = Int(audioFrameCount) * MemoryLayout<Float>.size
+        var audioFrameSize = Int(audioFrameCount) * MemoryLayout<Float>.size
         
         guard audioFrameSize > 0 else {
             return nil
         }
+        
+        
         
         return cacheAudioData.subdata(in: 0..<audioFrameSize)
     }

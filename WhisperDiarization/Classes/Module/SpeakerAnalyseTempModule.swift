@@ -29,7 +29,7 @@ struct Speaker : Mappable {
 
 
 class SpeakerAnalyseTempModule {
-    let fixHostFeatureCount = 2
+    let fixHostFeatureCount = 5
     var hostSpeaker: Speaker!
     
     //临时
@@ -110,7 +110,7 @@ class SpeakerAnalyseTempModule {
             
         default:
             speakerRecentlyRecord.append(speakerIndex)
-            if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2 {
+            if speakers[speakerIndex].features.count >= fixHostFeatureCount {
                 speakers[speakerIndex].features.removeFirst()
             }
             break

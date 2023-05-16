@@ -306,13 +306,16 @@ public class CSSpeechRecognition {
             
             //加入存在用户
             var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
+            existSpeakerIndex.enumerated().forEach { elem in
+                print("label:\(elem.element), num:\(existSpeakerFeatures[elem.offset].count)")
+            }
             
             //没有host情况
             let hostNeedFeature = speakerAnalyse!.fixHostFeatureCount - existSpeakerFeatures[0].count
             if existSpeakerFeatures.isEmpty || hostNeedFeature > 0 {
                 speakerAnalyse!.saveToHost(transcriptFeature)
                 
-                
+                 
                 if hostNeedFeature >= transcriptFeature.count {
                     //不需要分析直接说话人==0
                     let speechDatas = recognizeResult.enumerated().map { elem in
@@ -361,30 +364,215 @@ public class CSSpeechRecognition {
                 existSpeakerLabels.append(labels)
             }
             
-            //分析label的概率
+            
+            print("========== 1 ================")
             existSpeakerLabels.enumerated().forEach { elem in
                 let index: Int = elem.offset
                 let labels: [Int] = elem.element
-                // 1:1 or > 0.7
+                print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+            }
+            //分析label的概率
+            // 提取>0.9
+            existSpeakerLabels.enumerated().forEach { elem in
+                let index: Int = elem.offset
+                let labels: [Int] = elem.element
+                
+                if existSpeakerLabels[index].last == -1 {
+                    return
+                }
+                
                 let counts: [Int: Int] = labels.reduce(into: [:]) { counts, element in
                     counts[element, default: 0] += 1
                 }
                 
-                if let one = counts.first,
-                   one.value > 1,
-                   Set(counts.values).count == 1 {
-                    var equalRatioLabels:[Int] = []
-                    equalRatioLabels.append(contentsOf: counts.keys)
-                    existSpeakerLabels[index] = equalRatioLabels
+                var highProbabilityLabels = Array<Int>(counts.filter { elem in
+                    (Float(elem.value) / Float(labels.count)) > 0.9
+                }.keys)
+                
+                if highProbabilityLabels.isEmpty == false {
+                    highProbabilityLabels.append(-1)
+                    existSpeakerLabels[index] = highProbabilityLabels
                     return
                 }
-
-                let highProbabilityLabels = Array<Int>(counts.filter { elem in
+            }
+            
+            //去除掉相同的高概率
+            var useLabels = existSpeakerLabels.filter { labels in
+                labels.contains(-1)
+            }.flatMap({$0})
+            existSpeakerLabels = existSpeakerLabels.map({ labels in
+                guard !labels.contains(-1) else {
+                    return labels
+                }
+                
+                let filtterLabels = labels.filter { label in
+                    !useLabels.contains(label)
+                }
+                return filtterLabels
+            })
+            
+            print("========== 2 ================")
+            existSpeakerLabels.enumerated().forEach { elem in
+                let index: Int = elem.offset
+                let labels: [Int] = elem.element
+                print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+            }
+            // 提取>0.7
+            existSpeakerLabels.enumerated().forEach { elem in
+                let index: Int = elem.offset
+                let labels: [Int] = elem.element
+                
+                if existSpeakerLabels[index].last == -1 {
+                    return
+                }
+                
+                let counts: [Int: Int] = labels.reduce(into: [:]) { counts, element in
+                    counts[element, default: 0] += 1
+                }
+                
+                var highProbabilityLabels = Array<Int>(counts.filter { elem in
                     (Float(elem.value) / Float(labels.count)) > 0.7
                 }.keys)
-                existSpeakerLabels[index] = highProbabilityLabels
+                
+                if highProbabilityLabels.isEmpty == false {
+                    highProbabilityLabels.append(-1)
+                    existSpeakerLabels[index] = highProbabilityLabels
+                    return
+                }
             }
-
+            
+            //去除掉相同的高概率
+            useLabels = existSpeakerLabels.filter { labels in
+                labels.contains(-1)
+            }.flatMap({$0})
+            existSpeakerLabels = existSpeakerLabels.map({ labels in
+                guard !labels.contains(-1) else {
+                    return labels
+                }
+                
+                let filtterLabels = labels.filter { label in
+                    !useLabels.contains(label)
+                }
+                return filtterLabels
+            })
+            
+            
+            print("========== 3 ================")
+            existSpeakerLabels.enumerated().forEach { elem in
+                let index: Int = elem.offset
+                let labels: [Int] = elem.element
+                print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+            }
+            // 提取>1:1
+            existSpeakerLabels.enumerated().forEach { elem in
+                let index: Int = elem.offset
+                let labels: [Int] = elem.element
+                
+                if existSpeakerLabels[index].last == -1 {
+                    return
+                }
+                
+                let counts: [Int: Int] = labels.reduce(into: [:]) { counts, element in
+                    counts[element, default: 0] += 1
+                }
+                
+                var highProbabilityLabels = Array<Int>(counts.filter { elem in
+                    print("a1:\(Float(elem.value))")
+                    print("b1:\(Float(labels.count))")
+                    print("a2:\(Float(1))")
+                    print("b2:\(Float(counts.count))")
+                    let a1 = Float(elem.value) / Float(labels.count)
+                    let a2 = Float(1)/Float(counts.count)
+                    return a1 > a2
+                }.keys)
+                
+                if highProbabilityLabels.isEmpty == false {
+                    highProbabilityLabels.append(-1)
+                    existSpeakerLabels[index] = highProbabilityLabels
+                    return
+                }
+            }
+            
+            //去除掉相同的高概率
+            useLabels = existSpeakerLabels.filter { labels in
+                labels.contains(-1)
+            }.flatMap({$0})
+            existSpeakerLabels = existSpeakerLabels.map({ labels in
+                guard !labels.contains(-1) else {
+                    return labels
+                }
+                
+                let filtterLabels = labels.filter { label in
+                    !useLabels.contains(label)
+                }
+                return filtterLabels
+            })
+            
+            print("========== 4 ================")
+            existSpeakerLabels.enumerated().forEach { elem in
+                let index: Int = elem.offset
+                let labels: [Int] = elem.element
+                print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+            }
+            
+//            existSpeakerLabels = existSpeakerLabels.map({ labels in
+//                guard labels.contains(-1) else {
+//                    return labels
+//                }
+//
+//                let filtterLabels = labels.filter { label in
+//                    !tempRecordLabels.contains(label)
+//                }
+//
+//                tempRecordLabels = Set(Array(tempRecordLabels) + filtterLabels)
+//                return filtterLabels
+//            })
+//
+//            // 提取>=0.5
+//            existSpeakerLabels.enumerated().forEach { elem in
+//                let index: Int = elem.offset
+//                let labels: [Int] = elem.element
+//
+//                let counts: [Int: Int] = labels.reduce(into: [:]) { counts, element in
+//                    counts[element, default: 0] += 1
+//                }
+//
+//                var highProbabilityLabels = Array<Int>(counts.filter { elem in
+//                    (Float(elem.value) / Float(labels.count)) > 0.7
+//                }.keys)
+//                if highProbabilityLabels.isEmpty == false {
+//                    highProbabilityLabels.append(-1)
+//                    existSpeakerLabels[index] = highProbabilityLabels
+//                    return
+//                }
+//
+//
+//                if counts.count > 1,
+//                   Set(counts.values).count == 1 {
+//                    var equalRatioLabels:[Int] = []
+//                    equalRatioLabels.append(contentsOf: counts.keys)
+//                    existSpeakerLabels[index] = equalRatioLabels
+//                    return
+//                }
+//
+//                existSpeakerLabels[index] = []
+//
+//            }
+//
+//            //去除掉相同的高概率
+//            tempRecordLabels = Set<Int>()
+//            existSpeakerLabels = existSpeakerLabels.map({ labels in
+//                guard labels.contains(-1) else {
+//                    return labels
+//                }
+//
+//                let filtterLabels = labels.filter { label in
+//                    !tempRecordLabels.contains(label)
+//                }
+//
+//                tempRecordLabels = Set(Array(tempRecordLabels) + filtterLabels)
+//                return filtterLabels
+//            })
             
             
 //            if existSpeakerLabels.count > 0 {

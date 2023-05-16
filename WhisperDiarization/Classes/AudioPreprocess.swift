@@ -141,13 +141,15 @@ class AudioPreprocess {
         }
         
         if item == nil {
+            print("消费队列等待")
             semaphore.wait()
+            print("消费队列结束等待")
         }
         
         if item == nil && self.bufferCaches.count > 0 {
             item = self.bufferCaches.removeFirst()
         }
-
+        print("消费队列返回结果")
         return item
     }
     
