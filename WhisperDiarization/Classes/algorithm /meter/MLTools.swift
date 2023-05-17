@@ -227,6 +227,9 @@ internal class MLTools {
         
         let mSilhouetteScoreWrapper = SilhouetteScoreWrapper()
         let socre = mSilhouetteScoreWrapper.score(samplesPtr, labels: labelsPtr, itemNum: Int32(count), cluster: Int32(k))
+        for index in 0..<samples.count {
+            samplesPtr[index]?.deallocate()
+        }
         samplesPtr.deallocate()
         labelsPtr.deallocate()
         return socre

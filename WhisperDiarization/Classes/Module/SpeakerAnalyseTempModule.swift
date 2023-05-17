@@ -35,8 +35,8 @@ class SpeakerAnalyseTempModule {
     //临时
     var speakers: [Speaker] = []
     
-    
-    var speakerRecentlyRecord:[Int] = []
+    var recentlyIndex = 0
+    var speakerRecentlyRecord:[Int:Int] = [Int:Int]()
 
     func preload() {
         //1. 读用户特征
@@ -75,12 +75,12 @@ class SpeakerAnalyseTempModule {
     
     
     func getTopSpeakerFeature(num: Int) -> ([Int], [[[Float]]]) {
-
-        let lastetSpeakers:[Int] = Array<Int>(speakerRecentlyRecord.reversed())
+        
+        
+        let lastetSpeakers:[Int] = Array<Int>(speakerRecentlyRecord.keys).sorted(by: >)
         let onlyLastetSpeakers = Set(lastetSpeakers)
         var recentSpeakerIndexs:[Int] = Array<Int>(onlyLastetSpeakers.prefix(num - 1))
         
-        speakerRecentlyRecord = []
         var speakersLimit = [Int]()
         speakersLimit.append(0)
         speakersLimit.append(contentsOf: recentSpeakerIndexs)
@@ -109,8 +109,9 @@ class SpeakerAnalyseTempModule {
             break
             
         default:
-            speakerRecentlyRecord.append(speakerIndex)
-            if speakers[speakerIndex].features.count >= fixHostFeatureCount {
+            recentlyIndex += 1
+            speakerRecentlyRecord[speakerIndex] = recentlyIndex
+            if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2{
                 speakers[speakerIndex].features.removeFirst()
             }
             break

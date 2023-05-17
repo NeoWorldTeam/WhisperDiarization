@@ -117,7 +117,6 @@ class AudioPreprocess {
     }
     
     func enqueues(_ buffer: AVAudioPCMBuffer,timeStamp: Int64) {
-
         _queue.async(flags: .barrier) {
             
             guard self.bufferCaches.count < self.maxItemCount else {
