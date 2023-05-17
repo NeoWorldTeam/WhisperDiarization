@@ -10,12 +10,12 @@ import AVFAudio
 
 struct CaptureAudioSegment {
     var timeStamp: Int64
-    var buffer: AVAudioPCMBuffer
+    var buffer: Data
 }
 
 
 class AudioPreprocess {
-    private let _queue: DispatchQueue = DispatchQueue(label: "AudioPreprocess", attributes: .concurrent)
+//    private let _queue: DispatchQueue = DispatchQueue(label: "AudioPreprocess", attributes: .concurrent)
     private var _audioConverter: AVAudioConverter?
     
     private let semaphore = DispatchSemaphore(value: 0)
@@ -117,19 +117,17 @@ class AudioPreprocess {
     }
     
     func enqueues(_ buffer: AVAudioPCMBuffer,timeStamp: Int64) {
-        _queue.async(flags: .barrier) {
-            
-            guard self.bufferCaches.count < self.maxItemCount else {
-                print("生产队列已满1")
-                self.semaphore.signal()
-                return
-            }
-            
-            
-            let audioSegment = CaptureAudioSegment(timeStamp: timeStamp, buffer: buffer)
-            self.bufferCaches.append(audioSegment)
+        guard self.bufferCaches.count < self.maxItemCount else {
+            print("生产队列已满1")
             self.semaphore.signal()
+            return
         }
+        let data = Data(bytes: buffer.floatChannelData![0], count: Int(buffer.frameLength) * MemoryLayout<Float>.size)
+        
+        
+        let audioSegment = CaptureAudioSegment(timeStamp: timeStamp, buffer: data)
+        self.bufferCaches.append(audioSegment)
+        self.semaphore.signal()
     }
     
     

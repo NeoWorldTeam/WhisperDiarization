@@ -282,17 +282,21 @@ public class CSSpeechRecognition {
             }
             
             
-            let vadResults:[VADBuffer] = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
-            guard vadResults.isEmpty == false else {
+            var vadResults:[VADBuffer] = []
+            DispatchQueue.main.sync {
+                vadResults = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
+            }
+            
+            guard !vadResults.isEmpty else {
                 continue
             }
+
             print("checkAudio count:\(vadResults.count)")
 //            vadResults.forEach { buffer in
 //                whisper.test_SaveToWav(data: buffer.buffer, index: test_tttt_index)
 //                test_tttt_index+=1
 //            }
-            
-            
+                        
             let recognizeResult:[RecognizeSegment] = whisper.recognize(vadBuffers: vadResults)
             print("recognizeResult count:\(recognizeResult.count)")
             var trancriptRowData = recognizeResult.map({$0.data})
@@ -301,9 +305,6 @@ public class CSSpeechRecognition {
             guard !transcriptFeature.isEmpty else {
                 continue
             }
-            
-            
-            
             
             //加入存在用户
             var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
@@ -338,24 +339,16 @@ public class CSSpeechRecognition {
                 (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
             }
             
-
-            
-
-            
-
             //合并Feature
             var mergeFeatures:[[Float]] = []
             existSpeakerFeatures.forEach { features in
                 mergeFeatures.append(contentsOf: features)
             }
             mergeFeatures.append(contentsOf: transcriptFeature)
-
             
             //分析
             var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
             print(speakerLabel)
-            
-            
             
             //获取存在用户的label
             var existSpeakerLabels: [[Int]] = []
@@ -364,8 +357,6 @@ public class CSSpeechRecognition {
                 speakerLabel.removeSubrange(0..<features.count)
                 existSpeakerLabels.append(labels)
             }
-            
-            
             
             //分析label的概率
             print("========== 1 ================")
@@ -445,9 +436,6 @@ public class CSSpeechRecognition {
                 return number + 101
             }
             
-            
-
-            
             //为不存在的用户创建新的id并替换
             let unRecognizeSpeakerLabels = speakerLabel.filter { label in
                 label > 100
@@ -486,11 +474,8 @@ public class CSSpeechRecognition {
                 speakerAnalyse?.updateSpeaker(index: item.label, feature: item.features)
             }
 
-
-
             //加入缓存
             speechsCache.append(contentsOf: speechDatas)
-
         }
     }
     

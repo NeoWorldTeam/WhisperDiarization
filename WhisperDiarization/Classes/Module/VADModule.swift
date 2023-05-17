@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import AVFAudio
 import SpeakerEmbeddingForiOS
+import AVFoundation
 
 
 struct TimeRange {
@@ -63,24 +63,17 @@ class VADModule {
         self.vadFrameFixByte = MemoryLayout<Float>.size * sf * limitInSec
     }
 
-    func checkAudio(buffer: AVAudioPCMBuffer, timeStamp: Int64) -> [VADBuffer] {
-        guard buffer.floatChannelData != nil else {
-            let result =  vadResultCheck()
-            print("1 = after vadResultCheck, vadbuffer count:\(vadBuffers.count), vadBuffersInQueue count:\(vadBuffersInQueue.count)")
-            return result
-        }
-        
+    func checkAudio(buffer: Data, timeStamp: Int64) -> [VADBuffer] {
+        //上次时间超时，重置vad
         if lastEndTimeStamp > 0 && timeStamp - lastEndTimeStamp > segmentationThreshold {
-            doLastVadHandle()
+//            doLastVadHandle()
             resetVAD()
         }
         storeInCache(buffer: buffer,timeStamp: timeStamp)
         while doThisVadHandle() == false {
-            print("cacheAudioData count is \(cacheAudioData.count)")
+            print("doThisVadHandle finish cacheAudioData count is \(cacheAudioData.count)")
         }
-        let result =  vadResultCheck()
-        print("2 = after vadResultCheck, vadbuffer count:\(vadBuffers.count), vadBuffersInQueue count:\(vadBuffersInQueue.count)")
-        return result
+        return vadResultCheck()
     }
 }
 
@@ -89,21 +82,15 @@ private extension VADModule {
         vad.resetState()
     }
     
-    func storeInCache(buffer: AVAudioPCMBuffer,timeStamp: Int64) {
-        let bufferByteSize = Int(buffer.frameLength) * MemoryLayout<Float>.size
+    func storeInCache(buffer: Data,timeStamp: Int64) {
+        print("cacheAudioData count is \(cacheAudioData.count)")
+        print("cacheAudioData add is \(buffer.count)")
+        cacheAudioData.append(buffer)
+        print("cacheAudioData count is \(cacheAudioData.count)")
         
-        guard let floatSampleBuffers = buffer.floatChannelData else {
-            return
-        }
         
-        floatSampleBuffers[0].withMemoryRebound(to: UInt8.self, capacity: bufferByteSize) { pointer in
-            print("cacheAudioData count is \(cacheAudioData.count)")
-            print("cacheAudioData add is \(bufferByteSize)")
-            cacheAudioData.append(pointer, count: bufferByteSize)
-            print("cacheAudioData count is \(cacheAudioData.count)")
-            
-        }
-        lastEndTimeStamp = Int64(Int(buffer.frameLength) / (sf / 1000)) + timeStamp
+        //更新时间戳
+        lastEndTimeStamp = Int64((buffer.count / MemoryLayout<Float>.size) / (sf / 1000)) + timeStamp
         let dataDurationTimeStamp = cacheAudioData.count / MemoryLayout<Float>.size / (sf / 1000)
         lastStartTimeStamp = lastEndTimeStamp - Int64(dataDurationTimeStamp)
     }
@@ -238,7 +225,7 @@ private extension VADModule {
     
     func getAvalibleData() -> Data? {
         let chunkCount = cacheAudioData.count / (512 * MemoryLayout<Float>.size)
-        let audioFrameCount = AVAudioFrameCount(chunkCount * 512)
+        let audioFrameCount = chunkCount * 512
         var audioFrameSize = Int(audioFrameCount) * MemoryLayout<Float>.size
         
         guard audioFrameSize > 0 else {
@@ -266,7 +253,7 @@ private extension VADModule {
         data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
             pcmRawPointer.copyMemory(from: bytes.baseAddress!, byteCount: data.count)
         }
-        
+
         return pcmBuffer
     }
     
@@ -297,11 +284,11 @@ private extension VADModule {
         guard let data = getAvalibleData() else {
             return
         }
-        let pcmBuffer = generateAudioBuffer(data: data)
+//        let pcmBuffer = generateAudioBuffer(data: data)
         
         
         //3.detect
-        guard let detectResult:[VADTimeResult] = vad.detectContinuouslyForTimeStemp(buffer: pcmBuffer) else {
+        guard let detectResult:[VADTimeResult] = vad.detectContinuouslyForTimeStemp(buffer: data) else {
             return
         }
         guard detectResult.isEmpty == false else {
@@ -364,14 +351,15 @@ private extension VADModule {
         //7.release
         var usedSampleNum = 0
         defer {
-            print("doThisVadHandle release")
+            print("doThisVadHandle release。usedSampleNum count:\(usedSampleNum)")
             if usedSampleNum > 0 {
                 let removeTimeStamp = usedSampleNum / (sf / 1000)
                 lastStartTimeStamp += Int64(removeTimeStamp)
                 
                 print("cacheAudioData count is \(cacheAudioData.count)")
-                cacheAudioData.removeSubrange(0..<(usedSampleNum*MemoryLayout<Float>.size))
                 print("cacheAudioData remove: \(usedSampleNum*MemoryLayout<Float>.size)")
+                cacheAudioData.removeSubrange(0..<(usedSampleNum*MemoryLayout<Float>.size))
+                print("cacheAudioData count is \(cacheAudioData.count)")
             }
         }
         
@@ -380,15 +368,19 @@ private extension VADModule {
             return true
         }
         usedSampleNum = data.count / MemoryLayout<Float>.size
-        let pcmBuffer = generateAudioBuffer(data: data)
+//        let pcmBuffer = generateAudioBuffer(data: data)
         
         
         //3.detect
-        guard let detectResult:[VADTimeResult] = vad.detectContinuouslyForTimeStemp(buffer: pcmBuffer) else {
+//        let detectResult:[VADTimeResult] = []
+        guard let detectResult:[VADTimeResult] = vad.detectContinuouslyForTimeStemp(buffer: data) else {
             return false
         }
         print("doThisVadHandle detectResult count:\(detectResult.count)")
         guard detectResult.isEmpty == false else {
+            return false
+        }
+        guard detectResult.isEmpty == true else {
             return false
         }
         
