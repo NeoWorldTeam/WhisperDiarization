@@ -73,7 +73,9 @@ class VADModule {
         while doThisVadHandle() == false {
             print("doThisVadHandle finish cacheAudioData count is \(cacheAudioData.count)")
         }
-        return vadResultCheck()
+        let vadResults:[VADBuffer] =  vadResultCheck()
+        print("vadResults count:\(vadResults.count)")
+        return vadResults
     }
 }
 
@@ -377,14 +379,10 @@ private extension VADModule {
             return false
         }
         print("doThisVadHandle detectResult count:\(detectResult.count)")
-        guard detectResult.isEmpty == false else {
+        guard !detectResult.isEmpty else {
             return false
         }
-        guard detectResult.isEmpty == true else {
-            return false
-        }
-        
-        
+
         //4.convert data
         var vadRanges: [VADRange] = detectResult.map { timeResult in
 //            let startBytes = timeResult.start * MemoryLayout<Float>.size
@@ -404,9 +402,9 @@ private extension VADModule {
         guard let lastVadRange:VADRange = vadRanges.last else {
             return false
         }
-        let lastEndSampleIndex = Int(lastVadRange.sampleRange.end) * MemoryLayout<Float>.size
+        let lastEndSampleBytes = Int(lastVadRange.sampleRange.end) * MemoryLayout<Float>.size
         //最后如果有语音，那么保留最后备用队列
-        if vadRanges.count > 1 &&  data.count - lastEndSampleIndex < 512 * MemoryLayout<Float>.size {
+        if vadRanges.count > 1 && (data.count - lastEndSampleBytes) < 512 * MemoryLayout<Float>.size {
             let lastRange = vadRanges.last!
             backupAudioData.append(data.subdata(in: Int(lastRange.sampleRange.start) * MemoryLayout<Float>.size..<Int(lastRange.sampleRange.end) * MemoryLayout<Float>.size))
             vadRanges.removeLast()
