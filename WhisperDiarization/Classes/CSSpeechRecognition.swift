@@ -282,15 +282,11 @@ public class CSSpeechRecognition {
             }
             
             
-            var vadResults:[VADBuffer] = []
-            DispatchQueue.main.sync {
-                vadResults = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
-            }
+            let vadResults = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
             
             guard !vadResults.isEmpty else {
                 continue
             }
-
             print("checkAudio count:\(vadResults.count)")
 //            vadResults.forEach { buffer in
 //                whisper.test_SaveToWav(data: buffer.buffer, index: test_tttt_index)
