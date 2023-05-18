@@ -342,9 +342,9 @@ class SpeechRecognizeModule {
 //        sasasasas = 200
         let matchSegmentsList = vadBuffers.map { vadBuffer in
             var speechTranscripts:[TranscriptSegment] = whisper.transcriptSync(buffer: vadBuffer.buffer)
-            print("before filter: \(speechTranscripts)")
+//            print("before filter: \(speechTranscripts)")
             speechTranscripts = fillterSpeechTranscript(&speechTranscripts)
-            print("after filter: \(speechTranscripts)")
+//            print("after filter: \(speechTranscripts)")
             
 //            speechTranscripts.forEach { elemet in
 //                print("speechTranscripts start: \(elemet.start) end:\(elemet.end) speech:\(elemet.speech)")
