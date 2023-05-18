@@ -106,7 +106,6 @@ private extension VADModule {
         //1. 历史数据拼接
         
         var results:[VADBuffer] = []
-//        let bufferSpaceBytes:Int = Int(sf) * MemoryLayout<Float>.size
         let rangeSpace:Int = Int(sf) * MemoryLayout<Float>.size
 
 
