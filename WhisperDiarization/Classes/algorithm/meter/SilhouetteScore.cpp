@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <string>
 #include <math.h>
-#include "silhouette_score.hpp"
+#include "SilhouetteScore.hpp"
 
 float silhouetteScore(std::vector<std::vector<float>> distances, std::vector<int> y,int numClusters)
 {
