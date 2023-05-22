@@ -42,9 +42,9 @@ TODO: Add long description of the pod here.
     'WhisperDiarization' => ['WhisperDiarization/Assets/**/*.{bin}']
   }
   search_paths = [
-    '$(PODS_TARGET_SRCROOT)/source',
-    '$(PODS_TARGET_SRCROOT)/source/common',
-    '$(PODS_TARGET_SRCROOT)/source/module/media',
+    '$(PODS_TARGET_SRCROOT)/Classes/algorithm/clustering',
+    '$(PODS_TARGET_SRCROOT)/Classes/algorithm/meter',
+
     ]
   s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64',
                             'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
