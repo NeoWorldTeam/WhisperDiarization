@@ -7,37 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7BD8D8E429F0E37200ABFBC9 /* whisperxx.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7BD8D8EE29F0E39600ABFBC9 /* ggml.c in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8EA29F0E39600ABFBC9 /* ggml.c */; settings = {COMPILER_FLAGS = "-DGGML_USE_ACCELERATE"; }; };
-		7BD8D8EF29F0E39600ABFBC9 /* whisper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */; };
-		7BD8D8F029F0E39600ABFBC9 /* ggml.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8EC29F0E39600ABFBC9 /* ggml.h */; };
-		7BD8D8F129F0E39600ABFBC9 /* whisper.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8ED29F0E39600ABFBC9 /* whisper.h */; };
-		7BD8D8FA29F0E9E800ABFBC9 /* whisperxx.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */; };
+		7BED49602A1B588200137C1D /* AggClustering.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 7BED495A2A1B588200137C1D /* AggClustering.hpp */; };
+		7BED49612A1B588200137C1D /* DistanceCalculator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 7BED495B2A1B588200137C1D /* DistanceCalculator.hpp */; };
+		7BED49622A1B588200137C1D /* AggClusteringWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BED495C2A1B588200137C1D /* AggClusteringWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7BED49632A1B588200137C1D /* AggClustering.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BED495D2A1B588200137C1D /* AggClustering.cpp */; };
+		7BED49642A1B588200137C1D /* ClusterNode.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 7BED495E2A1B588200137C1D /* ClusterNode.hpp */; };
+		7BED49652A1B588200137C1D /* AggClusteringWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BED495F2A1B588200137C1D /* AggClusteringWrapper.mm */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		7B264F2F2A1B58290028A7BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7B264F212A1B581E0028A7BC;
-			remoteInfo = AggClustering;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AggClustering.xcodeproj; path = ../AggClustering/AggClustering.xcodeproj; sourceTree = "<group>"; };
-		7BD8D8E029F0E37200ABFBC9 /* whisperxx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = whisperxx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = whisperxx.h; sourceTree = "<group>"; };
-		7BD8D8EA29F0E39600ABFBC9 /* ggml.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ggml.c; sourceTree = "<group>"; };
-		7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = whisper.cpp; sourceTree = "<group>"; };
-		7BD8D8EC29F0E39600ABFBC9 /* ggml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ggml.h; sourceTree = "<group>"; };
-		7BD8D8ED29F0E39600ABFBC9 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
-		7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = whisperxx.m; sourceTree = "<group>"; };
+		7B264F212A1B581E0028A7BC /* AggClustering.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AggClustering.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7BED495A2A1B588200137C1D /* AggClustering.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AggClustering.hpp; sourceTree = "<group>"; };
+		7BED495B2A1B588200137C1D /* DistanceCalculator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DistanceCalculator.hpp; sourceTree = "<group>"; };
+		7BED495C2A1B588200137C1D /* AggClusteringWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AggClusteringWrapper.h; sourceTree = "<group>"; };
+		7BED495D2A1B588200137C1D /* AggClustering.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AggClustering.cpp; sourceTree = "<group>"; };
+		7BED495E2A1B588200137C1D /* ClusterNode.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ClusterNode.hpp; sourceTree = "<group>"; };
+		7BED495F2A1B588200137C1D /* AggClusteringWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AggClusteringWrapper.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		7BD8D8DD29F0E37200ABFBC9 /* Frameworks */ = {
+		7B264F1E2A1B581E0028A7BC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -47,94 +36,85 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7B264F2C2A1B58290028A7BC /* Products */ = {
+		7B264F172A1B581E0028A7BC = {
 			isa = PBXGroup;
 			children = (
-				7B264F302A1B58290028A7BC /* AggClustering.framework */,
+				7B264F232A1B581E0028A7BC /* AggClustering */,
+				7B264F222A1B581E0028A7BC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7B264F222A1B581E0028A7BC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7B264F212A1B581E0028A7BC /* AggClustering.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		7BD8D8D629F0E37200ABFBC9 = {
+		7B264F232A1B581E0028A7BC /* AggClustering */ = {
 			isa = PBXGroup;
 			children = (
-				7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */,
-				7BD8D8E229F0E37200ABFBC9 /* whisperxx */,
-				7BD8D8E129F0E37200ABFBC9 /* Products */,
+				7BED495D2A1B588200137C1D /* AggClustering.cpp */,
+				7BED495A2A1B588200137C1D /* AggClustering.hpp */,
+				7BED495C2A1B588200137C1D /* AggClusteringWrapper.h */,
+				7BED495F2A1B588200137C1D /* AggClusteringWrapper.mm */,
+				7BED495E2A1B588200137C1D /* ClusterNode.hpp */,
+				7BED495B2A1B588200137C1D /* DistanceCalculator.hpp */,
 			);
-			sourceTree = "<group>";
-		};
-		7BD8D8E129F0E37200ABFBC9 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				7BD8D8E029F0E37200ABFBC9 /* whisperxx.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		7BD8D8E229F0E37200ABFBC9 /* whisperxx */ = {
-			isa = PBXGroup;
-			children = (
-				7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */,
-				7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */,
-				7BD8D8EA29F0E39600ABFBC9 /* ggml.c */,
-				7BD8D8EC29F0E39600ABFBC9 /* ggml.h */,
-				7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */,
-				7BD8D8ED29F0E39600ABFBC9 /* whisper.h */,
-			);
-			path = whisperxx;
+			path = AggClustering;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		7BD8D8DB29F0E37200ABFBC9 /* Headers */ = {
+		7B264F1C2A1B581E0028A7BC /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7BD8D8E429F0E37200ABFBC9 /* whisperxx.h in Headers */,
-				7BD8D8F029F0E39600ABFBC9 /* ggml.h in Headers */,
-				7BD8D8F129F0E39600ABFBC9 /* whisper.h in Headers */,
+				7BED49622A1B588200137C1D /* AggClusteringWrapper.h in Headers */,
+				7BED49642A1B588200137C1D /* ClusterNode.hpp in Headers */,
+				7BED49602A1B588200137C1D /* AggClustering.hpp in Headers */,
+				7BED49612A1B588200137C1D /* DistanceCalculator.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		7BD8D8DF29F0E37200ABFBC9 /* whisperxx */ = {
+		7B264F202A1B581E0028A7BC /* AggClustering */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7BD8D8E729F0E37200ABFBC9 /* Build configuration list for PBXNativeTarget "whisperxx" */;
+			buildConfigurationList = 7B264F282A1B581E0028A7BC /* Build configuration list for PBXNativeTarget "AggClustering" */;
 			buildPhases = (
-				7BD8D8DB29F0E37200ABFBC9 /* Headers */,
-				7BD8D8DC29F0E37200ABFBC9 /* Sources */,
-				7BD8D8DD29F0E37200ABFBC9 /* Frameworks */,
-				7BD8D8DE29F0E37200ABFBC9 /* Resources */,
-				7B565C202A04DE9600123476 /* ShellScript */,
+				7B264F1C2A1B581E0028A7BC /* Headers */,
+				7B264F1D2A1B581E0028A7BC /* Sources */,
+				7B264F1E2A1B581E0028A7BC /* Frameworks */,
+				7B264F1F2A1B581E0028A7BC /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = whisperxx;
-			productName = whisperxx;
-			productReference = 7BD8D8E029F0E37200ABFBC9 /* whisperxx.framework */;
+			name = AggClustering;
+			productName = AggClustering;
+			productReference = 7B264F212A1B581E0028A7BC /* AggClustering.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		7BD8D8D729F0E37200ABFBC9 /* Project object */ = {
+		7B264F182A1B581E0028A7BC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1420;
 				TargetAttributes = {
-					7BD8D8DF29F0E37200ABFBC9 = {
+					7B264F202A1B581E0028A7BC = {
 						CreatedOnToolsVersion = 14.2;
 					};
 				};
 			};
-			buildConfigurationList = 7BD8D8DA29F0E37200ABFBC9 /* Build configuration list for PBXProject "whisperxx" */;
+			buildConfigurationList = 7B264F1B2A1B581E0028A7BC /* Build configuration list for PBXProject "AggClustering" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -142,34 +122,18 @@
 				en,
 				Base,
 			);
-			mainGroup = 7BD8D8D629F0E37200ABFBC9;
-			productRefGroup = 7BD8D8E129F0E37200ABFBC9 /* Products */;
+			mainGroup = 7B264F172A1B581E0028A7BC;
+			productRefGroup = 7B264F222A1B581E0028A7BC /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 7B264F2C2A1B58290028A7BC /* Products */;
-					ProjectRef = 7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
-				7BD8D8DF29F0E37200ABFBC9 /* whisperxx */,
+				7B264F202A1B581E0028A7BC /* AggClustering */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		7B264F302A1B58290028A7BC /* AggClustering.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = AggClustering.framework;
-			remoteRef = 7B264F2F2A1B58290028A7BC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
-
 /* Begin PBXResourcesBuildPhase section */
-		7BD8D8DE29F0E37200ABFBC9 /* Resources */ = {
+		7B264F1F2A1B581E0028A7BC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -178,42 +142,20 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		7B565C202A04DE9600123476 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "
-";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
-		7BD8D8DC29F0E37200ABFBC9 /* Sources */ = {
+		7B264F1D2A1B581E0028A7BC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7BD8D8EF29F0E39600ABFBC9 /* whisper.cpp in Sources */,
-				7BD8D8EE29F0E39600ABFBC9 /* ggml.c in Sources */,
-				7BD8D8FA29F0E9E800ABFBC9 /* whisperxx.m in Sources */,
+				7BED49632A1B588200137C1D /* AggClustering.cpp in Sources */,
+				7BED49652A1B588200137C1D /* AggClusteringWrapper.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		7BD8D8E529F0E37200ABFBC9 /* Debug */ = {
+		7B264F262A1B581E0028A7BC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -264,7 +206,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -274,7 +216,7 @@
 			};
 			name = Debug;
 		};
-		7BD8D8E629F0E37200ABFBC9 /* Release */ = {
+		7B264F272A1B581E0028A7BC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -319,7 +261,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -329,7 +271,7 @@
 			};
 			name = Release;
 		};
-		7BD8D8E829F0E37200ABFBC9 /* Debug */ = {
+		7B264F292A1B581E0028A7BC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -339,7 +281,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				EXCLUDED_ARCHS = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -349,12 +290,7 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = (
-					"-O3",
-					"-DNDEBUG",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.newworld.whisperxx;
+				PRODUCT_BUNDLE_IDENTIFIER = com.newworld.AggClustering;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -362,7 +298,7 @@
 			};
 			name = Debug;
 		};
-		7BD8D8E929F0E37200ABFBC9 /* Release */ = {
+		7B264F2A2A1B581E0028A7BC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -372,7 +308,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				EXCLUDED_ARCHS = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -382,12 +317,7 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = (
-					"-O3",
-					"-DNDEBUG",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.newworld.whisperxx;
+				PRODUCT_BUNDLE_IDENTIFIER = com.newworld.AggClustering;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -398,25 +328,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7BD8D8DA29F0E37200ABFBC9 /* Build configuration list for PBXProject "whisperxx" */ = {
+		7B264F1B2A1B581E0028A7BC /* Build configuration list for PBXProject "AggClustering" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7BD8D8E529F0E37200ABFBC9 /* Debug */,
-				7BD8D8E629F0E37200ABFBC9 /* Release */,
+				7B264F262A1B581E0028A7BC /* Debug */,
+				7B264F272A1B581E0028A7BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7BD8D8E729F0E37200ABFBC9 /* Build configuration list for PBXNativeTarget "whisperxx" */ = {
+		7B264F282A1B581E0028A7BC /* Build configuration list for PBXNativeTarget "AggClustering" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7BD8D8E829F0E37200ABFBC9 /* Debug */,
-				7BD8D8E929F0E37200ABFBC9 /* Release */,
+				7B264F292A1B581E0028A7BC /* Debug */,
+				7B264F2A2A1B581E0028A7BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 7BD8D8D729F0E37200ABFBC9 /* Project object */;
+	rootObject = 7B264F182A1B581E0028A7BC /* Project object */;
 }

@@ -315,11 +315,13 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/ObjectMapper/ObjectMapper.framework",
+				"${PODS_ROOT}/../../WhisperDiarization/Frameworks/AggClustering.framework",
 				"${PODS_ROOT}/../../WhisperDiarization/Frameworks/whisperxx.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjectMapper.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AggClustering.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/whisperxx.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

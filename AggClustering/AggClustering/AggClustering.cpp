@@ -12,7 +12,6 @@
 #include <vector>
 #include <stack>
 #include <queue>
-#include "ClusterNode.hpp"
 #include "AggClustering.hpp"
 
 namespace CSAlgorithm  {

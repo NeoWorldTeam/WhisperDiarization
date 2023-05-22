@@ -180,7 +180,7 @@ internal class MLTools {
         
 
         var labels = [Int32](repeating: 0, count: X.count)
-        let xxx = AggClusteringWrapper()
+        let xxx = AggClusteringWrapper2()
 
         dist.withUnsafeMutableBufferPointer({ (cccc:inout UnsafeMutableBufferPointer<Float>) in
             let dataPtr: UnsafeMutablePointer<Float> = cccc.baseAddress!
