@@ -523,6 +523,7 @@
 			baseConfigurationReference = 06995D932506B3EE84A1CEA3 /* Pods-WhisperDiarization_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				DEVELOPMENT_TEAM = JPZNX349UH;
 				INFOPLIST_FILE = WhisperDiarization/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -540,6 +541,7 @@
 			baseConfigurationReference = D9A73D95A3289E5C4B69D5D9 /* Pods-WhisperDiarization_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				DEVELOPMENT_TEAM = JPZNX349UH;
 				INFOPLIST_FILE = WhisperDiarization/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;

@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WhisperDiarization'
-  s.version          = '0.2.2'
+  s.version          = '0.2.3'
   s.summary          = 'A short description of WhisperDiarization.'
 
 # This description is used to generate tags and improve search results.
@@ -30,7 +30,7 @@ TODO: Add long description of the pod here.
 
   s.ios.deployment_target = '13.0'
 
-  s.source_files = 'WhisperDiarization/Classes/**/*.{c,cpp,swift,m,mm,h}'
+  s.source_files = 'WhisperDiarization/Classes/**/*.{c,swift,m,mm,h}'
   
   
 #  s.public_header_files = 'WhisperDiarization/Classes/algorithm/clustering/AggClusteringWrapper.h'
@@ -41,19 +41,19 @@ TODO: Add long description of the pod here.
   s.resource_bundles = {
     'WhisperDiarization' => ['WhisperDiarization/Assets/**/*.{bin}']
   }
-  search_paths = [
-    '$(PODS_TARGET_SRCROOT)/Classes/algorithm/clustering',
-    '$(PODS_TARGET_SRCROOT)/Classes/algorithm/meter',
-
-    ]
-  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64',
-                            'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
-                            'HEADER_SEARCH_PATHS' => search_paths.join(' ')
-                          }
+  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
   s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
+  
+  
+  s.subspec 'MyLibraryCpp' do |ss|
+    ss.private_header_files = ['WhisperDiarization/**/*.{hpp,cpp}']
+    ss.source_files = 'WhisperDiarization/**/*.{hpp,cpp}'
+  end
+  
+  
   s.dependency 'SpeakerEmbeddingForiOS'
   s.dependency 'ObjectMapper'
   
