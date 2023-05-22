@@ -403,11 +403,13 @@ bool AggClustering::cutTree(int minK, int maxK, int* labels) {
         ClusterNode & cur_node = cluster_node_array_[i];
         if (distance_n < 0) {
             distance_n = cur_node.getDistance();
+        }else {
+            break;
         }
         
-        printf("node %d: label: %d, left: %d, right: %d, distance: %f\n",
-                j, cur_node.getLabel(), cur_node.getLeftChildLabel(),
-                cur_node.getRightChildLabel(), cur_node.getDistance());
+//        printf("node %d: label: %d, left: %d, right: %d, distance: %f\n",
+//                j, cur_node.getLabel(), cur_node.getLeftChildLabel(),
+//                cur_node.getRightChildLabel(), cur_node.getDistance());
     }
     
     float threshold_dis = distance_n * 0.5;

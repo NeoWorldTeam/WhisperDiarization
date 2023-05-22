@@ -1,9 +1,9 @@
 PODS:
   - ObjectMapper (4.2.0)
   - onnxruntime-c (1.14.0)
-  - SpeakerEmbeddingForiOS (0.1.4):
+  - SpeakerEmbeddingForiOS (0.1.5):
     - onnxruntime-c
-  - WhisperDiarization (0.1.6):
+  - WhisperDiarization (0.1.7):
     - ObjectMapper
     - SpeakerEmbeddingForiOS
 
@@ -25,8 +25,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
   onnxruntime-c: 1f5923e555122d12239a1173229d6c5e8a0afd3e
-  SpeakerEmbeddingForiOS: 884ea22210cacfdbde99af0b291405076766c36b
-  WhisperDiarization: 57888b8be14988231ed7e011aa3ae301f97ccc78
+  SpeakerEmbeddingForiOS: c909907d3c41970fcbc54a717d0ac1b9d284fa16
+  WhisperDiarization: 3a717b27fbe705d45e92114478c0cf3a8008bf73
 
 PODFILE CHECKSUM: c3b84b2666a40c437db9be927cb53b2b82143848
 

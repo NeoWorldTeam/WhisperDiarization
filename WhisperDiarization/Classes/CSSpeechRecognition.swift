@@ -281,31 +281,42 @@ public class CSSpeechRecognition {
                 continue
             }
             
-            
+            let startTime = CFAbsoluteTimeGetCurrent()
             let vadResults = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
+            let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
+            print(" ==1=1==VAD elapsed: \(elapsedTime) seconds")
             
             guard !vadResults.isEmpty else {
                 continue
             }
-            print("checkAudio count:\(vadResults.count)")
+            print(" ==1=1==checkAudio count:\(vadResults.count)")
 //            vadResults.forEach { buffer in
 //                whisper.test_SaveToWav(data: buffer.buffer, index: test_tttt_index)
 //                test_tttt_index+=1
 //            }
-                        
+            
+            let startTime1 = CFAbsoluteTimeGetCurrent()
             let recognizeResult:[RecognizeSegment] = whisper.recognize(vadBuffers: vadResults)
-            print("recognizeResult count:\(recognizeResult.count)")
+            let elapsedTime1 = CFAbsoluteTimeGetCurrent() - startTime1
+            print(" ==1=1==whisper elapsed: \(elapsedTime1) seconds")
+            
             var trancriptRowData = recognizeResult.map({$0.data})
+            let startTime2 = CFAbsoluteTimeGetCurrent()
             let transcriptFeature:[[Float]] = extractFeature(featureExtarer, &trancriptRowData)
+            let elapsedTime2 = CFAbsoluteTimeGetCurrent() - startTime2
+            print(" ==1=1==extractFeature elapsed: \(elapsedTime2) seconds")
             
             guard !transcriptFeature.isEmpty else {
                 continue
             }
             
+            
+            
+            let startTime3 = CFAbsoluteTimeGetCurrent()
             //加入存在用户
             var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
             existSpeakerIndex.enumerated().forEach { elem in
-                print("label:\(elem.element), num:\(existSpeakerFeatures[elem.offset].count)")
+                print(" ==1=1==label:\(elem.element), num:\(existSpeakerFeatures[elem.offset].count)")
             }
             
             //没有host情况
@@ -323,7 +334,7 @@ public class CSSpeechRecognition {
                         let speech = segment.speech
                         let embeding = transcriptFeature[index]
                         let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: segment.startTimeStamp, endTimeStamp: segment.endTimeStamp, features: embeding)
-                        print("识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(segment.startTimeStamp) * 0.001)).description)")
+                        print(" ==1=1==识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(segment.startTimeStamp) * 0.001)).description)")
                         return transcript
                     }
                     //加入缓存
@@ -344,8 +355,12 @@ public class CSSpeechRecognition {
             
             //分析
             var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
-            print(speakerLabel)
+            let elapsedTime3 = CFAbsoluteTimeGetCurrent() - startTime3
+            print(" ==1=1==_analyzeSpeaker elapsed: \(elapsedTime3) seconds")
             
+            
+            
+            let startTime4 = CFAbsoluteTimeGetCurrent()
             //获取存在用户的label
             var existSpeakerLabels: [[Int]] = []
             existSpeakerFeatures.forEach { features in
@@ -461,7 +476,7 @@ public class CSSpeechRecognition {
                 let speech = audioSeg.speech
                 let embeding = transcriptFeature[index]
                 let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: audioSeg.startTimeStamp, endTimeStamp: audioSeg.endTimeStamp, features: embeding)
-                print("识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
+                print(" ==1=1==识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
                 return transcript
             }
 
@@ -472,6 +487,8 @@ public class CSSpeechRecognition {
 
             //加入缓存
             speechsCache.append(contentsOf: speechDatas)
+            let elapsedTime4 = CFAbsoluteTimeGetCurrent() - startTime4
+            print(" ==1=1==final elapsed: \(elapsedTime4) seconds")
         }
     }
     
