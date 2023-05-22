@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "silhouette_score.hpp"
+#import "SilhouetteScore.hpp"
 #import "SilhouetteScoreWrapper.h"
 
 
