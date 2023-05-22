@@ -235,17 +235,19 @@ class SpeechRecognizeModule {
     
     
     func fillterSpeechTranscript(_ transcripts: inout [TranscriptSegment]) -> [TranscriptSegment] {
+        
+        transcripts.enumerated().forEach { elem in
+            transcripts[elem.offset].speech = transcripts[elem.offset].speech.trimmingCharacters(in: .whitespaces)
+        }
         let speechTranscripts = try! transcripts.filter { transcripSeg in
             guard !transcripSeg.speech.isEmpty else {
                 return false
             }
 //                    let pattern = #"^\s?\(\w+\)\s?$"#
-            let pattern = "\\([a-zA-Z0-9_!#]+\\)|\\[[a-zA-Z0-9_!#]+\\]"
-            let regex = try NSRegularExpression(pattern: pattern)
-            let range = NSRange(location: 0, length: transcripSeg.speech.utf16.count)
-            guard regex.firstMatch(in: transcripSeg.speech, options: [], range: range) == nil else {
+            if transcripSeg.speech.hasPrefix("(") || transcripSeg.speech.hasPrefix("[") {
                 return false
             }
+
             return true
         }
         return speechTranscripts
