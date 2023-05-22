@@ -1,12 +1,12 @@
+////
+////  SilhouetteScoreWrapper.h
+////  WhisperDiarization
+////
+////  Created by fuhao on 2023/5/8.
+////
 //
-//  SilhouetteScoreWrapper.h
-//  WhisperDiarization
+//@interface SilhouetteScoreWrapper : NSObject
 //
-//  Created by fuhao on 2023/5/8.
+//- (float)score:(float**) distances Labels:(int*) labels ItemNum:(int)itemNum Cluster:(int)k ;
 //
-
-@interface SilhouetteScoreWrapper : NSObject
-
-- (float)score:(float**) distances Labels:(int*) labels ItemNum:(int)itemNum Cluster:(int)k ;
-
-@end
+//@end

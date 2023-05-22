@@ -219,47 +219,47 @@ internal class MLTools {
 
     
     // 计算 Silhouette score
-    static func silhouetteScore(_ samples: [[Float]], _ labels: [Int], _ k: Int) -> Float {
-        let count = samples.count
-
-        let samplesPtr: UnsafeMutablePointer<UnsafeMutablePointer<Float>?>! = convertToUnsafeMutablePointer(samples)
-        let labelsPtr: UnsafeMutablePointer<Int32> = convertToIntPointer(labels)
-        
-        let mSilhouetteScoreWrapper = SilhouetteScoreWrapper()
-        let socre = mSilhouetteScoreWrapper.score(samplesPtr, labels: labelsPtr, itemNum: Int32(count), cluster: Int32(k))
-        for index in 0..<samples.count {
-            samplesPtr[index]?.deallocate()
-        }
-        samplesPtr.deallocate()
-        labelsPtr.deallocate()
-        return socre
-        
-//        precondition(samples.count == labels.count, "The number of samples and labels must be the same")
-//        let uniqueLabels = Set(labels)
-//        var clusters = [[[Float]]](repeating: [], count: uniqueLabels.count)
-//        for i in 0..<labels.count {
-//            let sss:[Float] = samples[i]
-//            clusters[labels[i]].append(sss)
-//        }
-//        var score:Float = 0.0
-//        for i in 0..<samples.count {
-//            let sample = samples[i]
-//            let label = labels[i]
-//            let a = meanIntraClusterDistance(sample, clusters[label])
-//            let b = meanInterClusterDistance(sample, clusters.filter { $0 != clusters[label] })
-//            score += (b - a) / max(a, b)
-//        }
-//        return score / Float(samples.count)
-        
-        
-//        samples.withUnsafeMutableBufferPointer { (aaa: inout UnsafeMutableBufferPointer<[Float]>) in
+//    static func silhouetteScore(_ samples: [[Float]], _ labels: [Int], _ k: Int) -> Float {
+//        let count = samples.count
 //
+//        let samplesPtr: UnsafeMutablePointer<UnsafeMutablePointer<Float>?>! = convertToUnsafeMutablePointer(samples)
+//        let labelsPtr: UnsafeMutablePointer<Int32> = convertToIntPointer(labels)
+//        
+//        let mSilhouetteScoreWrapper = SilhouetteScoreWrapper()
+//        let socre = mSilhouetteScoreWrapper.score(samplesPtr, labels: labelsPtr, itemNum: Int32(count), cluster: Int32(k))
+//        for index in 0..<samples.count {
+//            samplesPtr[index]?.deallocate()
 //        }
-        
-//        let distancePtr = UnsafeMutablePointer<Float>(samples)
-        
-//        SilhouetteScoreWrapper.score(UnsafeMutablePointer<UnsafeMutablePointer<Float>?>!, labels: <#T##UnsafeMutablePointer<Int32>!#>, itemNum: <#T##Int32#>)
-    }
+//        samplesPtr.deallocate()
+//        labelsPtr.deallocate()
+//        return socre
+//        
+////        precondition(samples.count == labels.count, "The number of samples and labels must be the same")
+////        let uniqueLabels = Set(labels)
+////        var clusters = [[[Float]]](repeating: [], count: uniqueLabels.count)
+////        for i in 0..<labels.count {
+////            let sss:[Float] = samples[i]
+////            clusters[labels[i]].append(sss)
+////        }
+////        var score:Float = 0.0
+////        for i in 0..<samples.count {
+////            let sample = samples[i]
+////            let label = labels[i]
+////            let a = meanIntraClusterDistance(sample, clusters[label])
+////            let b = meanInterClusterDistance(sample, clusters.filter { $0 != clusters[label] })
+////            score += (b - a) / max(a, b)
+////        }
+////        return score / Float(samples.count)
+//        
+//        
+////        samples.withUnsafeMutableBufferPointer { (aaa: inout UnsafeMutableBufferPointer<[Float]>) in
+////
+////        }
+//        
+////        let distancePtr = UnsafeMutablePointer<Float>(samples)
+//        
+////        SilhouetteScoreWrapper.score(UnsafeMutablePointer<UnsafeMutablePointer<Float>?>!, labels: <#T##UnsafeMutablePointer<Int32>!#>, itemNum: <#T##Int32#>)
+//    }
     
 }
 
