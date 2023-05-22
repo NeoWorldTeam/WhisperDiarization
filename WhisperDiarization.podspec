@@ -41,7 +41,15 @@ TODO: Add long description of the pod here.
   s.resource_bundles = {
     'WhisperDiarization' => ['WhisperDiarization/Assets/**/*.{bin}']
   }
-  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+  search_paths = [
+    '$(PODS_TARGET_SRCROOT)/source',
+    '$(PODS_TARGET_SRCROOT)/source/common',
+    '$(PODS_TARGET_SRCROOT)/source/module/media',
+    ]
+  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64',
+                            'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
+                            'HEADER_SEARCH_PATHS' => search_paths.join(' ')
+                          }
   s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
