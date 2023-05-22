@@ -34,6 +34,9 @@ TODO: Add long description of the pod here.
   
   
 #  s.public_header_files = 'WhisperDiarization/Classes/algorithm/clustering/AggClusteringWrapper.h'
+
+  
+
   
   s.vendored_frameworks = 'WhisperDiarization/Frameworks/**/*.framework'
   s.static_framework = true
@@ -41,7 +44,13 @@ TODO: Add long description of the pod here.
   s.resource_bundles = {
     'WhisperDiarization' => ['WhisperDiarization/Assets/**/*.{bin}']
   }
-  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+  
+  
+  
+  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64',
+                            'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES' ,
+                            'HEADER_SEARCH_PATHS' => [ '$(PODS_ROOT)/PrivateHeaders' ]
+  }
   s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
