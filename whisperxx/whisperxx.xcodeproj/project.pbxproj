@@ -15,18 +15,7 @@
 		7BD8D8FA29F0E9E800ABFBC9 /* whisperxx.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		7B264F2F2A1B58290028A7BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7B264F212A1B581E0028A7BC;
-			remoteInfo = AggClustering;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AggClustering.xcodeproj; path = ../AggClustering/AggClustering.xcodeproj; sourceTree = "<group>"; };
 		7BD8D8E029F0E37200ABFBC9 /* whisperxx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = whisperxx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = whisperxx.h; sourceTree = "<group>"; };
 		7BD8D8EA29F0E39600ABFBC9 /* ggml.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ggml.c; sourceTree = "<group>"; };
@@ -47,18 +36,9 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7B264F2C2A1B58290028A7BC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				7B264F302A1B58290028A7BC /* AggClustering.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		7BD8D8D629F0E37200ABFBC9 = {
 			isa = PBXGroup;
 			children = (
-				7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */,
 				7BD8D8E229F0E37200ABFBC9 /* whisperxx */,
 				7BD8D8E129F0E37200ABFBC9 /* Products */,
 			);
@@ -109,7 +89,7 @@
 				7BD8D8DC29F0E37200ABFBC9 /* Sources */,
 				7BD8D8DD29F0E37200ABFBC9 /* Frameworks */,
 				7BD8D8DE29F0E37200ABFBC9 /* Resources */,
-				7B565C202A04DE9600123476 /* ShellScript */,
+				7B565C202A04DE9600123476 /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -145,28 +125,12 @@
 			mainGroup = 7BD8D8D629F0E37200ABFBC9;
 			productRefGroup = 7BD8D8E129F0E37200ABFBC9 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 7B264F2C2A1B58290028A7BC /* Products */;
-					ProjectRef = 7B264F2B2A1B58290028A7BC /* AggClustering.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				7BD8D8DF29F0E37200ABFBC9 /* whisperxx */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		7B264F302A1B58290028A7BC /* AggClustering.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = AggClustering.framework;
-			remoteRef = 7B264F2F2A1B58290028A7BC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		7BD8D8DE29F0E37200ABFBC9 /* Resources */ = {
@@ -179,7 +143,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		7B565C202A04DE9600123476 /* ShellScript */ = {
+		7B565C202A04DE9600123476 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -188,14 +152,14 @@
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "
-";
+			shellScript = "sh merge.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -340,6 +304,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -373,6 +338,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

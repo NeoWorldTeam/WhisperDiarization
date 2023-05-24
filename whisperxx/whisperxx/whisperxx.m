@@ -58,7 +58,7 @@
     params.print_timestamps = true;
     params.print_special    = false;
     params.translate        = false;
-    params.language         = "en";
+    params.language         = "auto";
     params.n_threads        = max_threads;
     params.offset_ms        = 0;
     params.no_context       = true;

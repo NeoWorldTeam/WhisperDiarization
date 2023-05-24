@@ -14,6 +14,9 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		7B76F55D2A1D9F400044EA5F /* 2_output.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B76F55C2A1D9F400044EA5F /* 2_output.wav */; };
+		7B76F55F2A1DA1B80044EA5F /* 1111_output.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B76F55E2A1DA1B80044EA5F /* 1111_output.wav */; };
+		7B76F5612A1DA1EE0044EA5F /* 1111.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B76F5602A1DA1EE0044EA5F /* 1111.wav */; };
 		7B80269029F2917B00E12E76 /* output29.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B80268F29F2917B00E12E76 /* output29.wav */; };
 		7B92E9872A0CC50E00EC922C /* test_16k.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B92E9862A0CC50E00EC922C /* test_16k.wav */; };
 		7B92E98D2A0DE86D00EC922C /* 16_202305080951_16k.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B92E98C2A0DE86D00EC922C /* 16_202305080951_16k.wav */; };
@@ -49,6 +52,9 @@
 		607FACE51AFB9204008FA782 /* WhisperDiarization_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhisperDiarization_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		7B76F55C2A1D9F400044EA5F /* 2_output.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 2_output.wav; sourceTree = "<group>"; };
+		7B76F55E2A1DA1B80044EA5F /* 1111_output.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 1111_output.wav; sourceTree = "<group>"; };
+		7B76F5602A1DA1EE0044EA5F /* 1111.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 1111.wav; sourceTree = "<group>"; };
 		7B80268F29F2917B00E12E76 /* output29.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = output29.wav; sourceTree = "<group>"; };
 		7B92E9862A0CC50E00EC922C /* test_16k.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = test_16k.wav; sourceTree = "<group>"; };
 		7B92E98C2A0DE86D00EC922C /* 16_202305080951_16k.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 16_202305080951_16k.wav; sourceTree = "<group>"; };
@@ -108,6 +114,9 @@
 				7BA71F852A11FF7500AA0EE4 /* output29_2.wav */,
 				7B92E9862A0CC50E00EC922C /* test_16k.wav */,
 				7B92E98C2A0DE86D00EC922C /* 16_202305080951_16k.wav */,
+				7B76F55C2A1D9F400044EA5F /* 2_output.wav */,
+				7B76F55E2A1DA1B80044EA5F /* 1111_output.wav */,
+				7B76F5602A1DA1EE0044EA5F /* 1111.wav */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
@@ -265,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
+				7B76F55F2A1DA1B80044EA5F /* 1111_output.wav in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				7BA71F862A11FF7500AA0EE4 /* output29_2.wav in Resources */,
 				7B80269029F2917B00E12E76 /* output29.wav in Resources */,
@@ -272,6 +282,8 @@
 				7B92E98D2A0DE86D00EC922C /* 16_202305080951_16k.wav in Resources */,
 				7B92E9872A0CC50E00EC922C /* test_16k.wav in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
+				7B76F5612A1DA1EE0044EA5F /* 1111.wav in Resources */,
+				7B76F55D2A1D9F400044EA5F /* 2_output.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
