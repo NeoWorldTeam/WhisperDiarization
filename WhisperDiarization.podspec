@@ -54,6 +54,6 @@ TODO: Add long description of the pod here.
   
   s.dependency 'SpeakerEmbeddingForiOS'
   s.dependency 'ObjectMapper'
-  
+  s.dependency 'RosaKit'
   
 end

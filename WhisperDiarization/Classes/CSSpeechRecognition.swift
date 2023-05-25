@@ -8,7 +8,7 @@
 import Foundation
 import AVFAudio
 import SpeakerEmbeddingForiOS
-
+import RosaKit
 
 public struct TranscriptItem {
     public var label:Int
@@ -105,56 +105,56 @@ public class CSSpeechRecognition {
     }
     
     
-    func _windowed_embeds(featureExtarer: SpeakerEmbedding, sourceIndex: Int, signal: Data, fs: Int, window: Double = 0.9, period: Double = 0.3) -> [AudioWindowEmbedsSegment] {
-        let lenWindow = Int(window * Double(fs))
-        let lenPeriod = Int(period * Double(fs))
-        let lenSignal = signal.count / MemoryLayout<Float>.size
-
-        // Get the windowed segments
-        var segments: [[Int]] = []
-        var start = 0
-        while start + lenWindow < lenSignal {
-            segments.append([start, start + lenWindow])
-            start += lenPeriod
-        }
-        segments.append([start, lenSignal])
-        
-        
+//    func _windowed_embeds(featureExtarer: SpeakerEmbedding, sourceIndex: Int, signal: Data, fs: Int, window: Double = 0.9, period: Double = 0.3) -> [AudioWindowEmbedsSegment] {
+//        let lenWindow = Int(window * Double(fs))
+//        let lenPeriod = Int(period * Double(fs))
+//        let lenSignal = signal.count / MemoryLayout<Float>.size
+//
+//        // Get the windowed segments
+//        var segments: [[Int]] = []
+//        var start = 0
+//        while start + lenWindow < lenSignal {
+//            segments.append([start, start + lenWindow])
+//            start += lenPeriod
+//        }
+//        segments.append([start, lenSignal])
+//
+//
+//
+//        var embeds: [AudioWindowEmbedsSegment] = []
+//        for segment in segments {
+//            let i = segment[0]
+//            let j = segment[1]
+//            let startIndex = i * MemoryLayout<Float>.size
+//            let endIndex = j * MemoryLayout<Float>.size
+//            let signalSeg = signal.subdata(in: startIndex..<endIndex)
+////            let tempCheck = signalSeg.toFloatArray()
+//
+//            guard let segEmbed = featureExtarer.extractFeature(data: signalSeg) else {
+//                continue
+//            }
+//            let segAudioEmbed = AudioWindowEmbedsSegment(embeding: segEmbed, start: i, end: j, sourceIndex: sourceIndex )
+//            embeds.append(segAudioEmbed)
+//        }
+//
+//        return embeds
+//    }
     
-        var embeds: [AudioWindowEmbedsSegment] = []
-        for segment in segments {
-            let i = segment[0]
-            let j = segment[1]
-            let startIndex = i * MemoryLayout<Float>.size
-            let endIndex = j * MemoryLayout<Float>.size
-            let signalSeg = signal.subdata(in: startIndex..<endIndex)
-//            let tempCheck = signalSeg.toFloatArray()
-            
-            guard let segEmbed = featureExtarer.extractFeature(data: signalSeg) else {
-                continue
-            }
-            let segAudioEmbed = AudioWindowEmbedsSegment(embeding: segEmbed, start: i, end: j, sourceIndex: sourceIndex )
-            embeds.append(segAudioEmbed)
-        }
-
-        return embeds
-    }
-    
-    func _featuresHandle(audioSegments: [AudioSegment]) -> [AudioWindowEmbedsSegment]{
-        guard let featureExtarer = featureExtarer else {
-            return []
-        }
-        var allEmbeds: [AudioWindowEmbedsSegment] = []
-        
-        for (index, audioSegment) in audioSegments.enumerated() {
-            let audioEmbedsSegments = _windowed_embeds(featureExtarer: featureExtarer,sourceIndex: index, signal: audioSegment.data, fs: 16000)
-            print("audioEmbedsSegments count: \(audioEmbedsSegments.count)")
-            allEmbeds.append(contentsOf: audioEmbedsSegments)
-        }
-        
-        
-        return allEmbeds
-    }
+//    func _featuresHandle(audioSegments: [AudioSegment]) -> [AudioWindowEmbedsSegment]{
+//        guard let featureExtarer = featureExtarer else {
+//            return []
+//        }
+//        var allEmbeds: [AudioWindowEmbedsSegment] = []
+//
+//        for (index, audioSegment) in audioSegments.enumerated() {
+//            let audioEmbedsSegments = _windowed_embeds(featureExtarer: featureExtarer,sourceIndex: index, signal: audioSegment.data, fs: 16000)
+//            print("audioEmbedsSegments count: \(audioEmbedsSegments.count)")
+//            allEmbeds.append(contentsOf: audioEmbedsSegments)
+//        }
+//
+//
+//        return allEmbeds
+//    }
     
     func _analyzeSpeaker(features: [[Float]], k: Int = 2) -> (Int, [Int]) {
         guard features.count > 0 else {
@@ -253,10 +253,57 @@ public class CSSpeechRecognition {
 //        }
 //        return newSegments
 //    }
-
+    
+    func convertSTFTtoArray(complexNumbers: [[(real: Double, imagine: Double)]]) -> [[[Float]]]{
+        var convertedNumbers: [[[Float]]] = []
+        
+        complexNumbers.forEach { rows in
+            var convertedRow: [[Float]] = []
+            
+            rows.forEach { complexNumber in
+                let real = complexNumber.real
+                let imaginary = complexNumber.imagine
+                
+                let convertedNumber: [Float] = [Float(real), Float(imaginary)]
+                convertedRow.append(convertedNumber)
+            }
+            convertedNumbers.append(convertedRow)
+        }
+        
+        return convertedNumbers
+    }
+    
+    func convertDataToFloatSamples(data: Data) -> [Float] {
+        let bytePointer = data.withUnsafeBytes { $0.baseAddress!.assumingMemoryBound(to: UInt8.self) }
+        let floatCapacity = data.count / MemoryLayout<Float>.stride
+        let floatPointer = UnsafeRawPointer(bytePointer).bindMemory(to: Float.self, capacity: floatCapacity)
+        let floatBuffer = UnsafeBufferPointer(start: floatPointer, count: floatCapacity)
+        return Array(floatBuffer)
+    }
+    
     func extractFeature(_ featureExtarer: SpeakerEmbedding, _ datas: inout [Data] ) -> [[Float]] {
         let transcriptFeature:[[Float]] = datas.map { data in
-            guard let feature = featureExtarer.extractFeature(data: data) else {
+            
+            //stft
+//            var floatArray = [Float](repeating: 0, count: data.count/MemoryLayout<Float>.size)
+//
+//            data.withUnsafeBytes { (dataPtr:UnsafeRawBufferPointer) in
+//
+//            }
+//
+//            floatArray.withUnsafeMutableBytes { floatPtr in
+//                datas.withUnsafeBytes { dataPtr in
+//                    floatPtr.copyMemory(from: dataPtr)
+//                }
+//            }
+            let floatArray = convertDataToFloatSamples(data: data)
+            let samples:[Double] = floatArray.map({Double($0)})
+            let stft = samples.stft(nFFT: 400, hopLength: 160)
+            let stftFloatArray = convertSTFTtoArray(complexNumbers: stft)
+            let stftFlat:[Float] = stftFloatArray.flatMap({$0.flatMap({$0.flatMap({$0})})})
+            let stftData = stftFlat.withUnsafeBytes { Data($0) }
+            
+            guard let feature = featureExtarer.extractFeature(data: stftData) else {
                 return [Float](repeating: 0, count: 192)
             }
             return feature
@@ -311,6 +358,26 @@ public class CSSpeechRecognition {
             }
             
             
+
+            
+            
+//            //MARK: - 测试数据
+//            trancriptRowData.enumerated().forEach { elem in
+//                whisper.test_SaveToWav(data: elem.element, index: 100+elem.offset)
+//            }
+//            let jsonData = try! JSONSerialization.data(withJSONObject: transcriptFeature, options: .prettyPrinted)
+//            if let jsonString = String(data: jsonData, encoding: .utf8) {
+//                let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("tensor.json")
+//
+//                do {
+//                    try jsonString.write(to: fileURL, atomically: true, encoding: .utf8)
+//                    print("JSON file saved successfully")
+//                } catch {
+//                    print("Error: \(error.localizedDescription)")
+//                }
+//            }
+//
+            
             
             let startTime3 = CFAbsoluteTimeGetCurrent()
             //加入存在用户
@@ -353,8 +420,11 @@ public class CSSpeechRecognition {
             }
             mergeFeatures.append(contentsOf: transcriptFeature)
             
+            
+            
             //分析
-            var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
+            var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: 4)
+            print("label:\(speakerLabel)")
             let elapsedTime3 = CFAbsoluteTimeGetCurrent() - startTime3
             print(" ==1=1==_analyzeSpeaker elapsed: \(elapsedTime3) seconds")
             

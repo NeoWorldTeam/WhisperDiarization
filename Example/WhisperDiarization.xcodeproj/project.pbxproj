@@ -14,6 +14,9 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		7B0288392A1DDFFF00DBF1DD /* ssss_16k.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B0288382A1DDFFF00DBF1DD /* ssss_16k.wav */; };
+		7B02883C2A1EFB0300DBF1DD /* audio_100.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B02883B2A1EFB0300DBF1DD /* audio_100.wav */; };
+		7B02883E2A1EFF9100DBF1DD /* audio_99.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B02883D2A1EFF9000DBF1DD /* audio_99.wav */; };
 		7B76F55D2A1D9F400044EA5F /* 2_output.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B76F55C2A1D9F400044EA5F /* 2_output.wav */; };
 		7B76F55F2A1DA1B80044EA5F /* 1111_output.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B76F55E2A1DA1B80044EA5F /* 1111_output.wav */; };
 		7B76F5612A1DA1EE0044EA5F /* 1111.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B76F5602A1DA1EE0044EA5F /* 1111.wav */; };
@@ -52,6 +55,9 @@
 		607FACE51AFB9204008FA782 /* WhisperDiarization_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhisperDiarization_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		7B0288382A1DDFFF00DBF1DD /* ssss_16k.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ssss_16k.wav; sourceTree = "<group>"; };
+		7B02883B2A1EFB0300DBF1DD /* audio_100.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = audio_100.wav; sourceTree = "<group>"; };
+		7B02883D2A1EFF9000DBF1DD /* audio_99.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = audio_99.wav; sourceTree = "<group>"; };
 		7B76F55C2A1D9F400044EA5F /* 2_output.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 2_output.wav; sourceTree = "<group>"; };
 		7B76F55E2A1DA1B80044EA5F /* 1111_output.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 1111_output.wav; sourceTree = "<group>"; };
 		7B76F5602A1DA1EE0044EA5F /* 1111.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 1111.wav; sourceTree = "<group>"; };
@@ -115,8 +121,11 @@
 				7B92E9862A0CC50E00EC922C /* test_16k.wav */,
 				7B92E98C2A0DE86D00EC922C /* 16_202305080951_16k.wav */,
 				7B76F55C2A1D9F400044EA5F /* 2_output.wav */,
+				7B0288382A1DDFFF00DBF1DD /* ssss_16k.wav */,
 				7B76F55E2A1DA1B80044EA5F /* 1111_output.wav */,
 				7B76F5602A1DA1EE0044EA5F /* 1111.wav */,
+				7B02883B2A1EFB0300DBF1DD /* audio_100.wav */,
+				7B02883D2A1EFF9000DBF1DD /* audio_99.wav */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
@@ -274,14 +283,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
+				7B02883C2A1EFB0300DBF1DD /* audio_100.wav in Resources */,
 				7B76F55F2A1DA1B80044EA5F /* 1111_output.wav in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				7BA71F862A11FF7500AA0EE4 /* output29_2.wav in Resources */,
 				7B80269029F2917B00E12E76 /* output29.wav in Resources */,
 				7BA71F822A11C7A500AA0EE4 /* test_concat_output.wav in Resources */,
+				7B0288392A1DDFFF00DBF1DD /* ssss_16k.wav in Resources */,
 				7B92E98D2A0DE86D00EC922C /* 16_202305080951_16k.wav in Resources */,
 				7B92E9872A0CC50E00EC922C /* test_16k.wav in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
+				7B02883E2A1EFF9100DBF1DD /* audio_99.wav in Resources */,
 				7B76F5612A1DA1EE0044EA5F /* 1111.wav in Resources */,
 				7B76F55D2A1D9F400044EA5F /* 2_output.wav in Resources */,
 			);
@@ -327,12 +339,18 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WhisperDiarization_Example/Pods-WhisperDiarization_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/ObjectMapper/ObjectMapper.framework",
+				"${BUILT_PRODUCTS_DIR}/PlainPocketFFT/PlainPocketFFT.framework",
+				"${BUILT_PRODUCTS_DIR}/PocketFFT/PocketFFT.framework",
+				"${BUILT_PRODUCTS_DIR}/RosaKit/RosaKit.framework",
 				"${PODS_ROOT}/../../WhisperDiarization/Frameworks/AggClustering.framework",
 				"${PODS_ROOT}/../../WhisperDiarization/Frameworks/whisperxx.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjectMapper.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PlainPocketFFT.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PocketFFT.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RosaKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AggClustering.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/whisperxx.framework",
 			);
