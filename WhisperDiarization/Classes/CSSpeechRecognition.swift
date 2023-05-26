@@ -381,7 +381,7 @@ public class CSSpeechRecognition {
             
             let startTime3 = CFAbsoluteTimeGetCurrent()
             //加入存在用户
-            var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
+            var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 5)
             existSpeakerIndex.enumerated().forEach { elem in
                 print(" ==1=1==label:\(elem.element), num:\(existSpeakerFeatures[elem.offset].count)")
             }
@@ -423,7 +423,7 @@ public class CSSpeechRecognition {
             
             
             //分析
-            var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: 4)
+            var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
             print("label:\(speakerLabel)")
             let elapsedTime3 = CFAbsoluteTimeGetCurrent() - startTime3
             print(" ==1=1==_analyzeSpeaker elapsed: \(elapsedTime3) seconds")
@@ -507,15 +507,17 @@ public class CSSpeechRecognition {
 
             //提取所有已知用户
             //替换
+            print("label:\(speakerLabel)")
             speakerLabel = speakerLabel.map { (number) -> Int in
-                for (index, labels) in existSpeakerLabels.enumerated() {
-                    if labels.contains(number) {
+                for (index, speakerLabels) in existSpeakerLabels.enumerated() {
+                    if speakerLabels.contains(number) {
                         return existSpeakerIndex[index]
                     }
                 }
                 
                 return number + 101
             }
+            print("label:\(speakerLabel)")
             
             //为不存在的用户创建新的id并替换
             let unRecognizeSpeakerLabels = speakerLabel.filter { label in
@@ -546,13 +548,17 @@ public class CSSpeechRecognition {
                 let speech = audioSeg.speech
                 let embeding = transcriptFeature[index]
                 let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: audioSeg.startTimeStamp, endTimeStamp: audioSeg.endTimeStamp, features: embeding)
-                print(" ==1=1==识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
+                print(" ==1=1==识别语音:\(speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
                 return transcript
             }
 
             //更新
-            speechDatas.forEach { item in
-                speakerAnalyse?.updateSpeaker(index: item.label, feature: item.features)
+            for item in speechDatas {
+                let label = item.label
+                let features = item.features
+//                let speech = item.speech
+//                print("label:\(label),speech:\(speech)")
+                speakerAnalyse?.updateSpeaker(index: label, feature: features)
             }
 
             //加入缓存

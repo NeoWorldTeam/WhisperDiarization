@@ -9,20 +9,20 @@ import Foundation
 import ObjectMapper
 
 struct Speaker : Mappable {
-    var index: Int = -1
+    var label: Int = -1
     var features: [[Float]] = []
 
     init?(map: ObjectMapper.Map) {}
     
     init(index: Int, features:[[Float]]) {
-        self.index = index
+        self.label = index
         self.features = features
     }
     
     
 
     mutating func mapping(map: Map) {
-        index       <- map["index"]
+        label       <- map["index"]
         features    <- map["features"]
     }
 }
@@ -75,11 +75,9 @@ class SpeakerAnalyseTempModule {
     
     
     func getTopSpeakerFeature(num: Int) -> ([Int], [[[Float]]]) {
-        
-        
-        let lastetSpeakers:[Int] = Array<Int>(speakerRecentlyRecord.keys).sorted(by: >)
-        let onlyLastetSpeakers = Set(lastetSpeakers)
-        var recentSpeakerIndexs:[Int] = Array<Int>(onlyLastetSpeakers.prefix(num - 1))
+
+        let lastetSpeakerIndexs:[Int] = speakerRecentlyRecord.sorted(by: { $0.value > $1.value }).map { $0.key }
+        var recentSpeakerIndexs:[Int] = Array<Int>(lastetSpeakerIndexs.prefix(num - 1))
         
         var speakersLimit = [Int]()
         speakersLimit.append(0)
@@ -88,13 +86,17 @@ class SpeakerAnalyseTempModule {
         let speakerFeatures: [[[Float]]] = speakersLimit.map { index in
             return speakers[index].features
         }
+        
+        let speakerLabels = speakersLimit.map { index in
+            return speakers[index].label
+        }
 
-        return (speakersLimit,speakerFeatures)
+        return (speakerLabels,speakerFeatures)
     }
 
     //更新数据，且将最新的用户提到前面
     func updateSpeaker(index: Int, feature: [Float]) {
-        guard let speakerIndex = speakers.firstIndex(where: {$0.index == index}) else {
+        guard let speakerIndex = speakers.firstIndex(where: {$0.label == index}) else {
             var speaker = Speaker(index: index, features: [])
             speaker.features.append(feature)
             speakers.append(speaker)
@@ -111,6 +113,7 @@ class SpeakerAnalyseTempModule {
         default:
             recentlyIndex += 1
             speakerRecentlyRecord[speakerIndex] = recentlyIndex
+//            print("speakerIndex:\(speakerIndex) index:\(recentlyIndex)")
             if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2{
                 speakers[speakerIndex].features.removeFirst()
             }
