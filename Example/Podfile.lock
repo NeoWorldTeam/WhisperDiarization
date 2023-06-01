@@ -8,7 +8,7 @@ PODS:
     - PocketFFT (~> 0.0.1)
   - SpeakerEmbeddingForiOS (0.2.0):
     - onnxruntime-c
-  - WhisperDiarization (0.2.10):
+  - WhisperDiarization (0.2.11):
     - ObjectMapper
     - RosaKit
     - SpeakerEmbeddingForiOS
@@ -38,7 +38,7 @@ SPEC CHECKSUMS:
   PocketFFT: cdbe7ef5b7cd08520655d85d03d701b5ba35fdec
   RosaKit: 6e28b09f5eb990148a401e0c4b4ff0c207bd6569
   SpeakerEmbeddingForiOS: 19c56e38e459c703fe5da04c79bdaa8b4daa7326
-  WhisperDiarization: 2ef133790c86964613aa84d6f5511341547f3569
+  WhisperDiarization: f7609b612cfde30aee77472bb87c9629c513da7e
 
 PODFILE CHECKSUM: f72c02cf12e8fb96716c4e88cb04440a4f304eab
 
