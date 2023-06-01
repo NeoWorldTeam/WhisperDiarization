@@ -398,6 +398,11 @@ private extension VADModule {
         }
         
         let vadBuffer = VADBuffer(buffer: data, rangeTimes: vadRanges)
+        var passTime = vadRanges.reduce(into: Int64(0)) { partialResult, range in
+            partialResult =  partialResult + (range.realTimeStamp.end - range.realTimeStamp.start)
+        }
+        
+        print("有效时长: \(Double(passTime) * 0.001)")
         vadBuffersInQueue.append(vadBuffer)
         return false
     }
