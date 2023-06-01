@@ -9,10 +9,16 @@
 /* Begin PBXBuildFile section */
 		7BD8D8E429F0E37200ABFBC9 /* whisperxx.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7BD8D8EE29F0E39600ABFBC9 /* ggml.c in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8EA29F0E39600ABFBC9 /* ggml.c */; settings = {COMPILER_FLAGS = "-DGGML_USE_ACCELERATE"; }; };
-		7BD8D8EF29F0E39600ABFBC9 /* whisper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */; };
+		7BD8D8EF29F0E39600ABFBC9 /* whisper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8EB29F0E39600ABFBC9 /* whisper.cpp */; settings = {COMPILER_FLAGS = "-DWHISPER_USE_COREML -DWHISPER_COREML_ALLOW_FALLBACK"; }; };
 		7BD8D8F029F0E39600ABFBC9 /* ggml.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8EC29F0E39600ABFBC9 /* ggml.h */; };
 		7BD8D8F129F0E39600ABFBC9 /* whisper.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BD8D8ED29F0E39600ABFBC9 /* whisper.h */; };
 		7BD8D8FA29F0E9E800ABFBC9 /* whisperxx.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */; };
+		7BFD73E32A28B61B00184E65 /* whisper-encoder-impl.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFD73DD2A28B61B00184E65 /* whisper-encoder-impl.m */; };
+		7BFD73E42A28B61B00184E65 /* whisper-encoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BFD73DE2A28B61B00184E65 /* whisper-encoder.h */; };
+		7BFD73E52A28B61B00184E65 /* whisper-encoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BFD73DF2A28B61B00184E65 /* whisper-encoder.mm */; };
+		7BFD73E62A28B61B00184E65 /* whisper-decoder-impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BFD73E02A28B61B00184E65 /* whisper-decoder-impl.h */; };
+		7BFD73E72A28B61B00184E65 /* whisper-encoder-impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BFD73E12A28B61B00184E65 /* whisper-encoder-impl.h */; };
+		7BFD73E82A28B61B00184E65 /* whisper-decoder-impl.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BFD73E22A28B61B00184E65 /* whisper-decoder-impl.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +29,12 @@
 		7BD8D8EC29F0E39600ABFBC9 /* ggml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ggml.h; sourceTree = "<group>"; };
 		7BD8D8ED29F0E39600ABFBC9 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
 		7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = whisperxx.m; sourceTree = "<group>"; };
+		7BFD73DD2A28B61B00184E65 /* whisper-encoder-impl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "whisper-encoder-impl.m"; sourceTree = "<group>"; };
+		7BFD73DE2A28B61B00184E65 /* whisper-encoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "whisper-encoder.h"; sourceTree = "<group>"; };
+		7BFD73DF2A28B61B00184E65 /* whisper-encoder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "whisper-encoder.mm"; sourceTree = "<group>"; };
+		7BFD73E02A28B61B00184E65 /* whisper-decoder-impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "whisper-decoder-impl.h"; sourceTree = "<group>"; };
+		7BFD73E12A28B61B00184E65 /* whisper-encoder-impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "whisper-encoder-impl.h"; sourceTree = "<group>"; };
+		7BFD73E22A28B61B00184E65 /* whisper-decoder-impl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "whisper-decoder-impl.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +67,7 @@
 		7BD8D8E229F0E37200ABFBC9 /* whisperxx */ = {
 			isa = PBXGroup;
 			children = (
+				7BFD73DC2A28B61B00184E65 /* coreml */,
 				7BD8D8E329F0E37200ABFBC9 /* whisperxx.h */,
 				7BD8D8F929F0E9E800ABFBC9 /* whisperxx.m */,
 				7BD8D8EA29F0E39600ABFBC9 /* ggml.c */,
@@ -63,6 +76,19 @@
 				7BD8D8ED29F0E39600ABFBC9 /* whisper.h */,
 			);
 			path = whisperxx;
+			sourceTree = "<group>";
+		};
+		7BFD73DC2A28B61B00184E65 /* coreml */ = {
+			isa = PBXGroup;
+			children = (
+				7BFD73DD2A28B61B00184E65 /* whisper-encoder-impl.m */,
+				7BFD73DE2A28B61B00184E65 /* whisper-encoder.h */,
+				7BFD73DF2A28B61B00184E65 /* whisper-encoder.mm */,
+				7BFD73E02A28B61B00184E65 /* whisper-decoder-impl.h */,
+				7BFD73E12A28B61B00184E65 /* whisper-encoder-impl.h */,
+				7BFD73E22A28B61B00184E65 /* whisper-decoder-impl.m */,
+			);
+			path = coreml;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,6 +100,9 @@
 			files = (
 				7BD8D8E429F0E37200ABFBC9 /* whisperxx.h in Headers */,
 				7BD8D8F029F0E39600ABFBC9 /* ggml.h in Headers */,
+				7BFD73E42A28B61B00184E65 /* whisper-encoder.h in Headers */,
+				7BFD73E62A28B61B00184E65 /* whisper-decoder-impl.h in Headers */,
+				7BFD73E72A28B61B00184E65 /* whisper-encoder-impl.h in Headers */,
 				7BD8D8F129F0E39600ABFBC9 /* whisper.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -169,8 +198,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BD8D8EF29F0E39600ABFBC9 /* whisper.cpp in Sources */,
+				7BFD73E52A28B61B00184E65 /* whisper-encoder.mm in Sources */,
 				7BD8D8EE29F0E39600ABFBC9 /* ggml.c in Sources */,
 				7BD8D8FA29F0E9E800ABFBC9 /* whisperxx.m in Sources */,
+				7BFD73E32A28B61B00184E65 /* whisper-encoder-impl.m in Sources */,
+				7BFD73E82A28B61B00184E65 /* whisper-decoder-impl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

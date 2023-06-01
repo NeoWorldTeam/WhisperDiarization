@@ -42,7 +42,7 @@ TODO: Add long description of the pod here.
   s.static_framework = true
 
   s.resource_bundles = {
-    'WhisperDiarization' => ['WhisperDiarization/Assets/**/*.{bin}']
+    'WhisperDiarization' => ['WhisperDiarization/Assets/**/*.{bin,mlmodelc}']
   }
   
   
