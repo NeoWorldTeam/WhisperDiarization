@@ -117,10 +117,11 @@ class SpeakerAnalyseTempModule {
             if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2{
                 speakers[speakerIndex].features.removeFirst()
             }
+            speakers[speakerIndex].features.append(feature)
             break
         }
 
-        speakers[speakerIndex].features.append(feature)
+        
     }
     
 
