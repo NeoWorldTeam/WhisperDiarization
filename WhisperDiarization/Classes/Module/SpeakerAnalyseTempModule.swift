@@ -105,9 +105,9 @@ class SpeakerAnalyseTempModule {
         
         switch index {
         case 0:
-            if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2 {
-                speakers[speakerIndex].features.remove(at: fixHostFeatureCount)
-            }
+//            if speakers[speakerIndex].features.count >= fixHostFeatureCount * 2 {
+//                speakers[speakerIndex].features.remove(at: fixHostFeatureCount)
+//            }
             break
             
         default:

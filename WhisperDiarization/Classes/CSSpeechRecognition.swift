@@ -51,6 +51,15 @@ public class CSSpeechRecognition {
             self._run()
         }
     }
+    let punctuationSet = CharacterSet.punctuationCharacters
+
+    func hasPunctuationAtEnd(_ string: String) -> Bool {
+        guard let lastCharacter = string.last else {
+            return false
+        }
+
+        return punctuationSet.contains(UnicodeScalar(String(lastCharacter))!)
+    }
     
     func _preload() {
         if speakerAnalyse == nil {
@@ -541,15 +550,18 @@ public class CSSpeechRecognition {
             }
             
             //通过更新好的id生成数据
-            let speechDatas = speakerLabel.enumerated().map { elem in
-                let label = elem.element
-                let index = elem.offset
+            var speechDatas: [TranscriptItem] = []
+            for index in 0..<speakerLabel.count {
+                let label = speakerLabel[index]
                 let audioSeg = recognizeResult[index]
-                let speech = audioSeg.speech
+                var speech = audioSeg.speech
                 let embeding = transcriptFeature[index]
+                if index != 0 && index != (speakerLabel.count - 1)  && speakerLabel[index+1] == label && hasPunctuationAtEnd(speech) == false{
+                    speech.append(",")
+                }
                 let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: audioSeg.startTimeStamp, endTimeStamp: audioSeg.endTimeStamp, features: embeding)
-                print(" ==1=1==识别语音:\(speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
-                return transcript
+                speechDatas.append(transcript)
+                print(" ==1=1==识别语音:\(speech)  说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
             }
 
             //更新
