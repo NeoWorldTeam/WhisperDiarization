@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WhisperDiarization'
-  s.version          = '0.2.12'
+  s.version          = '0.3.0'
   s.summary          = 'A short description of WhisperDiarization.'
 
 # This description is used to generate tags and improve search results.
