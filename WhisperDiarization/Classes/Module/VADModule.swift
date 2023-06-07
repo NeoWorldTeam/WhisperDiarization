@@ -30,21 +30,14 @@ struct VADBuffer {
     var rangeTimes: [VADRange]
 }
 
-//struct VADResult {
-//    var buffers: [VADBuffer]
-//
-//    init() {
-//        let buffer = VADBuffer(buffer: Data(), rangeTimes: [])
-//        buffers = [buffer]
-//    }
-//}
-
 class VADModule {
     let sf: Int
     let limitInSec: Int
     let vadFrameFixByte: Int
     let windowSize = 512
     var currentResult: VADResult?
+//    var xfsffdfdsf = 0
+//    var xfsffdfdsf2 = 100
     
     let vad: VoiceActivityDetector = VoiceActivityDetector()
     let processFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16000, channels: 1, interleaved: false)!
@@ -164,84 +157,6 @@ private extension VADModule {
         
         
         return results
-
-//        //当前buffers 长度
-//        let currentTotalBytes = vadBuffersInQueue.reduce(0) { (result1, buffer: VADBuffer) -> Int in
-//            return result1 + buffer.rangeTimes.reduce(0) { (result2, rangeTime: VADRange) -> Int in
-//                return result2 + MemoryLayout<Float>.size * Int(rangeTime.sampleRange.end - rangeTime.sampleRange.start) + rangeSpace
-//            }
-//        }
-//
-//
-//
-//        //可能存在的buffer数量
-//        var usedBufferNum:Int = currentTotalBytes/(30 * sf * MemoryLayout<Float>.size)
-////        print("usedBufferNum:\(usedBufferNum),currentTotalBytes size:\(currentTotalBytes)")
-//        guard usedBufferNum > 0 else {
-//            return results
-//        }
-//        usedBufferNum += results.count
-//
-//
-//        //2. 当前数据拼接,只加入必要的，
-//        if vadBuffersInQueue.isEmpty == false {
-//            var newData = Data()
-//            var newRange:[VADRange] = []
-//            while vadBuffersInQueue.count > 0 && results.count < usedBufferNum {
-//                guard vadBuffersInQueue.isEmpty == false else {
-//                    break
-//                }
-//
-//                while vadBuffersInQueue[0].rangeTimes.count > 0 && results.count < usedBufferNum {
-//                    guard vadBuffersInQueue[0].rangeTimes.isEmpty == false else {
-//                        fatalError("buffer.rangeTimes.count should be more than 0")
-//                    }
-//
-//                    let startIndex = Int(vadBuffersInQueue[0].rangeTimes[0].sampleRange.start) * MemoryLayout<Float>.size
-//                    let endIndex = Int(vadBuffersInQueue[0].rangeTimes[0].sampleRange.end) * MemoryLayout<Float>.size
-//                    let rangeData = vadBuffersInQueue[0].buffer.subdata(in: startIndex..<endIndex)
-//
-//                    //超过大小
-//                    if newData.count + rangeData.count + rangeSpace >= (30 * sf * MemoryLayout<Float>.size) {
-//                        let remainBytes = (30 * sf * MemoryLayout<Float>.size) - newData.count
-//                        newData.append(Data(repeating: 0, count: remainBytes))
-//                        results.append(VADBuffer(buffer: newData, rangeTimes: newRange))
-//
-//                        if results.count >= usedBufferNum {
-//                            break
-//                        }
-//
-//                        newData = Data()
-//                        newRange = []
-//                    }
-//
-//                    let startSample = Int64(newData.count / MemoryLayout<Float>.size)
-//
-//                    let endSample = Int64(startSample) + (vadBuffersInQueue[0].rangeTimes[0].sampleRange.end - vadBuffersInQueue[0].rangeTimes[0].sampleRange.start)
-//
-//                    let sampleRange = TimeRange(start: startSample, end: endSample)
-//
-//                    newRange.append(VADRange(realTimeStamp: vadBuffersInQueue[0].rangeTimes[0].realTimeStamp, sampleRange: sampleRange))
-//
-//                    newData.append(rangeData)
-//
-//
-//                    if newData.count + rangeSpace <= (30 * sf * MemoryLayout<Float>.size) {
-//                        newData.append(Data(repeating: 0, count: rangeSpace))
-//                    }
-//
-//                    //推出使用后的range
-//                    vadBuffersInQueue[0].rangeTimes.removeFirst()
-//                }
-//
-//                //推出使用后的buffer
-//                if vadBuffersInQueue[0].rangeTimes.isEmpty {
-//                    vadBuffersInQueue.removeFirst()
-//                }
-//            }
-//        }
-//        return results
-        
     }
     
     func popAvalibleData() -> Data? {
@@ -279,81 +194,35 @@ private extension VADModule {
         return pcmBuffer
     }
     
-//    func doLastVadHandle() {
-//        print("doLastVadHandle and vadBuffersInQueue:\(vadBuffersInQueue.count) vadBuffers:\(vadBuffers.count)")
-//        //copy data
-//        vadBuffers.append(contentsOf: vadBuffersInQueue)
-//        vadBuffersInQueue.removeAll()
+//    func test_SaveToWav(data: Data, index: Int) {
+//        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//        let fileURL = documentsDirectory.appendingPathComponent("audio_" + String(index) + ".wav")
 //
+//        // 创建AVAudioFile
+//        let audioFile = try! AVAudioFile(forWriting: fileURL, settings: [
+//            AVFormatIDKey: Int(kAudioFormatLinearPCM),
+//            AVSampleRateKey: 16000,
+//            AVNumberOfChannelsKey: 1,
+//            AVLinearPCMBitDepthKey: 32,
+//            AVLinearPCMIsBigEndianKey: false,
+//            AVLinearPCMIsFloatKey: true
+//        ])
 //
-//        //1.check
-//        //1.1 拼接备份
-//        if !backupAudioData.isEmpty {
-//            cacheAudioData = backupAudioData + cacheAudioData
-//            backupAudioData = Data()
-//        }
-//        guard cacheAudioData.count >= (windowSize * MemoryLayout<Float>.size) else{
-//            return
-//        }
-//
-//
-//        //7.release
-//        defer {
-//            cacheAudioData.removeAll()
-//        }
-//
-//        //2.get data
-//        guard let data = getAvalibleData() else {
-//            return
-//        }
-////        let pcmBuffer = generateAudioBuffer(data: data)
-//
-//
-//        //3.detect
-//        guard let detectResult:[VADTimeResult] = vad.detectContinuouslyForTimeStemp(buffer: data) else {
-//            return
-//        }
-//        guard detectResult.isEmpty == false else {
-//            return
+//        // 写入音频数据
+//        let audioBuffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: UInt32(data.count) / audioFile.processingFormat.streamDescription.pointee.mBytesPerFrame)!
+//        audioBuffer.frameLength = audioBuffer.frameCapacity
+//        let audioBufferData = audioBuffer.floatChannelData![0]
+//        audioBufferData.withMemoryRebound(to: UInt8.self, capacity: data.count) { pointer in
+//            data.copyBytes(to: pointer, count: data.count)
 //        }
 //
+//        try! audioFile.write(from: audioBuffer)
 //
-//        //4.convert data
-//        var vadRanges: [VADRange] = detectResult.map { timeResult in
-////            let startBytes = timeResult.start * MemoryLayout<Float>.size
-////            let endBytes = timeResult.end * MemoryLayout<Float>.size
-//            let startTimestemp = Int64(timeResult.start / (sf / 1000))  + lastStartTimeStamp
-//            let endTimestemp = Int64(timeResult.end / (sf / 1000))  + lastStartTimeStamp
-//
-//            return VADRange(realTimeStamp: TimeRange(start: Int64(startTimestemp), end: Int64(endTimestemp)), sampleRange: TimeRange(start: Int64(timeResult.start), end: Int64(timeResult.end)))
-//        }
-//
-//
-//
-//
-//
-//
-//        //5.keep continuous
-////        guard let lastVadRange:VADRange = vadRanges.last else {
-////            return
-////        }
-////        let lastEndSampleIndex = Int(lastVadRange.sampleRange.end) * MemoryLayout<Float>.size
-////        //最后如果有语音，那么保留最后一个在队列
-////        if data.count - lastEndSampleIndex < 512 * MemoryLayout<Float>.size {
-////            vadRanges.removeLast()
-////            useDataIndex = Int(vadRanges.last?.sampleRange.end ?? 0)
-////        }
-//
-//
-//        //6. add buffer
-//        guard vadRanges.isEmpty == false else {
-//            return
-//        }
-//
-//        let vadBuffer = VADBuffer(buffer: data, rangeTimes: vadRanges)
-//        vadBuffers.append(vadBuffer)
+//        print("文件已经保存到：\(fileURL)")
 //    }
-
+    
+    
+    
     func doThisVadHandle() -> Bool {
 //        print("doThisVadHandle and vadBuffersInQueue count is \(vadBuffersInQueue.count)")
         //1.check
@@ -365,11 +234,39 @@ private extension VADModule {
         guard let data = popAvalibleData() else {
             return true
         }
+        
+//        test_SaveToWav(data: data, index: xfsffdfdsf)
+//        xfsffdfdsf+=1
+        
         //3.detect
-        guard let detectResult:[VADTimeResult] = vad.detectContinuouslyForTimeStemp(buffer: data),
+        print("vad 检查数据采样数: \(data.count >> 2)")
+        guard var detectResult:[VADResult] = vad.detectContinuouslyForTimeStemp(buffer: data),
               !detectResult.isEmpty else {
+            print("vad 没有有效数据")
             return false
         }
+        
+        
+        let vadvvvvvSampleNum = detectResult.reduce(into: 0) { partialResult, timeResult in
+            partialResult = partialResult + (timeResult.end - timeResult.start)
+        }
+        print("vad 有效采样数: \(vadvvvvvSampleNum)")
+        
+        //5.keep continuous
+        guard let lastVADResult:VADResult = detectResult.popLast() else {
+            return false
+        }
+        if lastVADResult.start > 0 {
+            //最后如果有语音，那么保留最后备用队列
+            let dataStartIndex = lastVADResult.start * MemoryLayout<Float>.size
+            let dataEndIndex = lastVADResult.end * MemoryLayout<Float>.size
+            let waitHandleData = data.subdata(in: dataStartIndex..<dataEndIndex)
+            backupAudioData.append(waitHandleData)
+            print("移入备份队列, start:\(dataStartIndex),end:\(dataEndIndex), back count:\(backupAudioData.count)")
+        }
+
+        
+        
 
         //4.convert data
         var vadRanges: [VADRange] = detectResult.map { timeResult in
@@ -379,18 +276,13 @@ private extension VADModule {
             return VADRange(realTimeStamp: TimeRange(start: startTimestemp, end: endTimestemp), sampleRange: TimeRange(start: Int64(timeResult.start), end: Int64(timeResult.end)))
         }
         
-        //5.keep continuous
-        guard let lastVadRange:VADRange = vadRanges.last else {
-            return false
-        }
-        let lastEndSampleBytes = Int(lastVadRange.sampleRange.end) * MemoryLayout<Float>.size
-        //最后如果有语音，那么保留最后备用队列
-        if vadRanges.count > 1 && (data.count - lastEndSampleBytes) <= (512 * MemoryLayout<Float>.size) {
-            let waitHandleData = data.subdata(in: Int(lastVadRange.sampleRange.start) * MemoryLayout<Float>.size..<Int(lastVadRange.sampleRange.end) * MemoryLayout<Float>.size)
-            backupAudioData.append(waitHandleData)
-            vadRanges.removeLast()
-            print("移入备份队列, start:\(lastVadRange.sampleRange.start),end:\(lastVadRange.sampleRange.end), back count:\(backupAudioData.count)")
-        }
+        
+        
+
+        
+        
+        
+        
 
         var rangeDuration = 0
         for rangeItem in vadRanges {
@@ -399,6 +291,9 @@ private extension VADModule {
             
             let vadRange = VADRange(realTimeStamp: rangeItem.realTimeStamp, sampleRange: rangeItem.sampleRange, data: rangeData)
             vadBuffersInQueue.append(vadRange)
+            
+//            test_SaveToWav(data: rangeData, index: xfsffdfdsf2)
+//            xfsffdfdsf2+=1
         }
         print("有效时长: \(Double(rangeDuration) * 0.001)")
         

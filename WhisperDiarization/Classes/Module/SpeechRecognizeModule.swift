@@ -48,44 +48,6 @@ class SpeechRecognizeModule {
         whisper = WhisperDiarization()
     }
     
-    //    func extractAudioRaw(_ transcripts: inout [TranscriptSegment], _ vadBuffer: VADBuffer, _ matchSegments: inout [VADAndTranscriptMatchSegment] ) -> [AudioSegment] {
-    //        let trancriptAudioSegments:[AudioSegment] = transcripts.enumerated().map { (index, seg) in
-    //
-    //            let matchSegment = matchSegments.first(where: {$0.speechIndex.contains(where: {$0 == index})})!
-    //            let vadRange = vadBuffer.rangeTimes[matchSegment.vadIndex]
-    //            let caculateStart = max(seg.start, Int(vadRange.sampleRange.start)) * MemoryLayout<Float>.size
-    //            let caculateEnd = min(seg.end, Int(vadRange.sampleRange.end)) * MemoryLayout<Float>.size
-    //
-    //            let segData = vadBuffer.buffer.subdata(in: caculateStart..<caculateEnd)
-    //
-    //            let startSampleIndex = 0
-    //            let endSampleIndex = (caculateEnd - caculateStart) / MemoryLayout<Float>.size
-    //
-    //
-    //            let caculateStartIndex = caculateStart / MemoryLayout<Float>.size
-    //            let startTimeStamp:Int64 = vadRange.realTimeStamp.start + ((Int64(caculateStartIndex) - vadRange.sampleRange.start) / 16)
-    //            let endTimeStamp:Int64 = startTimeStamp + Int64(endSampleIndex / 16)
-    //
-    //            return AudioSegment(data: segData, start: startSampleIndex, end: endSampleIndex, startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp)
-    //        }
-    //
-    //        return trancriptAudioSegments
-    //    }
-    
-    
-    
-//    func findStartPosInWhichRange(statrIndex: Int, position: Int, rangeTimes: [VADRange]) -> (index: Int, volume: Int) {
-//        for index in statrIndex..<rangeTimes.count {
-//            let myRange = rangeTimes[index].sampleRange.start..<rangeTimes[index].sampleRange.end
-//            if myRange.contains(Int64(position)) {
-//                let volume = Int(rangeTimes[index].sampleRange.end - Int64(position))
-//                return (index,volume)
-//            }
-//        }
-//
-//        return (-1,0)
-//    }
-    
     func findStartPosInWhichRange(statrIndex: Int, startPos: Int, endPos: Int, rangeTimes: [VADRange]) -> (index: Int, volume: Int) {
         for index in statrIndex..<rangeTimes.count {
             let rangeRealStart = Int(rangeTimes[index].sampleRange.start)
@@ -203,32 +165,6 @@ class SpeechRecognizeModule {
                 matchSegments.append(matchItem)
             }
             
-            
-//            for index in matchIndex..<rangeTimes.count {
-//
-//
-//
-//
-//                let clampStart = max(Int(rangeTimes[index].sampleRange.start),transcriptSeg.start)
-//                let clampEnd = min(Int(rangeTimes[index].sampleRange.end), transcriptSeg.end)
-//                let speechIndexPair = (clampStart, clampEnd)
-//
-//                if clampStart < clampEnd,
-//                   clampEnd - clampStart >= 512 {
-//
-//                    matchIndex = index
-//                    if let matchItemIndex = matchSegments.firstIndex(where: {$0.vadIndex == index}) {
-//                        matchSegments[matchItemIndex].speechIndex.append(speechIndexPair)
-//                        matchSegments[matchItemIndex].speechs.append(transcriptSeg.speech)
-//                    }else {
-//                        var matchItem = VADAndTranscriptMatchSegment(vadIndex: index)
-//                        matchItem.speechIndex.append(speechIndexPair)
-//                        matchItem.speechs.append(transcriptSeg.speech)
-//                        matchSegments.append(matchItem)
-//                    }
-//                    break
-//                }
-//            }
         }
         return matchSegments
     }
@@ -324,24 +260,6 @@ class SpeechRecognizeModule {
     
     func recognize(vadBuffers: [VADBuffer]) -> [RecognizeSegment] {
         
-//        var sasasasas = 100
-//
-//        vadBuffers.forEach { (vvvv: VADBuffer) in
-//            print("buffer: \(vvvv.buffer.count)")
-//            test_SaveToWav(data: vvvv.buffer, index: sasasasas)
-//            sasasasas+=1
-//            vvvv.rangeTimes.forEach { range in
-//                print("range start: \(range.sampleRange.start) end:\(range.sampleRange.end) ")
-//                let dadfdad = vvvv.buffer.subdata(in: Int(range.sampleRange.start << 2)..<Int(range.sampleRange.end << 2))
-//                test_SaveToWav(data: dadfdad, index: sasasasas)
-//                sasasasas+=1
-//            }
-//        }
-        
-        
-        
-        //1.找到range
-//        sasasasas = 200
         let matchSegmentsList = vadBuffers.map { vadBuffer in
             var speechTranscripts:[TranscriptSegment] = whisper.transcriptSync(buffer: vadBuffer.buffer)
 //            print("before filter: \(speechTranscripts)")
@@ -358,82 +276,12 @@ class SpeechRecognizeModule {
             return matchTranscriptLocationInBufferByVAD(&speechTranscripts, vadBuffer.rangeTimes)
         }
         
-        //第一次提取
         var recognizeSegments:[RecognizeSegment] = []
         for (index, matchSegments) in matchSegmentsList.enumerated() {
             let buffer = vadBuffers[index]
-            
             let recognizeSegs = caculateSegment(matchSegments: matchSegments, vadBuffer: buffer)
-            
             recognizeSegments.append(contentsOf: recognizeSegs)
         }
-        
-        //Test Raw
-//        sasasasas = 300
-//        recognizeSegments.forEach { segment in
-//            print("recognizeSegments start: \(segment.startIndex) end:\(segment.endIndex) speech:\(segment.speech)")
-//            test_SaveToWav(data: segment.data, index: sasasasas)
-//            sasasasas+=1
-//        }
-        
-        
-        
-        
-        //增强识别
-//        let mutiShardSegments = recognizeSegments.filter { seg in
-//            seg.shard
-//        }
-//
-//        var enhanceds: [[RecognizeSegment]] = []
-//        var enhancedItems: [RecognizeSegment] = []
-//        var tempDataCount = 0
-//        let spaceBytes = 16000 * MemoryLayout<Float>.size
-//        mutiShardSegments.forEach { segment in
-//            if tempDataCount + spaceBytes + segment.data.count > clampFixBytes {
-//                enhanceds.append(enhancedItems)
-//                enhancedItems = []
-//                tempDataCount = 0
-//            }
-//
-//            enhancedItems.append(segment)
-//            tempDataCount += segment.data.count
-//            tempDataCount += spaceBytes
-//        }
-//        if !enhancedItems.isEmpty {
-//            enhanceds.append(enhancedItems)
-//        }
-//
-//        var sasasasas = 200
-//        enhanceds.forEach { segments in
-//            var recoginazeData = Data()
-//            var rangeTime: [VADRange] = []
-//            var tempIndex = 0
-//
-//            segments.forEach { segment in
-//                test_SaveToWav(data: segment.data, index: sasasasas)
-//                sasasasas+=1
-//                recoginazeData.append(segment.data)
-//                recoginazeData.append(Data(repeating: 0, count: spaceBytes))
-//
-//                let startIndexInrecoginazeData = tempIndex + segment.startIndex
-//                let endIndexInrecoginazeData = startIndexInrecoginazeData + segment.endIndex
-//                tempIndex += spaceBytes
-//
-//                rangeTime.append(VADRange(realTimeStamp: TimeRange(start: segment.startTimeStamp, end: segment.endTimeStamp), sampleRange: TimeRange(start: Int64(startIndexInrecoginazeData), end: Int64(endIndexInrecoginazeData))))
-//            }
-//            test_SaveToWav(data: recoginazeData, index: 400)
-//            var speechTranscripts = whisper.transcriptSync(buffer: recoginazeData)
-//            speechTranscripts = fillterSpeechTranscript(&speechTranscripts)
-//            let matchSegments:[VADAndTranscriptMatchSegment] = matchTranscriptLocationInBufferByVAD(&speechTranscripts, rangeTime)
-//            //TODO: 重写回去
-//            matchSegments.forEach { segggg in
-//                let origin = segments[segggg.vadIndex]
-//                recognizeSegments[origin.id].speech = segggg.speechs.first ?? ""
-//            }
-//
-//        }
-        
-        
         return recognizeSegments
         
         
