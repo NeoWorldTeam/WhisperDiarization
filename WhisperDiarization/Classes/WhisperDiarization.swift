@@ -51,7 +51,7 @@ class WhisperDiarization {
             return
         }
         
-        guard let modelPath = podBundle.path(forResource: "ggml-tiny", ofType: "bin") else {
+        guard let modelPath = podBundle.path(forResource: "ggml-tiny.en", ofType: "bin") else {
             print("Failed to get model file path with name.")
             return
         }
@@ -69,13 +69,13 @@ class WhisperDiarization {
 //            return
 //        }
 //        guard let associateBundleURL2 = podBundle.url(forResource: "WhisperDiarization", withExtension: "bundle") else {
-//            return
+//            returnwhisperxx.framework
 //        }
 //        guard let podBundle2 = Bundle(url: associateBundleURL2) else {
 //            return
 //        }
 //        let modelPath = podBundle2.path(forResource: "ggml-tiny", ofType: "bin")
-        _whisper = WhisperWrapper(model: modelPath)
+        _whisper = WhisperWrapper(model: modelPath, lang: "en")
     }
     
     

@@ -10,11 +10,12 @@
 
 @implementation WhisperWrapper
 
--(instancetype)initWithModel:(NSString *)modelPath {
+-(instancetype)initWithModel:(NSString *)modelPath Lang:(NSString*) lang{
     if([super init])
     {
         self->isLoaded = false;
         self->modelPath = modelPath;
+        self->lang = lang;
     }
     return self;
 }
@@ -58,7 +59,7 @@
     params.print_timestamps = true;
     params.print_special    = false;
     params.translate        = false;
-    params.language         = "auto";
+    params.language         = [self->lang UTF8String];
     params.n_threads        = max_threads;
     params.offset_ms        = 0;
     params.no_context       = true;

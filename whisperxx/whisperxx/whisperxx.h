@@ -53,10 +53,11 @@ typedef struct
 {
     StateInp stateInp;
     NSString* modelPath;
+    NSString* lang;
     BOOL isLoaded;
 }
 
--(instancetype)initWithModel:(NSString *)modelPath;
+-(instancetype)initWithModel:(NSString *)modelPath Lang:(NSString*) lang;
 
 - (BOOL) LoadModel;
 - (BOOL) process: (const float *) samples SampleNum:(int) n_samples;
