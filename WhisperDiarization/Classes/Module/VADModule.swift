@@ -36,7 +36,9 @@ class VADModule {
     let vadFrameFixByte: Int
     let windowSize = 512
     var currentResult: VADResult?
-//    var xfsffdfdsf = 0
+    var test_n = 0
+    var test_m = 0
+    var test_o = 0
 //    var xfsffdfdsf2 = 100
     
     let vad: VoiceActivityDetector = VoiceActivityDetector()
@@ -59,31 +61,37 @@ class VADModule {
     }
 
     func checkAudio(buffer: Data, timeStamp: Int64) -> [VADBuffer] {
+//        test_SaveToWav(data: buffer, index: test_o,prefix: "o_")
+//        test_o += 1
+        
         //上次时间超时，重置vad
-        if lastEndTimeStamp > 0 && timeStamp - lastEndTimeStamp > segmentationThreshold {
-//            doLastVadHandle()
-            resetVAD()
+        if lastEndTimeStamp > 0,
+           timeStamp - lastEndTimeStamp > segmentationThreshold {
+           resetVAD()
         }
         storeInCache(buffer: buffer,timeStamp: timeStamp)
-        while doThisVadHandle() == false {
-            print("doThisVadHandle finish cacheAudioData count is \(cacheAudioData.count)")
-        }
+        doThisVadHandle()
         return vadResultCheck()
     }
 }
 
 private extension VADModule {
     func resetVAD() {
+        print("resetVAD !!!!!!!!!!!")
         vad.resetState()
     }
     
     func storeInCache(buffer: Data,timeStamp: Int64) {
+        print("1 storeInCache buffer size: \(buffer.count)")
         if backupAudioData.count > 0 {
+            print("2 add backupAudioData size: \(backupAudioData.count)")
             cacheAudioData = backupAudioData + cacheAudioData
             backupAudioData = Data()
+            print("3 cacheAudioData buffer size: \(cacheAudioData.count)")
         }
+        
         cacheAudioData.append(buffer)
-
+        print("4 cacheAudioData buffer size: \(cacheAudioData.count)")
         
         
         //更新时间戳
@@ -168,9 +176,10 @@ private extension VADModule {
             return nil
         }
 
-        
-        let avalibleData = cacheAudioData.subdata(in: 0..<audioFrameSize)
+    
+        let avalibleData = cacheAudioData.prefix(audioFrameSize)
         cacheAudioData.removeSubrange(0..<audioFrameSize)
+        print("after popAvalibleData cacheAudioData size: \(cacheAudioData.count)")
         return avalibleData
     }
     
@@ -194,9 +203,9 @@ private extension VADModule {
         return pcmBuffer
     }
     
-//    func test_SaveToWav(data: Data, index: Int) {
+//    func test_SaveToWav(data: Data, index: Int, prefix: String? = nil) {
 //        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//        let fileURL = documentsDirectory.appendingPathComponent("audio_" + String(index) + ".wav")
+//        let fileURL = documentsDirectory.appendingPathComponent("audio_" + (prefix ?? "") + String(index) + ".wav")
 //
 //        // 创建AVAudioFile
 //        let audioFile = try! AVAudioFile(forWriting: fileURL, settings: [
@@ -235,9 +244,9 @@ private extension VADModule {
             return true
         }
         
-//        test_SaveToWav(data: data, index: xfsffdfdsf)
-//        xfsffdfdsf+=1
-        
+//        test_SaveToWav(data: data, index: test_n)
+//        test_n+=1
+//
         //3.detect
         print("vad 检查数据采样数: \(data.count >> 2)")
         guard var detectResult:[VADResult] = vad.detectContinuouslyForTimeStemp(buffer: data),
@@ -261,6 +270,9 @@ private extension VADModule {
             let dataStartIndex = lastVADResult.start * MemoryLayout<Float>.size
             let dataEndIndex = lastVADResult.end * MemoryLayout<Float>.size
             let waitHandleData = data.subdata(in: dataStartIndex..<dataEndIndex)
+            
+//            test_SaveToWav(data: waitHandleData, index: test_n, prefix: "x")
+
             backupAudioData.append(waitHandleData)
             print("移入备份队列, start:\(dataStartIndex),end:\(dataEndIndex), back count:\(backupAudioData.count)")
         }
@@ -292,8 +304,8 @@ private extension VADModule {
             let vadRange = VADRange(realTimeStamp: rangeItem.realTimeStamp, sampleRange: rangeItem.sampleRange, data: rangeData)
             vadBuffersInQueue.append(vadRange)
             
-//            test_SaveToWav(data: rangeData, index: xfsffdfdsf2)
-//            xfsffdfdsf2+=1
+//            test_SaveToWav(data: rangeData, index: test_m, prefix: String(test_n-1)+"_i_")
+//            test_m+=1
         }
         print("有效时长: \(Double(rangeDuration) * 0.001)")
         

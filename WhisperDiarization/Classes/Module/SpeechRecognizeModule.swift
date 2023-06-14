@@ -44,6 +44,7 @@ struct RecognizeSegment {
 class SpeechRecognizeModule {
     let whisper: WhisperDiarization
     let clampFixBytes = 30 * 16000 * MemoryLayout<Float>.size
+    var sasasasas = 0
     init() {
         whisper = WhisperDiarization()
     }
@@ -172,20 +173,28 @@ class SpeechRecognizeModule {
     
     func fillterSpeechTranscript(_ transcripts: inout [TranscriptSegment]) -> [TranscriptSegment] {
         
-        transcripts.enumerated().forEach { elem in
-            transcripts[elem.offset].speech = transcripts[elem.offset].speech.trimmingCharacters(in: .whitespaces)
-        }
-        let speechTranscripts = try! transcripts.filter { transcripSeg in
-            guard !transcripSeg.speech.isEmpty else {
-                return false
-            }
-//                    let pattern = #"^\s?\(\w+\)\s?$"#
-            if transcripSeg.speech.hasPrefix("(") || transcripSeg.speech.hasPrefix("[") {
-                return false
-            }
 
-            return true
+        transcripts.enumerated().forEach { elem in
+            let filterSpeech = transcripts[elem.offset].speech.trimmingCharacters(in: .whitespaces)
+            transcripts[elem.offset].speech = filterSpeech
         }
+        
+        
+        let speechTranscripts = transcripts.reduce(into: [TranscriptSegment]()) { (result, element) in
+            guard !element.speech.hasPrefix("("),
+                  !element.speech.hasPrefix("[") else {
+                return
+            }
+            guard let lastItem = result.last else{
+                result.append(element)
+                return
+            }
+            
+            if lastItem.speech != element.speech {
+                result.append(element)
+            }
+        }
+        
         return speechTranscripts
     }
     
@@ -231,45 +240,49 @@ class SpeechRecognizeModule {
         return ressss
     }
     
-    func test_SaveToWav(data: Data, index: Int) {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsDirectory.appendingPathComponent("audio_" + String(index) + ".wav")
-
-        // 创建AVAudioFile
-        let audioFile = try! AVAudioFile(forWriting: fileURL, settings: [
-            AVFormatIDKey: Int(kAudioFormatLinearPCM),
-            AVSampleRateKey: 16000,
-            AVNumberOfChannelsKey: 1,
-            AVLinearPCMBitDepthKey: 32,
-            AVLinearPCMIsBigEndianKey: false,
-            AVLinearPCMIsFloatKey: true
-        ])
-
-        // 写入音频数据
-        let audioBuffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: UInt32(data.count) / audioFile.processingFormat.streamDescription.pointee.mBytesPerFrame)!
-        audioBuffer.frameLength = audioBuffer.frameCapacity
-        let audioBufferData = audioBuffer.floatChannelData![0]
-        audioBufferData.withMemoryRebound(to: UInt8.self, capacity: data.count) { pointer in
-            data.copyBytes(to: pointer, count: data.count)
-        }
-
-        try! audioFile.write(from: audioBuffer)
-
-        print("文件已经保存到：\(fileURL)")
-    }
+//    func test_SaveToWav(data: Data, index: Int, prefix: String?) {
+//        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//        let fileURL = documentsDirectory.appendingPathComponent("audio_" + (prefix ?? "") + String(index) + ".wav")
+//
+//        // 创建AVAudioFile
+//        let audioFile = try! AVAudioFile(forWriting: fileURL, settings: [
+//            AVFormatIDKey: Int(kAudioFormatLinearPCM),
+//            AVSampleRateKey: 16000,
+//            AVNumberOfChannelsKey: 1,
+//            AVLinearPCMBitDepthKey: 32,
+//            AVLinearPCMIsBigEndianKey: false,
+//            AVLinearPCMIsFloatKey: true
+//        ])
+//
+//        // 写入音频数据
+//        let audioBuffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: UInt32(data.count) / audioFile.processingFormat.streamDescription.pointee.mBytesPerFrame)!
+//        audioBuffer.frameLength = audioBuffer.frameCapacity
+//        let audioBufferData = audioBuffer.floatChannelData![0]
+//        audioBufferData.withMemoryRebound(to: UInt8.self, capacity: data.count) { pointer in
+//            data.copyBytes(to: pointer, count: data.count)
+//        }
+//
+//        try! audioFile.write(from: audioBuffer)
+//
+//        print("文件已经保存到：\(fileURL)")
+//    }
     
     func recognize(vadBuffers: [VADBuffer]) -> [RecognizeSegment] {
         
         let matchSegmentsList = vadBuffers.map { vadBuffer in
+            
+//            test_SaveToWav(data: vadBuffer.buffer, index: sasasasas, prefix: "input_")
+            
             var speechTranscripts:[TranscriptSegment] = whisper.transcriptSync(buffer: vadBuffer.buffer)
+            
+            
 //            print("before filter: \(speechTranscripts)")
             speechTranscripts = fillterSpeechTranscript(&speechTranscripts)
 //            print("after filter: \(speechTranscripts)")
             
-//            speechTranscripts.forEach { elemet in
-//                print("speechTranscripts start: \(elemet.start) end:\(elemet.end) speech:\(elemet.speech)")
-//                let dadfdad = vadBuffer.buffer.subdata(in: (elemet.start<<2)..<(elemet.end<<2))
-//                test_SaveToWav(data: dadfdad, index: sasasasas)
+//            for item in speechTranscripts {
+//                let dadfdad = vadBuffer.buffer.subdata(in: (item.start<<2)..<(item.end<<2))
+//                test_SaveToWav(data: dadfdad, index: sasasasas, prefix: "clip_")
 //                sasasasas+=1
 //            }
 

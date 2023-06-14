@@ -356,6 +356,14 @@ public class CSSpeechRecognition {
             let elapsedTime1 = CFAbsoluteTimeGetCurrent() - startTime1
             print(" ==1=1==whisper elapsed: \(elapsedTime1) seconds")
             
+//            for item in recognizeResult {
+//                print("speech: \(item.speech)")
+//            }
+//            if startTime1 > 0 {
+//                continue
+//            }
+            
+            
             var trancriptRowData = recognizeResult.map({$0.data})
             let startTime2 = CFAbsoluteTimeGetCurrent()
             let transcriptFeature:[[Float]] = extractFeature(featureExtarer, &trancriptRowData)
