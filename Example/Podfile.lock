@@ -1,14 +1,19 @@
 PODS:
   - ObjectMapper (4.2.0)
-  - onnxruntime-c (1.15.0)
+  - onnxruntime-c (1.15.1)
+  - onnxruntime-objc (1.15.1):
+    - onnxruntime-objc/Core (= 1.15.1)
+  - onnxruntime-objc/Core (1.15.1):
+    - onnxruntime-c (= 1.15.1)
   - PlainPocketFFT (0.0.9)
   - PocketFFT (0.0.1)
   - RosaKit (0.0.11):
     - PlainPocketFFT (~> 0.0.9)
     - PocketFFT (~> 0.0.1)
-  - SpeakerEmbeddingForiOS (0.2.0):
+  - SpeakerEmbeddingForiOS (0.3.2):
     - onnxruntime-c
-  - WhisperDiarization (0.2.11):
+    - onnxruntime-objc
+  - WhisperDiarization (0.3.1):
     - ObjectMapper
     - RosaKit
     - SpeakerEmbeddingForiOS
@@ -21,6 +26,7 @@ SPEC REPOS:
   https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
     - ObjectMapper
     - onnxruntime-c
+    - onnxruntime-objc
     - PlainPocketFFT
     - PocketFFT
     - RosaKit
@@ -33,12 +39,13 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
-  onnxruntime-c: e87399683ec19e3b812e13c6692882609a802b86
+  onnxruntime-c: ebdcfd8650bcbd10121c125262f99dea681b92a3
+  onnxruntime-objc: ae7acec7a3d03eaf072d340afed7a35635c1c2a6
   PlainPocketFFT: 3763f37fba0737e457ed1a3b9b7bfa70c00ff213
   PocketFFT: cdbe7ef5b7cd08520655d85d03d701b5ba35fdec
   RosaKit: 6e28b09f5eb990148a401e0c4b4ff0c207bd6569
-  SpeakerEmbeddingForiOS: 19c56e38e459c703fe5da04c79bdaa8b4daa7326
-  WhisperDiarization: f7609b612cfde30aee77472bb87c9629c513da7e
+  SpeakerEmbeddingForiOS: e35838d27d0fe8ce3be2f28e31d6667596f4643f
+  WhisperDiarization: 9789f9f6fea1254c81231256959e2d71b2ddda7a
 
 PODFILE CHECKSUM: f72c02cf12e8fb96716c4e88cb04440a4f304eab
 
