@@ -1,1 +1,1 @@
-WhisperDiarization/Assets/ggml-tiny.en.bin filter=lfs diff=lfs merge=lfs -text
+WhisperDiarization/Assets/ggml-tiny.bin filter=lfs diff=lfs merge=lfs -text
