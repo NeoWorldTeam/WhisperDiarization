@@ -75,7 +75,7 @@ class WhisperDiarization {
 //            return
 //        }
 //        let modelPath = podBundle2.path(forResource: "ggml-tiny", ofType: "bin")
-        _whisper = WhisperWrapper(model: modelPath, lang: "cn")
+        _whisper = WhisperWrapper(model: modelPath, lang: "zh")
     }
     
     
