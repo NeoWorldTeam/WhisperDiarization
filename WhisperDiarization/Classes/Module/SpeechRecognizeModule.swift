@@ -301,4 +301,8 @@ class SpeechRecognizeModule {
         
     }
     
+    func getLang() -> String {
+        return whisper.lang
+    }
+    
 }

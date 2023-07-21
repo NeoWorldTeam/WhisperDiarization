@@ -34,6 +34,7 @@ public struct TranscriptSegment {
 class WhisperDiarization {
 //    let _queue: DispatchQueue
     var _whisper: WhisperWrapper?
+    public let lang = "en"
 //    var _isTranscripting: Bool = false
     
 //    var _cacheBuffer: AVAudioPCMBuffer?
@@ -75,7 +76,7 @@ class WhisperDiarization {
 //            return
 //        }
 //        let modelPath = podBundle2.path(forResource: "ggml-tiny", ofType: "bin")
-        _whisper = WhisperWrapper(model: modelPath, lang: "en")
+        _whisper = WhisperWrapper(model: modelPath, lang: lang)
     }
     
     
