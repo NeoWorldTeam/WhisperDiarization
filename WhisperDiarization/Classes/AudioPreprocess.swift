@@ -130,6 +130,10 @@ class AudioPreprocess {
         self.semaphore.signal()
     }
     
+    func queueSize() -> Int {
+        return bufferCaches.count
+    }
+    
     
     func dequeue() -> CaptureAudioSegment? {
         var item: CaptureAudioSegment?
