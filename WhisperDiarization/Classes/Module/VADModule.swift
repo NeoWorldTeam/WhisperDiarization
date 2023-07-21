@@ -163,6 +163,15 @@ private extension VADModule {
         
         vadBuffersInQueue.removeSubrange(0..<startIndex)
         
+        guard !vadBuffersInQueue.isEmpty else {
+            return results
+        }
+        
+        guard chunkDuration > (5 * 1000) else {return results}
+        let vadBuffer = createVadBuffer(vadRanges: vadBuffersInQueue, rangeSpace: rangeSpace, startIndex: startIndex, endIndex: vadBuffersInQueue.count)
+        results.append(vadBuffer)
+        vadBuffersInQueue.removeSubrange(0..<vadBuffersInQueue.count)
+        
         
         return results
     }
