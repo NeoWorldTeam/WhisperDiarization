@@ -71,7 +71,16 @@ class VADModule {
         }
         storeInCache(buffer: buffer,timeStamp: timeStamp)
         doThisVadHandle()
-        return vadResultCheck()
+        return vadResultCheck(minLengthInSecond: 5)
+    }
+    
+    func forceCheckAudio(buffer: Data?, timeStamp: Int64) -> [VADBuffer] {
+        if let buffer = buffer {
+            storeInCache(buffer: buffer,timeStamp: timeStamp)
+            doThisVadHandle()
+        }
+        
+        return vadResultCheck(minLengthInSecond: 0.5)
     }
 }
 
@@ -132,7 +141,7 @@ private extension VADModule {
     }
     
     //判定有合适的vad数据
-    func vadResultCheck() -> [VADBuffer] {
+    func vadResultCheck(minLengthInSecond:Float = 30) -> [VADBuffer] {
         //1. 历史数据拼接
         var results:[VADBuffer] = []
         let rangeSpace:Int = Int(sf) * MemoryLayout<Float>.size
@@ -167,7 +176,7 @@ private extension VADModule {
             return results
         }
         
-        guard chunkDuration > (5 * 1000) else {return results}
+        guard chunkDuration > Int(minLengthInSecond * 1000) else {return results}
         let vadBuffer = createVadBuffer(vadRanges: vadBuffersInQueue, rangeSpace: rangeSpace, startIndex: startIndex, endIndex: vadBuffersInQueue.count)
         results.append(vadBuffer)
         vadBuffersInQueue.removeSubrange(0..<vadBuffersInQueue.count)
