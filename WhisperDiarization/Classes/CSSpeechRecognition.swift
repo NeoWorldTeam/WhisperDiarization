@@ -49,7 +49,7 @@ public class CSSpeechRecognition {
     
     let _queue = DispatchQueue(label: "CSSpeechRecognition")
     let audioPreprocess = AudioPreprocess(maxItemCount: 2)
-    var isRunning = true
+
     
     var vadMoudle: VADModule?
     var featureExtarer: SpeakerEmbedding?
@@ -67,6 +67,12 @@ public class CSSpeechRecognition {
         _queue.async {
             self._preload()
         }
+    }
+    
+    public func resetState() {
+        speechsCache = []
+        mRecognitionEnd = nil
+        isProcessData = false
     }
 
     func hasPunctuationAtEnd(_ string: String) -> Bool {
@@ -515,53 +521,48 @@ public class CSSpeechRecognition {
     
     func _run() {
         
-        while isRunning {
-            guard let audioBuffer = audioPreprocess.dequeue() else { break }
-            guard let whisper = whisper else { break }
-            guard let featureExtarer = featureExtarer else { break}
-            guard let vadMoudle = vadMoudle else { break }
-            
-            let startTime = CFAbsoluteTimeGetCurrent()
-            let vadResults = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
-            let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
-            print(" ==1=1==VAD elapsed: \(elapsedTime) seconds")
-            
-            guard !vadResults.isEmpty else {
-                continue
-            }
-            print(" ==1=1==checkAudio count:\(vadResults.count)")
+        guard let audioBuffer = audioPreprocess.dequeue() else { return }
+        guard let whisper = whisper else { return }
+        guard let featureExtarer = featureExtarer else { return}
+        guard let vadMoudle = vadMoudle else { return }
+        
+        let startTime = CFAbsoluteTimeGetCurrent()
+        let vadResults = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
+        let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
+        print(" ==1=1==VAD elapsed: \(elapsedTime) seconds")
+        
+        guard !vadResults.isEmpty else {return}
+        print(" ==1=1==checkAudio count:\(vadResults.count)")
 //            vadResults.forEach { buffer in
 //                whisper.test_SaveToWav(data: buffer.buffer, index: test_tttt_index)
 //                test_tttt_index+=1
 //            }
-            
-            let startTime1 = CFAbsoluteTimeGetCurrent()
-            let recognizeResult:[RecognizeSegment] = whisper.recognize(vadBuffers: vadResults)
-            let elapsedTime1 = CFAbsoluteTimeGetCurrent() - startTime1
-            print(" ==1=1==whisper elapsed: \(elapsedTime1) seconds")
-            
+        
+        let startTime1 = CFAbsoluteTimeGetCurrent()
+        let recognizeResult:[RecognizeSegment] = whisper.recognize(vadBuffers: vadResults)
+        let elapsedTime1 = CFAbsoluteTimeGetCurrent() - startTime1
+        print(" ==1=1==whisper elapsed: \(elapsedTime1) seconds")
+        
 //            for item in recognizeResult {
 //                print("speech: \(item.speech)")
 //            }
 //            if startTime1 > 0 {
 //                continue
 //            }
-            
-            
-            var trancriptRowData = recognizeResult.map({$0.data})
-            let startTime2 = CFAbsoluteTimeGetCurrent()
-            let transcriptFeature:[[Float]] = extractFeature(featureExtarer, &trancriptRowData)
-            let elapsedTime2 = CFAbsoluteTimeGetCurrent() - startTime2
-            print(" ==1=1==extractFeature elapsed: \(elapsedTime2) seconds")
-            
-            guard !transcriptFeature.isEmpty else {
-                continue
-            }
-            
-            
+        
+        
+        var trancriptRowData = recognizeResult.map({$0.data})
+        let startTime2 = CFAbsoluteTimeGetCurrent()
+        let transcriptFeature:[[Float]] = extractFeature(featureExtarer, &trancriptRowData)
+        let elapsedTime2 = CFAbsoluteTimeGetCurrent() - startTime2
+        print(" ==1=1==extractFeature elapsed: \(elapsedTime2) seconds")
+        
+        guard !transcriptFeature.isEmpty else { return}
+        
+        
 
-            
-            
+        
+        
 //            //MARK: - 测试数据
 //            trancriptRowData.enumerated().forEach { elem in
 //                whisper.test_SaveToWav(data: elem.element, index: 100+elem.offset)
@@ -578,198 +579,197 @@ public class CSSpeechRecognition {
 //                }
 //            }
 //
+        
+        
+        let startTime3 = CFAbsoluteTimeGetCurrent()
+        //加入存在用户
+        var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 5)
+        existSpeakerIndex.enumerated().forEach { elem in
+            print(" ==1=1==label:\(elem.element), num:\(existSpeakerFeatures[elem.offset].count)")
+        }
+        
+        //没有host情况
+        let hostNeedFeature = speakerAnalyse!.fixHostFeatureCount - existSpeakerFeatures[0].count
+        if existSpeakerFeatures.isEmpty || hostNeedFeature > 0 {
+            speakerAnalyse!.saveToHost(transcriptFeature)
             
-            
-            let startTime3 = CFAbsoluteTimeGetCurrent()
-            //加入存在用户
-            var (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 5)
-            existSpeakerIndex.enumerated().forEach { elem in
-                print(" ==1=1==label:\(elem.element), num:\(existSpeakerFeatures[elem.offset].count)")
+             
+            if hostNeedFeature >= transcriptFeature.count {
+                //不需要分析直接说话人==0
+                let speechDatas = recognizeResult.enumerated().map { elem in
+                    let index = elem.offset
+                    let segment:RecognizeSegment = elem.element
+                    let label = 0
+                    let speech = segment.speech
+                    let embeding = transcriptFeature[index]
+                    let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: segment.startTimeStamp, endTimeStamp: segment.endTimeStamp, features: embeding)
+                    print(" ==1=1==识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(segment.startTimeStamp) * 0.001)).description)")
+                    return transcript
+                }
+                //加入缓存
+                speechsCache.append(contentsOf: speechDatas)
+                return
             }
             
-            //没有host情况
-            let hostNeedFeature = speakerAnalyse!.fixHostFeatureCount - existSpeakerFeatures[0].count
-            if existSpeakerFeatures.isEmpty || hostNeedFeature > 0 {
-                speakerAnalyse!.saveToHost(transcriptFeature)
-                
-                 
-                if hostNeedFeature >= transcriptFeature.count {
-                    //不需要分析直接说话人==0
-                    let speechDatas = recognizeResult.enumerated().map { elem in
-                        let index = elem.offset
-                        let segment:RecognizeSegment = elem.element
-                        let label = 0
-                        let speech = segment.speech
-                        let embeding = transcriptFeature[index]
-                        let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: segment.startTimeStamp, endTimeStamp: segment.endTimeStamp, features: embeding)
-                        print(" ==1=1==识别语音:\(transcript.speech),说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(segment.startTimeStamp) * 0.001)).description)")
-                        return transcript
+            //重新获取存在用户
+            (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
+        }
+        
+        //合并Feature
+        var mergeFeatures:[[Float]] = []
+        existSpeakerFeatures.forEach { features in
+            mergeFeatures.append(contentsOf: features)
+        }
+        mergeFeatures.append(contentsOf: transcriptFeature)
+        
+        
+        
+        //分析
+        var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
+        print("label:\(speakerLabel)")
+        let elapsedTime3 = CFAbsoluteTimeGetCurrent() - startTime3
+        print(" ==1=1==_analyzeSpeaker elapsed: \(elapsedTime3) seconds")
+        
+        
+        
+        let startTime4 = CFAbsoluteTimeGetCurrent()
+        //获取存在用户的label
+        var existSpeakerLabels: [[Int]] = []
+        existSpeakerFeatures.forEach { features in
+            var labels:[Int] = Array(speakerLabel[0..<features.count])
+            speakerLabel.removeSubrange(0..<features.count)
+            existSpeakerLabels.append(labels)
+        }
+        
+        //分析label的概率
+        print("========== 1 ================")
+        existSpeakerLabels.enumerated().forEach { elem in
+            let index: Int = elem.offset
+            let labels: [Int] = elem.element
+            print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+        }
+        
+        
+        // 提取>1:1
+        existSpeakerLabels.enumerated().forEach { elem in
+            let index: Int = elem.offset
+            let labels: [Int] = elem.element
+            
+            if existSpeakerLabels[index].last == -1 {
+                return
+            }
+            
+            let counts: [Int: Int] = labels.reduce(into: [:]) { counts, element in
+                counts[element, default: 0] += 1
+            }
+            
+            var highProbabilityLabels = Array<Int>(counts.filter { elem in
+                let a1 = Float(elem.value) / Float(labels.count)
+                let a2 = Float(1)/Float(counts.count)
+                return a1 >= a2
+            }.keys)
+            
+            if highProbabilityLabels.isEmpty == false {
+                highProbabilityLabels.append(-1)
+                existSpeakerLabels[index] = highProbabilityLabels
+                return
+            }
+        }
+        
+        print("========== 2 ================")
+        existSpeakerLabels.enumerated().forEach { elem in
+            let index: Int = elem.offset
+            let labels: [Int] = elem.element
+            print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+        }
+        
+        
+        //去除掉相同的高概率
+        var useLabels:[Int] = []
+        
+        existSpeakerLabels = existSpeakerLabels.map({ labels in
+            guard labels.contains(-1) else {
+                return []
+            }
+            
+            let filtterLabels = labels.filter { label in
+                !useLabels.contains(label)
+            }
+            
+            useLabels.append(contentsOf: filtterLabels)
+            return filtterLabels
+        })
+        
+        print("========== 3 ================")
+        existSpeakerLabels.enumerated().forEach { elem in
+            let index: Int = elem.offset
+            let labels: [Int] = elem.element
+            print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+        }
+
+        //提取所有已知用户
+        //替换
+        print("label:\(speakerLabel)")
+        speakerLabel = speakerLabel.map { (number) -> Int in
+            for (index, speakerLabels) in existSpeakerLabels.enumerated() {
+                if speakerLabels.contains(number) {
+                    return existSpeakerIndex[index]
+                }
+            }
+            
+            return number + 101
+        }
+        print("label:\(speakerLabel)")
+        
+        //为不存在的用户创建新的id并替换
+        let unRecognizeSpeakerLabels = speakerLabel.filter { label in
+            label > 100
+        }
+        
+        var recordNewLabel = existSpeakerIndex.max()!
+        Set(unRecognizeSpeakerLabels).forEach { unRecogizeLabel in
+            var newLabel = 0
+            speakerLabel = speakerLabel.map({ label in
+                if label == unRecogizeLabel {
+                    if newLabel == 0 {
+                        recordNewLabel += 1
+                        newLabel = recordNewLabel
                     }
-                    //加入缓存
-                    speechsCache.append(contentsOf: speechDatas)
-                    continue
+                    return newLabel
+                }else {
+                    return label
                 }
-                
-                //重新获取存在用户
-                (existSpeakerIndex,existSpeakerFeatures) = speakerAnalyse!.getTopSpeakerFeature(num: 3)
-            }
-            
-            //合并Feature
-            var mergeFeatures:[[Float]] = []
-            existSpeakerFeatures.forEach { features in
-                mergeFeatures.append(contentsOf: features)
-            }
-            mergeFeatures.append(contentsOf: transcriptFeature)
-            
-            
-            
-            //分析
-            var (speakerNum, speakerLabel) = _analyzeSpeaker(features: mergeFeatures, k: existSpeakerFeatures.count)
-            print("label:\(speakerLabel)")
-            let elapsedTime3 = CFAbsoluteTimeGetCurrent() - startTime3
-            print(" ==1=1==_analyzeSpeaker elapsed: \(elapsedTime3) seconds")
-            
-            
-            
-            let startTime4 = CFAbsoluteTimeGetCurrent()
-            //获取存在用户的label
-            var existSpeakerLabels: [[Int]] = []
-            existSpeakerFeatures.forEach { features in
-                var labels:[Int] = Array(speakerLabel[0..<features.count])
-                speakerLabel.removeSubrange(0..<features.count)
-                existSpeakerLabels.append(labels)
-            }
-            
-            //分析label的概率
-            print("========== 1 ================")
-            existSpeakerLabels.enumerated().forEach { elem in
-                let index: Int = elem.offset
-                let labels: [Int] = elem.element
-                print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
-            }
-            
-            
-            // 提取>1:1
-            existSpeakerLabels.enumerated().forEach { elem in
-                let index: Int = elem.offset
-                let labels: [Int] = elem.element
-                
-                if existSpeakerLabels[index].last == -1 {
-                    return
-                }
-                
-                let counts: [Int: Int] = labels.reduce(into: [:]) { counts, element in
-                    counts[element, default: 0] += 1
-                }
-                
-                var highProbabilityLabels = Array<Int>(counts.filter { elem in
-                    let a1 = Float(elem.value) / Float(labels.count)
-                    let a2 = Float(1)/Float(counts.count)
-                    return a1 >= a2
-                }.keys)
-                
-                if highProbabilityLabels.isEmpty == false {
-                    highProbabilityLabels.append(-1)
-                    existSpeakerLabels[index] = highProbabilityLabels
-                    return
-                }
-            }
-            
-            print("========== 2 ================")
-            existSpeakerLabels.enumerated().forEach { elem in
-                let index: Int = elem.offset
-                let labels: [Int] = elem.element
-                print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
-            }
-            
-            
-            //去除掉相同的高概率
-            var useLabels:[Int] = []
-            
-            existSpeakerLabels = existSpeakerLabels.map({ labels in
-                guard labels.contains(-1) else {
-                    return []
-                }
-                
-                let filtterLabels = labels.filter { label in
-                    !useLabels.contains(label)
-                }
-                
-                useLabels.append(contentsOf: filtterLabels)
-                return filtterLabels
             })
-            
-            print("========== 3 ================")
-            existSpeakerLabels.enumerated().forEach { elem in
-                let index: Int = elem.offset
-                let labels: [Int] = elem.element
-                print("label:\(existSpeakerIndex[index])  contain labels:\(labels)")
+        }
+        
+        //通过更新好的id生成数据
+        var speechDatas: [TranscriptItem] = []
+        for index in 0..<speakerLabel.count {
+            let label = speakerLabel[index]
+            let audioSeg = recognizeResult[index]
+            var speech = audioSeg.speech
+            let embeding = transcriptFeature[index]
+            if index != 0 && index != (speakerLabel.count - 1)  && speakerLabel[index+1] == label && hasPunctuationAtEnd(speech) == false{
+                speech.append(",")
             }
+            let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: audioSeg.startTimeStamp, endTimeStamp: audioSeg.endTimeStamp, features: embeding)
+            speechDatas.append(transcript)
+            print(" ==1=1==识别语音:\(speech)  说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
+        }
 
-            //提取所有已知用户
-            //替换
-            print("label:\(speakerLabel)")
-            speakerLabel = speakerLabel.map { (number) -> Int in
-                for (index, speakerLabels) in existSpeakerLabels.enumerated() {
-                    if speakerLabels.contains(number) {
-                        return existSpeakerIndex[index]
-                    }
-                }
-                
-                return number + 101
-            }
-            print("label:\(speakerLabel)")
-            
-            //为不存在的用户创建新的id并替换
-            let unRecognizeSpeakerLabels = speakerLabel.filter { label in
-                label > 100
-            }
-            
-            var recordNewLabel = existSpeakerIndex.max()!
-            Set(unRecognizeSpeakerLabels).forEach { unRecogizeLabel in
-                var newLabel = 0
-                speakerLabel = speakerLabel.map({ label in
-                    if label == unRecogizeLabel {
-                        if newLabel == 0 {
-                            recordNewLabel += 1
-                            newLabel = recordNewLabel
-                        }
-                        return newLabel
-                    }else {
-                        return label
-                    }
-                })
-            }
-            
-            //通过更新好的id生成数据
-            var speechDatas: [TranscriptItem] = []
-            for index in 0..<speakerLabel.count {
-                let label = speakerLabel[index]
-                let audioSeg = recognizeResult[index]
-                var speech = audioSeg.speech
-                let embeding = transcriptFeature[index]
-                if index != 0 && index != (speakerLabel.count - 1)  && speakerLabel[index+1] == label && hasPunctuationAtEnd(speech) == false{
-                    speech.append(",")
-                }
-                let transcript = TranscriptItem(label: label, speech: speech, startTimeStamp: audioSeg.startTimeStamp, endTimeStamp: audioSeg.endTimeStamp, features: embeding)
-                speechDatas.append(transcript)
-                print(" ==1=1==识别语音:\(speech)  说话人:\(label) 时间: \(Date(timeIntervalSince1970: (TimeInterval(audioSeg.startTimeStamp) * 0.001)).description)")
-            }
-
-            //更新
-            for item in speechDatas {
-                let label = item.label
-                let features = item.features
+        //更新
+        for item in speechDatas {
+            let label = item.label
+            let features = item.features
 //                let speech = item.speech
 //                print("label:\(label),speech:\(speech)")
-                speakerAnalyse?.updateSpeaker(index: label, feature: features)
-            }
-
-            //加入缓存
-            speechsCache.append(contentsOf: speechDatas)
-            let elapsedTime4 = CFAbsoluteTimeGetCurrent() - startTime4
-            print(" ==1=1==final elapsed: \(elapsedTime4) seconds")
+            speakerAnalyse?.updateSpeaker(index: label, feature: features)
         }
+
+        //加入缓存
+        speechsCache.append(contentsOf: speechDatas)
+        let elapsedTime4 = CFAbsoluteTimeGetCurrent() - startTime4
+        print(" ==1=1==final elapsed: \(elapsedTime4) seconds")
     }
     
 }
@@ -789,6 +789,7 @@ public extension CSSpeechRecognition {
             self.isProcessData = false
             guard let recognitionEnd = self.mRecognitionEnd else {return}
             recognitionEnd()
+            self.mRecognitionEnd = nil
         }
     }
     
