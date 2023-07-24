@@ -330,12 +330,19 @@ public class CSSpeechRecognition {
     }
     
     func flushResult() {
-        guard let audioBuffer = audioPreprocess.dequeue() else { return }
+
         guard let whisper = whisper else { return }
         guard let featureExtarer = featureExtarer else { return}
         guard let vadMoudle = vadMoudle else { return }
         let startTime = CFAbsoluteTimeGetCurrent()
-        let vadResults = vadMoudle.checkAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
+        var vadResults:[VADBuffer]
+        
+        if let audioBuffer = audioPreprocess.dequeue() {
+            vadResults = vadMoudle.forceCheckAudio(buffer: audioBuffer.buffer, timeStamp: Int64(audioBuffer.timeStamp))
+        }else{
+            vadResults = vadMoudle.forceCheckAudio(buffer: nil, timeStamp: 0)
+        }
+        
         let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
         print(" ==1=1==VAD elapsed: \(elapsedTime) seconds")
         
@@ -788,6 +795,7 @@ public extension CSSpeechRecognition {
             
             self.isProcessData = false
             guard let recognitionEnd = self.mRecognitionEnd else {return}
+            self.flushResult()
             recognitionEnd()
             self.mRecognitionEnd = nil
         }
