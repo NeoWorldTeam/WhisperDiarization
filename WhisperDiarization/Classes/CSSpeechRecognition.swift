@@ -60,7 +60,6 @@ public class CSSpeechRecognition {
     var test_tttt_index = 1000
     
     
-    var isProcessData = false
     var mRecognitionEnd: RecognitionEnd?
     
     public init() {
@@ -72,7 +71,6 @@ public class CSSpeechRecognition {
     public func resetState() {
         speechsCache = []
         mRecognitionEnd = nil
-        isProcessData = false
     }
 
     func hasPunctuationAtEnd(_ string: String) -> Bool {
@@ -785,20 +783,20 @@ public class CSSpeechRecognition {
 public extension CSSpeechRecognition {
     
     func pushAudioBuffer(buffer: AVAudioPCMBuffer, timeStamp: Int64) {
+//        print("pushAudioBuffer 1")
         guard mRecognitionEnd == nil else {return}
         guard _isloaded() else { return }
+//        print("pushAudioBuffer 2")
         audioPreprocess.enqueues(buffer, timeStamp: timeStamp)
-        isProcessData = true
+        
         _queue.async { [weak self] in
+//            print("pushAudioBuffer 4")
             guard let self = self else {return}
+            guard self.mRecognitionEnd == nil else {return}
+//            print("pushAudioBuffer 5")
             self._run()
-            
-            self.isProcessData = false
-            guard let recognitionEnd = self.mRecognitionEnd else {return}
-            self.flushResult()
-            recognitionEnd()
-            self.mRecognitionEnd = nil
         }
+//        print("pushAudioBuffer 3")
     }
     
     func pullRecognition() -> [TranscriptItem]{
@@ -814,15 +812,18 @@ public extension CSSpeechRecognition {
     }
     
     func finishTask(recognitionEnd: RecognitionEnd?) {
+//        print("finishTask 1")
         mRecognitionEnd = recognitionEnd
-        if !isProcessData {
-            _queue.async { [weak self] in
-                guard let self = self else {return}
-                self.flushResult()
-                guard let recognitionEnd = self.mRecognitionEnd else {return}
-                recognitionEnd()
-            }
+        _queue.async { [weak self] in
+//            print("finishTask 3")
+            guard let self = self else {return}
+            self.flushResult()
+//            print("finishTask 4")
+            guard let recognitionEnd = self.mRecognitionEnd else {return}
+            recognitionEnd()
+//            print("finishTask 5")
         }
+//        print("finishTask 2")
     }
     
     func getLang() -> String {
