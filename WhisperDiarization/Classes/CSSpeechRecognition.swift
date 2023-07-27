@@ -48,7 +48,7 @@ public typealias RecognitionEnd = () -> Void
 public class CSSpeechRecognition {
     
     let _queue = DispatchQueue(label: "CSSpeechRecognition")
-    let audioPreprocess = AudioPreprocess(maxItemCount: 2)
+    var audioPreprocess = AudioPreprocess(maxItemCount: 2)
 
     
     var vadMoudle: VADModule?
@@ -60,7 +60,7 @@ public class CSSpeechRecognition {
     var test_tttt_index = 1000
     
     
-    var mRecognitionEnd: RecognitionEnd?
+
     
     public init() {
         _queue.async {
@@ -70,7 +70,7 @@ public class CSSpeechRecognition {
     
     public func resetState() {
         speechsCache = []
-        mRecognitionEnd = nil
+        audioPreprocess = AudioPreprocess(maxItemCount: 2)
     }
 
     func hasPunctuationAtEnd(_ string: String) -> Bool {
@@ -784,7 +784,6 @@ public extension CSSpeechRecognition {
     
     func pushAudioBuffer(buffer: AVAudioPCMBuffer, timeStamp: Int64) {
 //        print("pushAudioBuffer 1")
-        guard mRecognitionEnd == nil else {return}
         guard _isloaded() else { return }
 //        print("pushAudioBuffer 2")
         audioPreprocess.enqueues(buffer, timeStamp: timeStamp)
@@ -792,7 +791,6 @@ public extension CSSpeechRecognition {
         _queue.async { [weak self] in
 //            print("pushAudioBuffer 4")
             guard let self = self else {return}
-            guard self.mRecognitionEnd == nil else {return}
 //            print("pushAudioBuffer 5")
             self._run()
         }
@@ -813,14 +811,11 @@ public extension CSSpeechRecognition {
     
     func finishTask(recognitionEnd: RecognitionEnd?) {
 //        print("finishTask 1")
-        mRecognitionEnd = recognitionEnd
         _queue.async { [weak self] in
 //            print("finishTask 3")
             guard let self = self else {return}
             self.flushResult()
-//            print("finishTask 4")
-            guard let recognitionEnd = self.mRecognitionEnd else {return}
-            recognitionEnd()
+            recognitionEnd?()
 //            print("finishTask 5")
         }
 //        print("finishTask 2")
